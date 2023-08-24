@@ -1,0 +1,705 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500&display=swap');
+body{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Nunito', sans-serif;
+    background-color: #a7a6c4;
+}
+
+/* input's css */
+  /* button */
+.submit-discard{
+    width: 80%;
+    margin: 30px auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+.submit-discard .submit-btn,.submit-discard .discard-btn,.submit-discard .delete-btn{
+    padding: 10px 20px;
+    margin: 2px;
+    border-radius: 5px;
+    border: none;
+    font-size: 17px;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.submit-btn{
+    background-color: #31E981;
+    color: black;
+}
+
+.discard-btn,.delete-btn{
+    background-color: #FF3C38;
+}
+
+.submit-btn:hover{
+    background-color: #25ad60;
+    color: white;
+}
+
+.discard-btn:hover, .delete-btn:hover{
+    background-color: #da3431;
+    color: white;
+}
+
+
+/* form css */
+.form-area{
+    width: 80%;
+    margin: 10px auto;
+    padding: 40px 20px 20px 20px;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    background-color: white;
+    border-radius: 10px;
+}
+
+.form-grid{
+    display: grid;
+    grid-template-columns: auto auto auto;
+    gap: 5px;
+}
+
+.material-textfield {
+    position: relative;  
+  }
+  
+  .material-textfield label {
+    position: absolute;
+    font-size: 1rem;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: white;
+    color: gray;
+    padding: 0 0.3rem;
+    margin: 0 0.7rem 1rem 0.7rem;
+    transition: .1s ease-out;
+    transform-origin: left top;
+    pointer-events: none;
+  }
+  .material-textfield input {
+    font-size: 1rem;
+    outline: none;
+    border: 1px solid gray;
+    border-radius: 5px;  
+    padding: 0.7rem 0.7rem;
+    color: gray;
+    transition: 0.1s ease-out;
+    margin-bottom: 0.5rem;
+  }
+  .material-textfield input[type=date]{
+    width: 17vw;
+  }
+  .material-textfield input:focus {
+    border-color: #6200EE;  
+  }
+  .material-textfield input:focus + label {
+    color: #6200EE;
+    top: 0;
+    transform: translateY(-50%) scale(.9);
+  }
+  .material-textfield input:not(:placeholder-shown) + label {
+    top: 0;
+    transform: translateY(-50%) scale(.9);
+  }
+
+
+
+/* table css */
+
+.edit-table-container tbody tr .white-row{
+    border: none;
+    background-color: white;
+    text-align: left;
+    color: black;
+    background-color: #a7a6c4;
+}
+
+.edit-table-container tbody tr .white-row:hover{
+    color: green;
+}
+
+.edit-table-container table{
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px auto;
+}
+
+table th{
+    border: 1px solid black;
+    padding: 5px 15px;
+    text-align: center;
+    background-color: #AEC5EB;
+    color: black;
+
+}
+
+table td{
+    border: 1px solid black;
+    padding: 4px 4px;
+}
+
+tbody tr{
+    background-color: #B3E0D7;
+}
+
+table tr:hover{
+    background-color: #71dac5;
+}
+
+table td input{
+    width: 130px;
+    border-radius: 3px;
+    border: none;
+    height: 20px;
+}
+
+table td input:focus{
+    outline: none;
+}
+
+/* responsive */
+@media screen and (max-width: 1080px){
+    table th{
+       padding: 0;
+       font-size: 15px;
+       margin: 0;
+    }
+
+    table td input{
+        width: 70px;
+    }
+
+    tr td:nth-child(2) input{
+        width: 180px;
+    }
+
+    .total-label{
+        font-size: 13px;
+    }
+
+    .material-textfield{
+        width: 150px;
+    }
+
+    .material-textfield input{
+        width: 100%;   
+    }
+
+    .material-textfield label{
+        font-size: 15px;
+    }
+    
+    .submit-discard .submit-btn,.submit-discard .discard-btn{
+        padding: 5px 10px;
+        margin: 2px;
+        border-radius: 5px;
+        border: none;
+        font-size: 15px;
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    }
+}
+
+.hiders{
+    display: none;
+}
+
+@media screen and (max-width: 900px){
+    table th{
+        font-size: 12px;
+    }
+
+    table td {
+        padding: 3px;
+    }
+
+    table td input{
+        width: 60px;
+    }
+
+    tr td:nth-child(2) input{
+        width: 140px;
+    }
+
+    .material-textfield{
+        width: 130px;
+        height: 50px;
+    }
+
+    .material-textfield input{
+        width: 100%; 
+        height: 100%;  
+    }
+
+    .material-textfield label{
+        font-size: 12px;
+    }
+}
+
+
+@media screen and (max-width: 750px){
+    table th{
+        font-size: 10px;
+    }
+
+    table td {
+        padding: 2px;
+    }
+
+    table td input{
+        width: 60px;
+    }
+
+    tr td:nth-child(2) input{
+        width: 120px;
+    }
+
+    .material-textfield{
+        width: 130px;
+        height: 50px;
+    }
+
+    .material-textfield input{
+        width: 100%; 
+        height: 100%;  
+    }
+
+    .material-textfield label{
+        font-size: 12px;
+    }
+}
+
+
+@media screen and (max-width: 700px){
+    table th{
+        font-size: 10px;
+    }
+
+    table td {
+        padding: 1px;
+    }
+
+    table td input{
+        width: 50px;
+    }
+
+    tr td:nth-child(2) input{
+        width: 100px;
+    }
+
+    .material-textfield{
+        width: 130px;
+        height: 30px;
+    }
+
+    .material-textfield input{
+        width: 100%; 
+        height: 100%;  
+    }
+
+    .material-textfield label{
+        font-size: 10px;
+    }
+}
+
+
+.sticky-top {
+    width: 100%;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    height: 100px;
+    padding-top: 20px;
+}
+
+.createServiceDataButton {
+    background-color: #6FD08C;
+    padding: 10px 25px;
+    border-radius: 5px;
+    margin-left: 10px;
+    box-shadow: 0px 3px 2px rgb(0, 0, 0,0.3);
+    cursor: pointer;
+    border: none;
+    color: #3D405B
+}
+
+.createServiceDataButton:hover{
+    background-color: #57a16d;
+    color: white;
+}
+
+.button-search{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.left-side{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+
+.left-side .input-group input, .left-side .input-group button{
+    height: 35px;
+    box-shadow: 3px 3px 2px rgb(0, 0, 0,0.3);
+    
+}
+
+.left-side input{
+    height: 25px;
+    margin-right: 5px;
+    border: 1px solid #3D405B;
+    border-radius: 5px;
+    box-shadow: 3px 3px 2px rgb(0, 0, 0,0.3);
+}
+
+
+.paginate{
+   text-align: end;
+   display: flex;
+   justify-content: end;
+   align-items: center;
+   margin-right: 10px;
+}
+
+.search-bar{
+    margin-right: 15px;
+    display: block;
+}
+.search-bar input{
+    height: 30px;
+    border-radius: 0;
+}
+
+.paginate i, .paginate span{
+    margin-right: 5px;
+    cursor: pointer;
+    color: #3D405B;
+}
+
+.table-container{
+    font-size: 15px;
+    overflow: auto;
+    max-height: 71vh; /* Set a maximum height for the table container */
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.table-container table{
+    width: max-content;
+    border-collapse: collapse;
+}
+
+.table-container table th{
+    background-color: #2f3682;
+    color: white;
+    position: sticky;
+    top: 0;
+    padding: 10px;
+    border: 1px solid black;
+    cursor: pointer;
+}
+
+.table-container table tbody tr{
+    background-color: white;
+    text-align: center;
+}
+
+.table-container table tbody tr:hover{
+    cursor: pointer;
+    background-color: rgb(192, 190, 190);
+    color: white;
+    text-align: center;
+    padding: 2px;
+}
+
+/* td{
+    padding: 5px;
+    border: 1px solid black;
+    font-size: 15px;
+} */
+
+
+.drop-box{
+    background-color: #f6f6f6;
+    width: 197px;
+    position: absolute;
+    z-index: 2;
+    color: white;
+    cursor: pointer;
+}
+
+.drop-box p{
+    margin: 0;
+    text-align: left;
+    padding: 10px 10px;
+    color: rgb(0, 0, 0);
+    font-size: 12px;
+}
+
+.drop-box p:hover{
+    background-color: #4b7d7c;
+    color: white;
+}
+
+.link-tag-filter{
+    padding: 5px 10px;
+    color: black;
+    background-color: rgb(169, 169, 130);
+    border: 2px solid whitesmoke;
+    border-radius: 5px;
+}
+.link-tag-filter:hover{
+    background-color: rgb(60, 47, 47);
+    color: wheat;
+}
+
+/* technician , pic and job type */
+
+.header{
+    text-align: center;
+    text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.technician-table,.table-sec{
+    height: 67vh;
+    overflow: auto;
+}
+
+.table-table{
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+}
+
+.table-table td{
+    padding: 10px 5px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid #7570d4;
+}
+
+.table-table th{
+    padding: 10px;
+    border-bottom: 1px solid #7570d4;
+    position: sticky;
+    top: 0;
+}
+
+.table-table thead{
+    background-color: #8f8bd3;
+}
+
+.table-table thead tr th:first-child{
+    border-top-left-radius: 10px;
+}
+
+.table-table thead tr th:last-child{
+    border-top-right-radius: 10px;
+}
+
+.table-table tbody tr:nth-child(even){
+    background-color: rgb(175, 175, 175);
+    transition: background-color .5s ease;
+}
+
+.table-table tbody tr:nth-child(odd){
+    background-color: rgb(200, 200, 200);
+    transition: background-color .5s ease;
+}
+
+.table-table tbody tr:hover{
+    background-color: #b1b1d1;
+}
+
+.table-table tbody tr td:first-child input{
+    width: 20px;
+}
+
+.table-table tbody tr td:first-child label{
+    font-size: 15px;
+}
+
+.table-table .rate-inps{
+    border: none;
+    width: 120px;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+.table-table .rate-inps:focus{
+    outline: none;
+}
+
+.add-btn{
+    padding: 5px 10px;
+    border: none;
+    background: #8f8bd3;
+    border-radius: 5px;
+    color: white;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+    transition: background-color .5s ease;
+}
+
+.add-btn:hover{
+    background-color: #446045;
+}
+
+.trash-icon, .check-icon{
+    background-color: #FF4242;
+    padding: 10px;
+    color: white;
+    cursor: pointer;
+    transition: background-color .5s ease;
+}
+
+.trash-icon:hover{
+    background-color: #ca0000;
+}
+
+.check-icon{
+    background-color: #7EE081;
+    font-size: 20px;
+}
+
+.check-icon:hover{
+    background-color: #30ee36;
+}
+
+@media screen and (max-width: 1080px){
+    .table-sec{
+        width: 70vh;
+        overflow: scroll;
+        margin: 0 auto;
+        max-height: 500px;
+    }
+
+    button{
+        margin-left: 7%;
+    }
+}
+
+
+/* techinician */
+
+
+.technician-table table{
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.technician-table table td{
+    padding: 10px 5px;
+    text-align: start;
+    cursor: pointer;
+    border: 1px solid #7570d4;
+}
+
+.technician-table tbody td:last-child{
+    text-align: center;
+}
+
+.technician-table table th{
+    position: sticky;
+    top: 0;
+    padding: 10px;
+    border-bottom: 1px solid #7570d4;
+    background-color: #8f8bd3;
+}
+
+.technician-table tbody tr:hover{
+    background-color: #b1b1d1;
+}
+
+
+.technician-table table input{
+    border: none;
+    width: 150px;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+.technician-table td input{
+    width: 99%;
+}
+
+.technician-table table input:focus{
+    outline: none;
+}
+
+.technician-table th:first-child, .technician-table td:first-child{
+    width: 50px;
+}
+
+.technician-table td:first-child input{
+    width: 50px;
+}
+
+.technician-table th:last-child, .technician-table td:last-child{
+    width: 40px;
+}
+
+
+.trash-icon, .check-icon{
+    background-color: #FF4242;
+    padding: 10px;
+    color: white;
+    cursor: pointer;
+    transition: background-color .5s ease;
+}
+
+.trash-icon:hover{
+    background-color: #ca0000;
+}
+
+.check-icon{
+    background-color: #7EE081;
+    font-size: 20px;
+}
+
+.check-icon:hover{
+    background-color: #30ee36;
+}
+
+
+.input-table,.edit-table-container{
+    width: 100%;
+    overflow: auto;
+}
+
+.input-table table{
+    width: 100%;
+}
+
+.input-table table tbody tr{
+    font-size: 14px;
+    text-align: center;
+}
+
+.input-table .add-job-row{
+    background-color: #a7a6c4;
+    text-align: start;
+    border: none;
+}
+
+
+/* Don't edit */
+.invalid-input{
+    border: 2px solid red;
+}

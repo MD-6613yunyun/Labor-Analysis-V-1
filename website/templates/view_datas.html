@@ -1,0 +1,232 @@
+{% extends 'nav.html' %}
+
+{% block title %}
+Datas Tree View
+{% endblock %}
+
+{% block styles %}
+<link type="text/css" rel="stylesheet" href="{{url_for('static',filename='styles/input_form.css')}}">
+{% endblock %}
+
+
+{% block innertemplate %}
+
+{% if typ == 'service-datas' %}
+    <div class="sticky-top service-job-table showeles">
+        <!-- Sticky top content here -->
+        <div class="left-side">
+            <div class="button-search">
+                <a href="{{url_for('imports.show_create_form',typ='service-datas')}}" class="nav-link"><button type="button" class="createServiceDataButton"><b>Create</b></button></a>
+            </div>
+            <div class="w-50 pt-3">
+                <form action="{{url_for('imports.excel_import')}}" method="post" enctype="multipart/form-data">
+                    <div class="input-group mb-3">
+                        <input class="form-control" name="upload_serivce_datas" type="file" id="formFile" required>
+                        <input value="Jobs Data" name="selectExcelFile" type="text" hidden>
+                        <input value="service-datas" name="selectView" type="text" hidden>
+                        <button class="btn btn-outline-dark" type="submit" id="button-addon2">Button</button>
+                    </div>
+                </form>
+            </div>
+            <div class="paginate">
+                <form action="{{url_for('views.show_service_datas',typ='service-datas')}}" method="POST">
+                    <div class="search-bar">
+                        <input type="text" hidden value="" name="column" id="column"/>
+                        {% if filt %}
+                            <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ='service-datas')}}">X</a>                        
+                        {% endif %}
+                        <input type="text" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)">
+                        <input type="text" hidden value="eachJob" name="database">
+                        <div class="drop-box d-none">
+                            <p onclick="addValForTable('job_no')">Job. No. - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('plate')">Reg. No. - <span class="dropdownFormClicker"></span></p>
+                        </div>
+                        <input hidden type="text" value="False" id="editOrSubmit" name="editOrSubmit"/>
+                    </div>
+                </form>
+                <span id="paginate-amount"> 1 - 81 / {{length[0][0]}}</span>
+                <i class="fa-solid fa-circle-chevron-left" onclick="clickPagination('job','prev')"></i>
+                <i class="fa-solid fa-circle-chevron-right" onclick="clickPagination('job','next')"></i></div>
+        </div>
+    </div>
+    <div class="table-container table-bordered service-job-table showeles">
+        <table>
+            <thead class="text-center">
+                <tr>
+                    <th>Month</th>
+                    <th>Date</th>
+                    <th>Business Unit</th>
+                    <th>Shop</th>                    
+                    <th>Job No.</th>
+                    <th>Customer Name</th>
+                    <th>Vehicle Registration</th>
+                    <th>Vehicle Model</th>
+                    <th>Vehicle Model Year</th>
+                    <th>Invoice</th>
+                    <th>Job Type & Spare Part Change</th>
+                    <th>Job Type</th>
+                    <th>Grand Total</th>
+                    <th>PIC1</th>
+                    <th>PIC2</th>
+                    <th>PIC3</th>
+                    <th>PIC4</th>
+                    <th>PIC5</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in result %}
+                    <tr class="job-data-changeable text-start" onclick="redirectToFormEdit('{{data[4]}}','eachJob')">
+                        {% for each_data in data %}
+                            <td class="ps-1">{{each_data}}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% elif typ == 'pic-rate' %}
+
+    <h1 class="header">PIC table</h1>
+    <div class="table-sec">
+        <form action="{{url_for('imports.keep_in_import',typ='pic-rate')}}" id="rate-form" method="post">
+        <table class="table-table">
+            <thead class="text-center">
+                <tr>
+                    <th></th>
+                    <th>PIC-1</th>
+                    <th>PIC-2</th>
+                    <th>PIC-3</th>
+                    <th>PIC-4</th>
+                    <th>PIC-5</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="hidden-rate-form-input" class="d-none">
+                    <td></td>
+                    <td><input class="rate-inps" value="0" type="number" min="0" max="100" name="rate" required></td>
+                    <td><input class="rate-inps" value="0" type="number" min="0" max="100" name="rate" required></td>
+                    <td><input class="rate-inps" value="0" type="number" min="0" max="100" name="rate" required></td>
+                    <td><input class="rate-inps" value="0" type="number" min="0" max="100" name="rate" required></td>
+                    <td><input class="rate-inps" value="0" type="number" min="0" max="100" name="rate" required></td>
+                    <td class="check-icon" onclick="checkRateFormAndSumbit(this)"><i class="fa-solid fa-square-check"></i></td>
+                </tr>
+                {% for data in result %}
+                <tr class="testRowForDblClick" ondblclick="replaceInputFormInViewForm('{{data[0]}}',this)">
+                    <td><input hidden type="number"  value="{{data[0]}}" form="rate-form"></td>
+                    {% for val in data[1:] %}
+                    <td>{{val}}</td>
+                    {% endfor %}
+                    <td class="trash-icon" onclick="deleteLineDataFromViewForm('{{data[0]}}','pic')"><i class="fa-solid fa-trash"></i></td>
+                </tr>
+                {% endfor %}
+              </tbody>              
+        </table>
+    </div>
+
+{% elif typ == 'technician' %}
+
+    <h1 class="header">Technician Table</h1>
+    <div class="left-side">
+        <div class="button-search">
+            <button class="add-btn">Add +</button>
+        </div>
+        <div class="w-50 pt-3">
+            <form action="{{url_for('imports.excel_import')}}" method="post" enctype="multipart/form-data">
+                <div class="input-group mb-3">
+                    <input class="form-control" name="upload_serivce_datas" type="file" id="formFile" required>
+                    <input value="Technician Data" name="selectExcelFile" type="text" hidden>
+                    <input value="" name="selectExcelFile" type="text" hidden>
+                    <button class="btn btn-outline-dark" type="submit" id="button-addon2">Button</button>
+                </div>
+            </form>
+        </div>
+        <div class="paginate">
+            <form action="{{url_for('views.show_service_datas',typ='service-datas')}}" method="POST">
+                <div class="search-bar">
+                    <input type="text" hidden value="" name="column" id="column"/>
+                    {% if filt %}
+                        <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ='service-datas')}}">X</a>                        
+                    {% endif %}
+                    <input type="text" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)">
+                    <input type="text" hidden value="eachJob" name="database">
+                    <div class="drop-box d-none">
+                        <p onclick="addValForTable('tech_name')">Name - <span class="dropdownFormClicker"></span></p>
+                    </div>
+                    <input hidden type="text" value="False" id="editOrSubmit" name="editOrSubmit"/>
+                </div>
+            </form>
+            <span id="paginate-amount"> 1 - {% if length[0][0] >= 81 %} 81 {% else %} {{length[0][0]}} {% endif %} / {{length[0][0]}}</span>
+            <i class="fa-solid fa-circle-chevron-left" onclick="clickPagination('job','prev')"></i>
+            <i class="fa-solid fa-circle-chevron-right" onclick="clickPagination('job','next')"></i></div>
+    </div>
+
+    <div class="technician-table">
+        <form action="{{url_for('imports.keep_in_import',typ='technician')}}" id="rate-form" method="post">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="hidden-rate-form-input" class="d-none">
+                        <td></td>
+                        <td><input type="text" required name="tech"></td>
+                        <td class="check-icon" onclick="checkRateFormAndSumbit(this)"><i class="fa-solid fa-square-check"></i></td>
+                    </tr>
+                    {% for data in result %}
+                        <tr class="testRowForDblClick" id="technician" ondblclick="replaceInputFormInViewForm('{{data[0]}}',this)">
+                            <td><input hidden type="number" value="{{data[0]}}"></td>
+                            {% for val in data[1:] %}
+                                <td>{{val}}</td>
+                            {% endfor %}
+                            <td class="trash-icon" onclick="deleteLineDataFromViewForm('{{data[0]}}','technicians')"><i class="fa-solid fa-trash"></i></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+{% else %}
+
+    <h1 class="header">Job Data Table</h1>
+    <button class="add-btn">Add +</button>
+    <div class="technician-table">
+        <form action="{{url_for('imports.keep_in_import',typ='jobType')}}" id="rate-form" method="post">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="hidden-rate-form-input" class="d-none">
+                        <td></td>
+                        <td><input type="text" required name="jobType"></td>
+                        <td class="check-icon" onclick="checkRateFormAndSumbit(this)" ><i class="fa-solid fa-square-check"></i></td>
+                    </tr>
+                    {% for data in result %}
+                    <tr class="testRowForDblClick" id="jobType" ondblclick="replaceInputFormInViewForm('{{data[0]}}',this)">
+                        <td><input hidden type="number"  value="{{data[0]}}" form="rate-form"></td>
+                        <td>{{data[1]}}</td>
+                        <td class="trash-icon" onclick="deleteLineDataFromViewForm('{{data[0]}}','jobType')" ><i class="fa-solid fa-trash"></i></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+
+    <div id="errorMessage" class="d-none">
+        {{mgs}}
+    </div>
+{% endif %}
+{% endblock %}

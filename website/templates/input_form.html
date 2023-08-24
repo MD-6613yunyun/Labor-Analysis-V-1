@@ -1,0 +1,185 @@
+{% extends 'nav.html' %}
+
+{% block title %}
+Create Form
+{% endblock %}
+
+{% block styles %}
+<link type="text/css" rel="stylesheet" href="{{url_for('static',filename='styles/input_form.css')}}">
+{% endblock %}
+
+{% block innertemplate %}
+
+    <div class="submit-discard">
+        <div>
+            <button class="submit-btn" onclick="checkAllServiceDatas()">Submit</button>
+            <button class="discard-btn" onclick=""><a class="nav-link" href="{{url_for('views.show_service_datas',typ='service-datas')}}">Discard</a></button>
+        </div>
+    </div>
+    <form  class="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='service-datas')}}" method="post">
+        <div class="form-area">
+            <div class="form-grid">       
+                <div class="material-textfield">
+                    <input placeholder="" hidden name="vehicleInformation" id="vehicleInformation" type="number"> 
+                    <datalist id="plateListOptions">
+                        {% for dt in result[0]%}
+                            <option value="{{dt[0]}}">
+                        {% endfor %}
+                    </datalist>
+                    <input  autocomplete="off" required placeholder="" id="vehiclePlate" name="plate"  onchange="chooseRegistartionNo()" type="text" list="plateListOptions">
+                    <label class="custom-label">Vehicle Registration No</label>
+                </div>
+                <div class="material-textfield">
+                    <input autocomplete="off"  required placeholder="" name="invoiceNo" type="text">
+                    <label class="custom-label">Invoice No</label>
+                </div>       
+                <div class="material-textfield">
+                    <input autocomplete="off"  required placeholder="" name="jobNo" type="text" >
+                    <label class="custom-label">Job No</label>
+                </div>     
+                <div class="material-textfield">               
+                    <input autocomplete="off"  required placeholder="" name="customerName" class="vehicle-datas" type="text">
+                    <label class="custom-label">Customer</label>
+                </div>
+                <div class="material-textfield">
+                    <input autocomplete="off"  required placeholder=" " class="vehicle-datas" name="model" type="text">
+                    <label class="custom-label">Vehicle Model</label>
+                </div>
+                <div class="material-textfield">
+                    <input autocomplete="off" style="width: 17vw;"  required placeholder="" minlength="4" maxlength="4" min="1990" max="2050"  type="number" class="vehicle-datas" name="modelYear" list="yearListOptions">
+                    <label class="custom-label">Vehicle Model Year</label>
+                </div>
+                <div class="material-textfield">
+                    <input autocomplete="off"  required placeholder=" " name="jobDate" type="date" >
+                    <label class="custom-label">Date</label>
+                </div>
+                <div class="material-textfield">
+                    <datalist id="shopListOptions">
+                        {% for dt in result[2]%}
+                            <option value="{{dt[1]}} | {{dt[0]}}">
+                        {% endfor %}
+                    </datalist>
+                    <input required autocomplete="off" placeholder="" class="upperPic" name="shopID" type="text" list="shopListOptions">
+                    <label class="custom-label">Shop</label>
+                </div>
+                <div class="material-textfield">
+                    <datalist id="unitListOptions">
+                        {% for dt in result[1]%}
+                            <option value="{{dt[1]}} | {{dt[0]}}">
+                        {% endfor %}
+                    </datalist>
+                    <input required autocomplete="off" placeholder="" class="upperPic" name="unitID" type="text" list="unitListOptions">
+                    <label class="custom-label">Business Unit</label>
+                </div>
+            </div>
+        </div>
+        <div class="input-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>.</th>
+                        <th>Description</th>
+                        <th>Rate</th>
+                        <th>Job Type</th>
+                        <th>PIC1</th>
+                        <th>PIC2</th>
+                        <th>PIC3</th>
+                        <th>PIC4</th>
+                        <th>PIC5</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body-of-pic"> 
+                    <datalist id="datalistOptions">
+                        {% for dt in result[3]%}
+                            <option value="{{dt[1]}} | {{dt[0]}}">
+                        {% endfor %}
+                    </datalist>
+                    <datalist id="piclistOptions">
+                        {% for dt in result[5]%}
+                            <option value="{{dt[1]}} | {{dt[0]}}">
+                        {% endfor %}
+                    </datalist>                    
+                    <tr id="willBeCloned" class="d-none">
+                        <td onclick="deleteJobRow(this,true)"><i class="fa-solid fa-trash-can"></i></td>
+                        <td><input type="text" name="description" class="inp" autocomplete="off"></td>
+                        <td>
+                            <input type="text" onchange="storeValueFromListToHiddenInput(this)" list="piclistOptions" class="inp" autocomplete="off">
+                            <input type="text" name="pic-rate" value="" hidden>
+                        </td>
+                        <td>
+                            <select name="jobType" class="inp">
+                                {% for job_type in result[4] %}
+                                    <option value="{{job_type[0]}}">{{job_type[1]}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input type="text" value="" name="picOne" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picTwo" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picThree" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picFour" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picFive" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="number" name="jobCost" value="0" step=".01" class="inp amts" autocomplete="off" onkeyup="sumUpTotals(this)"></td>
+                        <td class="d-none"><input type="text" name="picrow"></td>
+                    </tr>
+                    <tr>
+                        <td onclick="deleteJobRow(this,false)"><i class="fa-solid fa-trash-can"></i></td>
+                        <td><input type="text" required  name="description" class="inp" autocomplete="off"></td>
+                        <td>
+                            <input type="text" onchange="storeValueFromListToHiddenInput(this)" list="piclistOptions" class="inp" autocomplete="off">
+                            <input type="text" name="pic-rate" value="" hidden>
+                        </td>
+                        <td>
+                            <select name="jobType" required class="inp">
+                                {% for job_type in result[4] %}
+                                    <option value="{{job_type[0]}}">{{job_type[1]}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input type="text" value="" name="picOne" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picTwo" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picThree" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picFour" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picFive" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="number" required name="jobCost" step=".01" class="inp amts" autocomplete="off" onkeyup="sumUpTotals()"></td>
+                        <td class="d-none"><input type="text" name="picrow"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="8" class="add-job-row" onclick="addAnotherRow(this)"><button type="button" class="btn btn-outline-dark btn-sm">Add Job +</button></td>
+                        <td class="d-none"><input type="number" value="0.0" step=".01" class="total-amount" name="totalCost"></td>
+                        <td class="total-label"><b>Total</b></td>
+                        <td class="total-amount">0.0</td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- Button trigger modal -->
+            <button type="button" class="d-none validateModal" data-bs-toggle="modal" data-bs-target="#staticBackdropValidate"></button>
+        
+            <!-- Modal -->
+            <div class="modal fade" style="z-index: 10123;" id="staticBackdropValidate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Validate</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <strong>Are you sure want to create a new vehicle???</strong>
+                            <ul class="list-group-vehicle-information">
+                                <li class="list-group-item">A second item</li>
+                                <li class="list-group-item">A third item</li>
+                                <li class="list-group-item">A fourth item</li>
+                                <li class="list-group-item">And a fifth one</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit"  class="btn btn-primary service-data-submit">Understood</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

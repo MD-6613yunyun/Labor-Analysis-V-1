@@ -1,0 +1,45 @@
+{% extends 'nav.html' %}
+{% block styles %}
+<script type = "text/javascript" src = "https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+<script type = "text/javascript">
+    google.charts.load('current', {packages: ['corechart']});     
+</script>
+<link rel="stylesheet" href="{{url_for('static',filename='styles/report_graph.css')}}"/>
+{% endblock %}
+{% block title %} Report Grpah {% endblock %}
+
+{% block innertemplate %}
+
+<h1 class="text-center mt-5">Technicians Activities Report (<span id="start-dt">{{extra_datas[2]}}</span>&lt;=&gt;<span id="end-dt">{{extra_datas[3]}}</span>)</h1>
+
+<div id="chartContainer" class="m-5 mt-2" style="width: 93%;overflow-x: scroll;">
+    <div id="container" style="width: 5000px;height: 500px;"></div>
+</div>
+
+<div class="table-responsive m-5" style="width: 90%;table-layout: auto;width: auto;white-space: nowrap;">
+    <table class="table table-bordered table-container" id="report-table">
+        <thead class="text-center table-header">
+            <tr>
+                <th>#</th>
+                    {% for tech_name in extra_datas[0] %}
+                        <th>{{tech_name}}</th>
+                    {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for id,result in total_result.items() %}
+                <tr>
+                    <th>{{extra_datas[1][id]}}</th>
+                    {% for data in result %}
+                        <td class="text-end">{{data}}</td>
+                    {% endfor %}                    
+                </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

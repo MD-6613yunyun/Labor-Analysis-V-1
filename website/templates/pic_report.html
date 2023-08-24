@@ -1,0 +1,45 @@
+{% extends 'nav.html' %}
+{% block title %} PIC Report {% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static',filename='styles/report_pic.css')}}"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+{% endblock %}
+{% block innertemplate %}
+<h1 class="text-center m-3 mt-5">PIC Report (<span id="start-dt">{{extra_datas[0]}}</span>&lt;=&gt;<span id="end-dt">{{extra_datas[1]}}</span>)</h1>
+<div class="tableContainer">
+  <table class="table" id="pic-table">
+    <thead class="align-middle text-center">
+        <tr class="table-header">
+            <th rowspan="2" class="name">Name</th>
+            <!-- Repeat the headers for Total, PIC1, PIC2, and PIC3 manually -->
+            <th colSpan="8">TOTAL</th>
+            <th colSpan="7">PIC1</th>
+            <th colSpan="7">PIC2</th>
+            <th colSpan="7">PIC3</th>
+            <th colSpan="7">PIC4</th>
+            <th colSpan="7">PIC5</th>
+        </tr>
+      <tr class="sub-head">
+        {% for i in range(6) %}
+            {% for job_type in job_types %}
+                <th>{{job_type[1]}}</th>
+            {% endfor %}
+            {% if i == 0 %}
+                <th>TOTAL</th>
+            {% endif %}
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+        {% for name,data in total_result.items() %}
+            <tr class="main-rows">
+                <td class="side-header"><b>{{name}}</b></td>
+                {% for dt in data %}
+                    <td>{{dt}}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

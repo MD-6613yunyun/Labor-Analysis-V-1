@@ -1,0 +1,1219 @@
+{% extends 'nav.html' %}
+
+{% block styles %}
+<link type="text/css" rel="stylesheet" href="{{url_for('static',filename='styles/input_form.css')}}">
+{% endblock %}
+
+{% block innertemplate %}
+
+    <div class="submit-discard">
+        <button class="submit-btn">Submit</button>
+        <button class="discard-btn">Discard</button>
+    </div>
+    <div class="form-area">
+        <form  action="">
+            <div class="form-grid">
+                <div class="material-textfield">
+                    <input placeholder=" " type="text" >
+                    <label class="custom-label">Customer</label>
+                    <div class="suggest-box">
+                        <p>Home Home Home</p>
+                        <p>Sweet</p>
+                        <p>Home</p>
+                        <p>Sweet</p>
+                        <p>Home</p>
+                        <p>Sweet</p>
+                        <p>Home</p>
+                    </div>
+                </div>                      
+                <div class="material-textfield">
+                    <input placeholder=" " type="date" >
+                    <label class="custom-label">Date</label>
+                </div>
+                <div class="material-textfield">
+                    <input placeholder=" " type="text" >
+                    <label class="custom-label">Vehicle Registration No</label>
+                </div>
+                <div class="material-textfield">
+                    <input placeholder=" " type="text" >
+                    <label class="custom-label">Invoice No</label>
+                </div>
+                <div class="material-textfield">
+                    <input placeholder=" " type="text" >
+                    <label class="custom-label">Vehicle Model</label>
+                </div>
+                <div class="material-textfield">
+                    <input placeholder=" " type="text" >
+                    <label class="custom-label">Job No</label>
+                </div>
+                <div class="material-textfield">
+                    <input placeholder=" " type="text" >
+                    <label class="custom-label">Shop</label>
+                </div>
+                <div class="material-textfield">
+                    <input placeholder=" " type="text" >
+                    <label class="custom-label">Business Unit</label>
+                </div>
+            </div>
+        </form>
+    </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>.</th>
+                    <th>Description</th>
+                    <th>Job Type</th>
+                    <th>PIC1</th>
+                    <th>PIC2</th>
+                    <th>PIC3</th>
+                    <th>PIC4</th>
+                    <th>PIC5</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><i class="fa-solid fa-trash-can"></i></td>
+                    <td><input type="text"></td>
+                    <td>
+                        <select name="" id="">
+                            <option value="">asdfjkasdfasdf</option>
+                            <option value="">2</option>
+                            <option value="">3</option>
+                            <option value="">4</option>
+                            <option value="">5</option>
+                            <option value="">6</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text">
+                        <div class="suggest-box">
+                            <p>Home</p>
+                            <p>Sweet</p>
+                            <p>Home</p>
+                        </div>
+                    </td>
+                    <td><input type="text"></td>
+                    <td><input type="text"></td>
+                    <td><input type="text"></td>
+                    <td><input type="text"></td>
+                    <td><input type="text"></td>
+                </tr>
+                <tr>
+                    <td colspan="7" class="white-row">Add Job +</td>
+                    <td class="total-label"><b>Total</b></td>
+                    <td class="total-amount">10</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="sticky-top service-job-table">
+        <!-- Sticky top content here -->
+        <div class="left-side">
+            <div class="button-search">
+                <button onclick="showForm()" type="button"  data-bs-toggle="modal" data-bs-target="#addServiceDataForm"><b>Create</b></button>
+                <div class="search-bar"><input type="text"><i class="fa-solid fa-magnifying-glass search-icon"></i></div>
+            </div>
+            <div class="paginate">
+                <span>1/200</span>
+                <i class="fa-solid fa-circle-chevron-left"></i>
+                <i class="fa-solid fa-circle-chevron-right"></i></div>
+        </div>
+    </div>
+    <div class="table-container service-job-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Date</th>
+                    <th>Job No.</th>
+                    <th>Customer Name</th>
+                    <th>Vehicle Registration</th>
+                    <th>Vehicle Model</th>
+                    <th>Vehicle Model Year</th>
+                    <th>Invoice</th>
+                    <th>Job Type & Spare Part Change</th>
+                    <th>Job Type</th>
+                    <th>Grand Total</th>
+                    <th>PIC1</th>
+                    <th>PIC2</th>
+                    <th>PIC3</th>
+                    <th>PIC4</th>
+                    <th>PIC5</th>
+                    <th>Business Unit</th>
+                    <th>Shop</th>
+                    <!-- ... more table headers ... -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                 <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr><tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr><tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr><tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr><tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr><tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr><tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <tr>
+                    <td>Jul 23</td>
+                    <td>10/04/2023</td>
+                    <td>JOB1231412</td>
+                    <td>Oo Maung Maung</td>
+                    <td>NPW12312</td>
+                    <td>MARK2</td>
+                    <td>2003</td>
+                    <td>INV23060380.0</td>
+                    <td>3D WHEEL ALIGNMENT (L)</td>
+                    <td>SUSPENSION</td>
+                    <td>12000</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                    <td>TOE TEPT AUNG</td>
+                </tr>
+                <!-- Table rows here -->
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+
+? css ? css ?
+
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500&display=swap');
+body{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Nunito', sans-serif;
+    background-color: white;
+}
+
+/* input's css */
+  /* button */
+  .submit-discard{
+    width: 80%;
+    margin: 10px auto;
+}
+
+.submit-discard button{
+    padding: 10px 20px;
+    margin: 2px;
+    border-radius: 5px;
+    border: none;
+    font-size: 17px;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.submit-btn{
+    background-color: #31E981;
+    color: black;
+}
+
+.discard-btn{
+    background-color: #FF3C38;
+}
+
+.submit-btn:hover{
+    background-color: #25ad60;
+    color: white;
+}
+
+.discard-btn:hover{
+    background-color: #da3431;
+    color: white;
+}
+
+/* form css */
+.form-area{
+    width: 80%;
+    margin: 10px auto;
+    padding: 15px;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.form-grid{
+    display: grid;
+    grid-template-columns: auto auto auto;
+    gap: 5px;
+}
+
+.material-textfield {
+    position: relative;  
+  }
+  
+  .material-textfield label {
+    position: absolute;
+    font-size: 1rem;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: white;
+    color: gray;
+    padding: 0 0.3rem;
+    margin: 0 0.5rem;
+    transition: .1s ease-out;
+    transform-origin: left top;
+    pointer-events: none;
+  }
+  .material-textfield input {
+    font-size: 1rem;
+    outline: none;
+    border: 1px solid gray;
+    border-radius: 5px;  
+    padding: 1rem 0.7rem;
+    color: gray;
+    transition: 0.1s ease-out;
+  }
+  .material-textfield input:focus {
+    border-color: #6200EE;  
+  }
+  .material-textfield input:focus + label {
+    color: #6200EE;
+    top: 0;
+    transform: translateY(-50%) scale(.9);
+  }
+  .material-textfield input:not(:placeholder-shown) + label {
+    top: 0;
+    transform: translateY(-50%) scale(.9);
+  }
+
+  .suggest-box{
+    background-color:#8382dbbd;
+    height: 70px;
+    border-radius: 5px;
+    position: absolute;
+    z-index: 5;
+    overflow: scroll;
+    overflow-x: hidden;
+    cursor: pointer;
+}
+
+.suggest-box p{
+    margin: 0;
+    padding: 0 45px;
+}
+
+.suggest-box p:hover{
+    background-color: #3330dabd; 
+    color: white;
+}
+
+/* table css */
+tbody tr .white-row{
+    border: none;
+    background-color: white;
+    text-align: left;
+    color: black;
+}
+
+tbody tr .white-row:hover{
+    color: green;
+}
+
+table{
+    border-collapse: collapse;
+    /* padding: 20px; */
+    width: 80%;
+    margin: 20px auto;
+}
+
+table th{
+    border: 1px solid black;
+    padding: 5px 15px;
+    text-align: center;
+    background-color: #AEC5EB;
+    color: black;
+}
+
+table td{
+    border: 1px solid black;
+    padding: 4px 4px;
+}
+
+tbody tr{
+    background-color: #B3E0D7;
+}
+
+table tr:hover{
+    background-color: #71dac5;
+}
+
+table td input{
+    width: 130px;
+    border-radius: 3px;
+    border: none;
+    height: 20px;
+}
+
+table td input:focus{
+    outline: none;
+}
+
+/* responsive */
+@media screen and (max-width: 1080px){
+    table th{
+       padding: 0;
+       font-size: 15px;
+       margin: 0;
+    }
+
+    table td input{
+        width: 70px;
+    }
+
+    tr td:nth-child(2) input{
+        width: 180px;
+    }
+
+    .total-label{
+        font-size: 13px;
+    }
+
+    .material-textfield{
+        width: 150px;
+    }
+
+    .material-textfield input{
+        width: 100%;   
+    }
+
+    .material-textfield label{
+        font-size: 15px;
+    }
+
+    .suggest-box p{
+        margin: 0;
+        padding: 0 20px;
+        font-size: 15px;
+    }
+
+    /* .submit-discard{
+        width: 80%;
+        margin: 10px auto;
+    } */
+    
+    .submit-discard button{
+        padding: 5px 10px;
+        margin: 2px;
+        border-radius: 5px;
+        border: none;
+        font-size: 15px;
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    }
+}
+
+@media screen and (max-width: 900px){
+    table th{
+        font-size: 12px;
+    }
+
+    table td {
+        padding: 3px;
+    }
+
+    table td input{
+        width: 60px;
+    }
+
+    tr td:nth-child(2) input{
+        width: 140px;
+    }
+
+    .material-textfield{
+        width: 130px;
+        height: 50px;
+    }
+
+    .material-textfield input{
+        width: 100%; 
+        height: 100%;  
+    }
+
+    .material-textfield label{
+        font-size: 12px;
+    }
+}
+
+
+@media screen and (max-width: 750px){
+    table th{
+        font-size: 10px;
+    }
+
+    table td {
+        padding: 2px;
+    }
+
+    table td input{
+        width: 60px;
+    }
+
+    tr td:nth-child(2) input{
+        width: 120px;
+    }
+
+    .material-textfield{
+        width: 130px;
+        height: 50px;
+    }
+
+    .material-textfield input{
+        width: 100%; 
+        height: 100%;  
+    }
+
+    .material-textfield label{
+        font-size: 12px;
+    }
+}
+
+
+@media screen and (max-width: 700px){
+    table th{
+        font-size: 10px;
+    }
+
+    table td {
+        padding: 1px;
+    }
+
+    table td input{
+        width: 50px;
+    }
+
+    tr td:nth-child(2) input{
+        width: 100px;
+    }
+
+    .material-textfield{
+        width: 130px;
+        height: 30px;
+    }
+
+    .material-textfield input{
+        width: 100%; 
+        height: 100%;  
+    }
+
+    .material-textfield label{
+        font-size: 10px;
+    }
+
+    .suggest-box{
+        height: 60px;
+    }
+    
+    .suggest-box p{
+        margin: 0;
+        font-size: 13px;
+    }
+}
+
+
+.sticky-top {
+    width: 100%;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 100px;
+    padding-top: 20px;
+}
+
+button {
+    background-color: #6FD08C;
+    padding: 10px 25px;
+    border-radius: 5px;
+    margin-left: 10px;
+    box-shadow: 0px 3px 2px rgb(0, 0, 0,0.3);
+    cursor: pointer;
+    border: none;
+    color: #3D405B
+}
+
+button:hover{
+    background-color: #57a16d;
+    color: white;
+}
+
+.button-search{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.left-side input{
+    height: 25px;
+    margin-right: 5px;
+    border: 1px solid #3D405B;
+    border-radius: 5px;
+    box-shadow: 3px 3px 2px rgb(0, 0, 0,0.3);
+}
+
+.button-search .search-icon{
+    background-color: #3D405B;
+    height: 25px;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0px 3px 2px rgb(0, 0, 0,0.3);
+    color: white;
+    cursor: pointer;
+}
+
+.paginate{
+   text-align: end;
+   display: flex;
+   justify-content: end;
+   align-items: center;
+   margin-right: 10px;
+}
+
+.button-search .search-bar{
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.paginate i, .paginate span{
+    margin-right: 5px;
+    cursor: pointer;
+    color: #3D405B;
+}
+
+.table-container {
+    font-size: 15px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overflow: auto;
+    max-height: 71vh; /* Set a maximum height for the table container */
+    width: 100%;
+    height: 100%;
+}
+
+table {
+    width: max-content;
+    border-collapse: collapse;
+}
+
+th {
+    background-color: #3D405B;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 99; 
+    padding: 10px;
+    border: 1px solid black;
+    cursor: pointer;
+}
+
+tbody tr{
+    background-color: #86d4d3;
+    text-align: center;
+}
+
+tbody tr:hover{
+    cursor: pointer;
+    background-color: #68a5a4;
+    color: white;
+    text-align: center;
+    padding: 2px;
+}
+
+td{
+    padding: 5px;
+    border: 1px solid black;
+    font-size: 15px;
+}

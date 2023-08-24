@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu&display=swap');
+body{
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.table-container .table-header tr th{
+    background-color: #788BFF;
+    padding: 15px;
+    box-shadow: 0px 2px 2px (rgb(0,0,0,0));
+}
+
+.table-container tbody tr td{
+    background-color: #E2FDFF;
+    border-bottom: 1px solid #788BFF;
+}
+
+.table-container tbody tr th{
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    box-shadow: 2px 0px 2px (rgb(0,0,0,0));
+}
+
+.table-container thead tr th:first-child{
+    position: sticky;
+    left: 0;
+    z-index: 2;
+}

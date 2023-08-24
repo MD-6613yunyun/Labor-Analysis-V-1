@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/x-icon" href="../static/images/MDMM.ico">
+        <title>Pit & Go | {% block title%}{% endblock %}</title>
+        <link rel="stylesheet" href="{{url_for('static',filename='styles/nav.css')}}"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="{{url_for('static',filename='scripts/main.js')}}"></script>
+        {% block styles %}
+        {% endblock %}
+        <link rel="shortcut icon" href="{{url_for('static',filename='images/MDMM.ico')}}"/>
+    </head>
+    <body>
+        <div class="top-nav-container">
+            <nav class="head-class">
+                <div class="logo-img">
+                    <a href="{{url_for('views.home')}}"><img src="{{url_for('static',filename='images/web_logo.png')}}"/></a>
+                    <i class="fa-solid fa-angle-right open-btn" onclick="openNav()"></i>
+                    <i class="fa-solid fa-angle-left close-btn" style="display: none;" onclick="closeNav()"></i>
+                </div>
+                <h1 class="job-data-header">{% block pageHeader %} {% endblock %}</h1>
+                <div class="profile-tab">
+                    {% if request.path == '/get-report' or request.path == '/pic-report' %}
+                        <i class="fa-solid fa-download" onclick="exportTableToExcel()"></i>
+                    {% endif %}
+                    {% if request.cookies.get('username') %}
+                        <h4>Welcome, {{ request.cookies.get('username') }}!</h4>
+                    {% endif %}
+                        <i class="fa-solid fa-circle-user"></i>
+                    <button onclick="signOut()">Sign Out</button>
+                </div>
+            </nav>
+        </div>
+
+        <div id="mySidenav" class="sidenav">
+            <a href="#">Dashboard<i class="fa-solid fa-angle-down"></i></a>
+            <a href="#"  onclick="showDropdown(this)">Reporting<i class="fa-solid fa-angle-down"></i></a>
+            <div class="dropdown-container">
+                <a href="#" class="sub-head" onclick="callModalForDateRange('get_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">JOB Ability</a>
+                <a href="#" class="sub-head" onclick="callModalForDateRange('pic_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">PIC Report</a>                
+            </div>
+            <a href="#"  onclick="showDropdown(this)">Transactions<i class="fa-solid fa-angle-down"></i></a>
+            <div class="dropdown-container">
+                <a href="{{url_for('views.show_service_datas',typ='service-datas')}}" class="sub-head">Service Data</a>
+            </div>
+            <a href="#"  onclick="showDropdown(this)">Configuration<i class="fa-solid fa-angle-down"></i></a>
+            <div class="dropdown-container">
+                <a href="{{url_for('views.show_service_datas',typ='pic-rate')}}" class="sub-head">PIC</a>
+                <a href="{{url_for('views.show_service_datas',typ='job-type')}}" class="sub-head">Types</a>
+                <a href="{{url_for('views.show_service_datas',typ='technician')}}" class="sub-head">Technicians</a>                
+            </div>
+        </div>
+          
+  
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" style="z-index: 10010;" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Data Option For </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form  id="submitForm" method="post" >
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col">
+                                <label for="start-dt" class="mb-1">Start Date</label>
+                                <input type="date" id="start-dt" name="start-dt" value="2023-01-25">                        
+                            </div>
+                            <div class="col">
+                                <label for="end-dt" class="mb-1">End Date</label>
+                                <input type="date" id="end-dt" name="end-dt" value="2023-05-11">                        
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" onclick="get_dates_for_form_submit()" class="btn btn-primary">Generate Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+        <div id="main">
+            {% block innertemplate %}
+            {% endblock %}
+        </div>
+
+<!-- Button trigger modal -->
+<button type="button" class="errorModal d-none" data-bs-toggle="modal" data-bs-target="#errorMessageModalInNav"></button>
+  
+  <!-- Modal -->
+<div class="modal fade" style="z-index: 10011;" id="errorMessageModalInNav" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">User Error</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="errorMessageDisplayer"></div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Understood</button>
+            </div>
+        </div>
+    </div>
+</div>
+        
+        <script>
+            function get_dates_for_form_submit(){
+                start_dt = document.getElementById("start-dt").value
+                end_dt = document.getElementById("end-dt").value
+                console.log(start_dt,end_dt)
+                localStorage.setItem("date",JSON.stringify([start_dt,end_dt]))                
+            }
+            function callModalForDateRange(txt){
+                form = document.getElementById("submitForm")
+                let name = ""
+                if (txt == "get_report"){
+                    name = 'Job Ability Report'
+                    form.setAttribute('action',`{{url_for('views.get_report')}}`)   
+                 
+                }else{
+                    name = 'PIC Report'
+                    form.setAttribute('action',`{{url_for('views.pic_report')}}`)  
+                }
+                form.previousElementSibling.children[0].textContent += name
+            }
+
+            function showDropdown(btn){              
+                dropdownContent = btn.nextElementSibling
+                if (dropdownContent.style.display === "block") {
+                  dropdownContent.style.display = "none";
+                } else {
+                  dropdownContent.style.display = "block";
+                }
+            }
+
+            openBtn = document.getElementsByClassName('open-btn')[0]
+            closeBtn = document.getElementsByClassName('close-btn')[0]
+            function openNav() {
+                document.getElementById("mySidenav").style.width = "200px";
+                document.getElementById("main").style.marginLeft = "200px";
+
+                openBtn.style.display = "none"
+                closeBtn.style.display = ""
+            }
+
+            function closeNav() {
+                document.getElementById("mySidenav").style.width = "0";
+                document.getElementById("main").style.marginLeft= "0";
+                openBtn.style.display = ""
+                closeBtn.style.display = "none"
+            }
+
+            function showForm(){
+                let noneEles = document.getElementsByClassName('showeles')
+                let showEles = document.getElementsByClassName('hiders')
+                noneEles[0].style.display = "none"
+                noneEles[1].style.display = "none"
+                showEles[0].style.display = "block"
+                showEles[1].style.display = "block"
+                showEles[2].style.display = "block"
+            }
+            function hideForm(){
+                let noneEles = document.getElementsByClassName('showeles')
+                let showEles = document.getElementsByClassName('hiders')
+                noneEles[0].style.display = "block"
+                noneEles[1].style.display = "block"
+                showEles[0].style.display = "none"
+                showEles[1].style.display = "none"
+                showEles[2].style.display = "none"                
+            }
+            if (window.location.href.includes("show-datas")){
+                let mgs;
+                try{
+                    mgs = document.getElementById('errorMessage').textContent.trim()
+                }catch{
+                    mgs = "None"
+                }
+                if (mgs != 'None'){
+                    let modalClicker = document.getElementsByClassName("errorModal")
+                    document.getElementById("errorMessageDisplayer").textContent = mgs
+                    modalClicker[0].click()
+                }
+                formExist = document.getElementById("hidden-rate-form-input")
+                document.getElementsByClassName("add-btn")[0].addEventListener('click',function(){
+                    console.log(formExist.children)
+                    if (formExist.classList.contains("d-none")){
+                        formExist.classList.remove("d-none")
+                    }else{
+                        formExist.classList.add("d-none")                       
+                    }
+                })
+            }else if (window.location.href.includes("create-form")){
+                const inputList = document.querySelectorAll('.service-data-input-form input');
+
+                inputList.forEach(input => {
+                    input.addEventListener('keydown', function(event) {
+                        if (event.key === 'Enter') {
+                        event.preventDefault();
+                        }
+                    });
+                });
+            }
+        </script>
+    </body>
+</html>

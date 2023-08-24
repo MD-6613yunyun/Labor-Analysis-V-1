@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block styles %} 
+<link rel="stylesheet" href="{{url_for('static',filename='styles/auth.css')}}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+{% endblock %}
+{% block title%} Authentication {% endblock %}
+{% block body %}
+    <div class="main-container">
+        <div class="left-side">
+            <img src="{{url_for('static',filename='images/logo_opacity_3.png')}}"/>
+        </div>
+        <div class="right-side">
+            {% if typ == 'log' %}
+            <form action="{{url_for('auth.authenticate',typ='log')}}" method="post">
+                <div class="inputContainer">
+                    {% if mgs %}
+                    <strong class="text-danger fw-bolder">{{mgs}}</strong>
+                    {% endif %}
+                    <div>
+                        <label for="userName">Email</label>
+                        <input type="email" autocomplete="off" name="email" class="userNameInput" required/>
+                    </div>
+                    <div>
+                        <label for="userName">Password</label>
+                        <input type="password" name="password" class="passwordInput" required/>
+                    </div>
+                    <button>Login</button>
+                </div>
+                <div class="signup-forget"><a href="{{url_for('auth.authenticate',typ='reg')}}">Sign Up</a> | <a href="{{url_for('auth.authenticate',typ='forget')}}">Forget Password?</a></div>
+            </form>
+            {% elif typ == 'reg' %}
+            <!-- sign-up form -->
+            <form action="{{url_for('auth.authenticate',typ='reg')}}" method="post">
+                <div class="inputContainer">
+                    {% if mgs %}
+                    <strong class="text-danger fw-bolder">{{mgs}}</strong>
+                    {% endif %}
+                    <div>
+                        <label for="userName">Username</label>
+                        <input type="text" autocomplete="off" name="username" class="userNameInput" required/>
+                    </div>
+                    <div>
+                        <label for="userName">Email</label>
+                        <input type="email" autocomplete="off" name="email" class="userNameInput" required/>
+                    </div>
+                    <div>
+                        <label for="userName">Password</label>
+                        <input type="password" name="password" class="passwordInput" required/>
+                    </div>
+                    <div>
+                        <label for="userName">Confirm Password</label>
+                        <input type="password" name="confirmPassword" class="passwordInput" required/>
+                    </div>
+                    <button>Sign Up</button>
+                </div>
+                <div class="signup-forget"><a href="{{url_for('auth.authenticate',typ='log')}}">Login</a> | <a href="{{url_for('auth.authenticate',typ='forget')}}">Forget Password?</a></div>
+            </form>
+            {% else %}
+            <!-- forgot password -->
+            <form action="{{url_for('auth.authenticate',typ='forgot')}}" method="post">
+                <div class="inputContainer">
+                    {% if mgs %}
+                    <strong class="text-danger fw-bolder">{{mgs}}</strong>
+                    {% endif %}
+                    <strong class="text-danger fw-bolder" id="forget-pwd"></strong>
+                    <div>
+                        <label for="userName">Email</label>
+                        <input type="email" autocomplete="off" name="email" class="userNameInput" required/>
+                    </div>
+                    <div>
+                        <label for="userName">Username</label>
+                        <input type="text" autocomplete="off" name="username" class="userNameInput" required/>
+                    </div>
+                    <button type="button" onclick="checkUsernameForget(this)">Request Password</button>
+                    <div style="display: none;">
+                        <label for="userName">New Password</label>
+                        <input type="password" name="password" class="passwordInput" required/>
+                    </div>
+                    <div style="display: none;">
+                        <label for="userName">Confirm Password</label>
+                        <input type="password" name="confirmPassword" class="passwordInput" required/>
+                    </div>
+                    <button type="submit" style="display: none;">Change Password</button>
+                </div>
+                <div class="signup-forget"><a href="{{url_for('auth.authenticate',typ='log')}}">Login</a> | <a href="{{url_for('auth.authenticate',typ='reg')}}">Sign Up</a></div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

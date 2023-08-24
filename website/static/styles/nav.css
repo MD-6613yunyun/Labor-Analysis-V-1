@@ -1,0 +1,237 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
+
+body{
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Rubik', sans-serif;
+}
+
+.job-data-header{
+    cursor: pointer;
+}
+
+.top-nav-container{
+    top: 0;
+    position: sticky;
+    z-index: 10000;
+}
+
+.head-class{
+    background-color: #d4d4d4;
+    max-height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+.head-class .menu-btn i{
+    font-size: 30px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+.head-class .logo-img{
+    border: none;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.head-class .logo-img i{
+    position: absolute;
+    right: 0;
+}
+
+.head-class img{
+    max-width: 170px;
+    padding: 0;
+}
+
+.head-class .profile-tab{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.head-class .profile-tab h4{
+    font-size: 15px;
+    margin-top: 5px;
+    padding: 5px;
+}
+
+.head-class .profile-tab i{
+    margin-left: 5px;
+    margin-right: 10px;
+    font-size: 30px;
+}
+
+.head-class .profile-tab button{
+    background-color: #D72638;
+    margin-right:10px ;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+.sidenav {
+    height: 100%;
+    width: 0px;
+    position: fixed;
+    z-index: 9000;
+    top: 0;
+    left: 0;
+    background-color: #d4d4d4;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.3);
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    margin-top: 50px;
+}
+  
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+    font-size: 15px;
+    position: relative;
+}
+
+.sidenav a i{
+    position: absolute;
+    right: 15px;
+}
+  
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+  
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+  
+.sidenav .sub-head{
+    margin-left: 15px;
+}
+
+.main-btn{
+    background-color: #D72638;
+    padding: 10px 15px;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    margin-right: 5px;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.3);
+}
+
+.main-btn:hover{
+    background-color: #b3202f;
+}
+
+.create-btn{
+    margin-right: 20px;
+}
+
+#main {
+    transition: margin-left .5s;
+    /* padding: 16px; */
+}
+
+#main .button-container{
+    display: flex;
+    align-items: center;
+}
+
+#main .button-container form input{
+    padding: 10px;
+    background-color: #D72638;
+    border-radius: 10px;
+}
+
+.dropdown-container{
+    display: none;
+}
+
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
+
+/* Date time */
+input[type="date"] {
+    display:block;
+    position:relative;
+    padding:1rem 3.5rem 1rem 0.75rem;
+    
+    font-size:1rem;
+    font-family:monospace;
+    
+    border:1px solid #8292a2;
+    border-radius:0.25rem;
+    background:
+      white
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='22' viewBox='0 0 20 22'%3E%3Cg fill='none' fill-rule='evenodd' stroke='%23688EBB' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' transform='translate(1 1)'%3E%3Crect width='18' height='18' y='2' rx='2'/%3E%3Cpath d='M13 0L13 4M5 0L5 4M0 8L18 8'/%3E%3C/g%3E%3C/svg%3E")
+      right 1rem
+      center
+      no-repeat;
+    
+    cursor:pointer;
+  }
+  input[type="date"]:focus {
+    outline:none;
+    border-color:#3acfff;
+    box-shadow:0 0 0 0.25rem rgba(0, 120, 250, 0.1);
+  }
+  
+  ::-webkit-datetime-edit {}
+  ::-webkit-datetime-edit-fields-wrapper {}
+  ::-webkit-datetime-edit-month-field:hover,
+  ::-webkit-datetime-edit-day-field:hover,
+  ::-webkit-datetime-edit-year-field:hover {
+    background:rgba(0, 120, 250, 0.1);
+  }
+  ::-webkit-datetime-edit-text {
+    opacity:0;
+  }
+  ::-webkit-clear-button,
+  ::-webkit-inner-spin-button {
+    display:none;
+  }
+  ::-webkit-calendar-picker-indicator {
+    position:absolute;
+    width:2.5rem;
+    height:100%;
+    top:0;
+    right:0;
+    bottom:0;
+    
+    opacity:0;
+    cursor:pointer;
+    
+    color:rgba(0, 120, 250, 1);
+    background:rgba(0, 120, 250, 1);
+   
+  }
+  
+  input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity:0.05; }
+  input[type="date"]:hover::-webkit-calendar-picker-indicator:hover { opacity:0.15; }
+
+.dashboard-holder{
+    background-image: url('../images/pitngo-home.jpg');
+    height: 91vh;
+    padding: 0;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-size: cover;
+}

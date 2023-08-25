@@ -9,14 +9,11 @@ def get_partial_amount(percent,total):
     return round((float(percent)/100)*float(total),2)
 
 @imports.route("/excel",methods=['GET','POST'])
-def excel_import(mgs=None):
+def excel_import():
     if request.method == 'POST':
         upload_file = request.files['upload_serivce_datas']
         excel_file_type = request.form.get('selectExcelFile')
         view_type = request.form.get('selectView')
-
-        conn = db_connect()
-        cur = conn.cursor()
 
         if upload_file.filename != '' and upload_file.filename.endswith(".xlsx"):
             workbook = load_workbook(filename=upload_file,data_only=True,read_only=True)
@@ -24,29 +21,33 @@ def excel_import(mgs=None):
                 worksheet = workbook[excel_file_type]
             except:
                 return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f'The sheet name of excel import file must be <strong>{excel_file_type}..<&#47;strong>'))
+            conn = db_connect()
+            cur = conn.cursor()
             if excel_file_type == 'Jobs Data':
                 eachJob_insert_query = """INSERT INTO eachJob (job_date,job_no,business_unit_id,shop_id,invoice_no,customer_id,vehicle_id,job_name,
                 job_type_id,total_amt,fst_pic_id,fst_pic_amt,sec_pic_id,sec_pic_amt,thrd_pic_id,thrd_pic_amt,frth_pic_id,
-                frth_pic_amt,lst_pic_id,lst_pic_amt,eachJob_concatenated) VALUES """
+                frth_pic_amt,lst_pic_id,lst_pic_amt,eachJob_concatenated,pic_rate_id) VALUES """
                 cur.execute("SELECT id,name FROM technicians;")
                 technicians = cur.fetchall()
                 technicians = {data[1].lower():data[0] for data in technicians}
                 cur.execute("SELECT id,name FROM jobType;")
                 job_types = cur.fetchall()
                 job_types = {data[1].lower():data[0] for data in job_types}
-                cur.execute("SELECT fst_rate,sec_rate,thrd_rate,frth_rate,lst_rate FROM pic ORDER BY id DESC LIMIT 1;")
-                all_rates = cur.fetchall()
+                cur.execute("SELECT fst_rate,sec_rate,thrd_rate,frth_rate,lst_rate,unique_rate,id FROM pic ORDER BY id DESC LIMIT 1;")
+                all_rates = {data[5]:[data[:5],data[6]] for data in cur.fetchall()}
                 cur.execute("SELECT shop.business_unit_id,shop.id as shop_id,LOWER(unit.name),LOWER(shop.name) FROM res_partner AS unit INNER JOIN shop ON shop.business_unit_id = unit.id;")
                 unit_shop_datas = cur.fetchall()
                 unit_shop_dct = {data[2:]:data[:2] for data in unit_shop_datas}
                 conflict_unique_column = "eachJob_concatenated"
-                for row_counter,row in enumerate(worksheet.iter_rows(min_row=3),start=3):
+                for row_counter,row in enumerate(worksheet.iter_rows(min_row=3),start=2):
                     if None in (row[1].value,row[2].value,row[3].value,row[4].value,row[5].value,row[6].value,row[7].value,
                                 row[8].value,row[9].value,row[10].value,row[11].value,row[12].value,row[13].value,
-                                row[14].value,row[15].value,row[16].value) or "" in (row[1].value,row[2].value,row[3].value,row[4].value,row[5].value,row[6].value,row[7].value,
+                                row[14].value,row[15].value,row[16].value,row[17].value,row[18].value,row[19].value) or "" in (row[1].value,row[2].value,row[3].value,row[4].value,row[5].value,row[6].value,row[7].value,
                                 row[8].value,row[9].value,row[10].value,row[11].value,row[12].value,row[13].value,
-                                row[14].value,row[15].value,row[16].value,row[17].value,row[18].value):
-                        return redirect(url_for('views.show_service_datas',mgs=f"Invalid or Blank field at row {row_counter}"))
+                                row[14].value,row[15].value,row[16].value,row[17].value,row[18].value,row[19].value):
+                        return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid or Blank field at row {row_counter}"))
+                    if row[19].value.strip() not in all_rates:
+                        return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid or Unregistered PIC Rate at row {row_counter}"))                        
                     cur.execute(""" WITH inserted AS (
                                         INSERT INTO customer (name)
                                         VALUES (%s)
@@ -78,8 +79,9 @@ def excel_import(mgs=None):
                     fst_tech,sec_tech,thrd_tech,frth_tech,lst_tech = row[12].value.strip().lower(),row[13].value.strip().lower(),row[14].value.strip().lower(),row[15].value.strip().lower(),row[16].value.strip().lower()
                     if fst_tech not in technicians or sec_tech not in technicians or thrd_tech not in technicians or frth_tech not in technicians or lst_tech not in technicians:
                         return redirect(url_for('views.show_service_datas',mgs=f"Invalid PIC Name at row - {row_counter}"))
+                    rate = all_rates[row[19].value.strip()]
                     eachJob_concatenated = row[2].value.strftime("%d/%m/%Y") + row[3].value + row[9].value
-                    eachJob_insert_query += f"""('{row[2].value}','{row[3].value}','{unit_shop_ids[0]}','{unit_shop_ids[1]}','{row[8].value}','{cus_id[0][0]}','{vehicle_id[0][0]}','{row[9].value}','{job_types[row[10].value.strip().lower()]}','{int(row[11].value):.2f}','{technicians[fst_tech]}','{get_partial_amount(all_rates[0][0],row[11].value)}','{technicians[sec_tech]}','{get_partial_amount(all_rates[0][1],row[11].value)}','{technicians[thrd_tech]}','{get_partial_amount(all_rates[0][2],row[11].value)}','{technicians[frth_tech]}','{get_partial_amount(all_rates[0][3],row[11].value)}','{technicians[lst_tech]}','{get_partial_amount(all_rates[0][4],row[11].value)}','{eachJob_concatenated}'),"""
+                    eachJob_insert_query += f"""('{row[2].value}','{row[3].value}','{unit_shop_ids[0]}','{unit_shop_ids[1]}','{row[8].value}','{cus_id[0][0]}','{vehicle_id[0][0]}','{row[9].value}','{job_types[row[10].value.strip().lower()]}','{int(row[11].value):.2f}','{technicians[fst_tech]}','{get_partial_amount(rate[0][0],row[11].value)}','{technicians[sec_tech]}','{get_partial_amount(rate[0][1],row[11].value)}','{technicians[thrd_tech]}','{get_partial_amount(rate[0][2],row[11].value)}','{technicians[frth_tech]}','{get_partial_amount(rate[0][3],row[11].value)}','{technicians[lst_tech]}','{get_partial_amount(rate[0][4],row[11].value)}','{eachJob_concatenated}','{rate[1]}'),"""
                 cur.execute(eachJob_insert_query[:-1] + f" ON CONFLICT ({conflict_unique_column}) DO NOTHING;")
                 conn.commit()    
                 cur.close()
@@ -97,9 +99,11 @@ def excel_import(mgs=None):
                     eachJob_insert_query += f"('{row[0].value}'),"
             cur.execute(eachJob_insert_query[:-1] + f" ON CONFLICT ({conflict_unique_column}) DO NOTHING;")
             conn.commit()
-        cur.close()
-        conn.close()
-    return "Successfully Imported Excel File"
+            cur.close()
+            conn.close()
+        else:
+            return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f'<strong> Invalid Excel File Type.. <&#47;strong>'))
+    return redirect(url_for('views.show_service_datas',typ=view_type))
 
 @imports.route("/create-form/<typ>")
 def show_create_form(typ,mgs=None):
@@ -130,8 +134,9 @@ def keep_in_import(typ):
             conflict_unique_column = 'eachjob_concatenated'
             eachJob_insert_query = """ INSERT INTO eachJob (job_date,job_no,business_unit_id,shop_id,invoice_no,customer_id,vehicle_id,job_name,
                 job_type_id,total_amt,fst_pic_id,fst_pic_amt,sec_pic_id,sec_pic_amt,thrd_pic_id,thrd_pic_amt,frth_pic_id,
-                frth_pic_amt,lst_pic_id,lst_pic_amt,eachJob_concatenated) VALUES """
+                frth_pic_amt,lst_pic_id,lst_pic_amt,eachJob_concatenated,pic_rate_id) VALUES """
             edit = request.form.get("newOrEdit")
+
             if edit:
                 print(get_data('eachJobDelForm',request.form.get("jobNo")))
             #
@@ -140,6 +145,9 @@ def keep_in_import(typ):
             model = request.form.get("model")
             year = request.form.get("modelYear")
             cus_name = request.form.get("customerName")
+            cur.execute("SELECT fst_rate,sec_rate,thrd_rate,frth_rate,lst_rate,unique_rate,id FROM pic ORDER BY id DESC LIMIT 1;")
+            all_rates = {data[5]:[data[:5],data[6]] for data in cur.fetchall()}
+            print(all_rates)
             #
             if vehicle_id == '-100':
                 print("nani")
@@ -180,7 +188,7 @@ def keep_in_import(typ):
             job_types = [data.strip() for data in request.form.getlist('jobType')[1:]]
             #
             # print(request.form.getlist("picOne"))
-            # print(request.form.getlist("picTwo"))
+            # print(request.form.getlist( "picTwo"))
             # print(request.form.getlist("picThree"))
             # print(request.form.getlist("picFour"))
             # print(request.form.getlist("picFive"))
@@ -190,7 +198,8 @@ def keep_in_import(typ):
             pic_fours = [data.split("|")[1].strip() if "|" in data else 0 for data in request.form.getlist("picFour")[1:] ]
             pic_fives = [data.split("|")[1].strip() if "|" in data else 0 for data in request.form.getlist("picFive")[1:] ]
             pic_rates = [data.split(",") for data in request.form.getlist("pic-rate")[1:]]
-            print(pic_rates)
+            # print(request.form.getlist("pic-rate"))
+            # print(pic_rates)
             # print(pic_ones)
             # print(pic_twos)
             # print(pic_threes)
@@ -199,10 +208,9 @@ def keep_in_import(typ):
             #
             job_costs = request.form.getlist("jobCost")[1:]
             for data in zip(descriptions,job_types,pic_ones,pic_twos,pic_threes,pic_fours,pic_fives,job_costs,pic_rates):
-                print(data)
                 eachJob_concatenated = job_date.replace("-","/") + job_no + data[0]
                 eachJob_insert_query += f"""('{job_date}','{job_no}','{unit_id}','{shop_id}','{invoice_no}','{cus_id}','{vehicle_id}','{data[0]}',
-                '{data[1]}','{data[7]}','{data[2]}','{get_partial_amount(data[8][0],data[7])}','{data[3]}','{get_partial_amount(data[8][1],data[7])}','{data[4]}','{get_partial_amount(data[8][2],data[7])}','{data[5]}','{get_partial_amount(data[8][3],data[7])}','{data[6]}','{get_partial_amount(data[8][4],data[7])}','{eachJob_concatenated}'),"""
+                '{data[1]}','{data[7]}','{data[2]}','{get_partial_amount(data[8][0],data[7])}','{data[3]}','{get_partial_amount(data[8][1],data[7])}','{data[4]}','{get_partial_amount(data[8][2],data[7])}','{data[5]}','{get_partial_amount(data[8][3],data[7])}','{data[6]}','{get_partial_amount(data[8][4],data[7])}','{eachJob_concatenated}','{all_rates[",".join(data[8])][1]}'),"""
             cur.execute(eachJob_insert_query[:-1] + f" ON CONFLICT ({conflict_unique_column}) DO NOTHING;")
         elif typ == 'pic-rate':
             idd = request.form.get("idd")
@@ -218,10 +226,14 @@ def keep_in_import(typ):
         elif typ == 'technician':
             idd = request.form.get("idd")
             tech_name  = request.form.getlist("tech")
+            shop_name = request.form.getlist("shop")
+            shop_name = shop_name[1] if idd else shop_name[0] 
+            cur.execute("SELECT business_unit_id,id FROM shop WHERE name = %s;",(shop_name,))
+            data = cur.fetchall()
             if idd:
-                cur.execute(f""" UPDATE technicians SET name = '{tech_name[1]}' WHERE id = '{idd}' and NOT EXISTS ( SELECT 1 FROM technicians WHERE name = '{tech_name[1]}');""")
+                cur.execute(f""" UPDATE technicians SET name = '{tech_name[1]}',business_unit_id = '{data[0][0]}',shop_id = '{data[0][1]}' WHERE id = '{idd}' and NOT EXISTS ( SELECT 1 FROM technicians WHERE name = '{tech_name[1]}' and business_unit_id = '{data[0][0]}' and shop_id = '{data[0][1]}') ;""")
             else:
-                 cur.execute(f""" INSERT INTO technicians (name) VALUES ('{tech_name[0]}') ON CONFLICT (name) DO NOTHING;""")
+                cur.execute(f""" INSERT INTO technicians (name,business_unit_id,shop_id) VALUES ('{tech_name[0]}','{data[0][0]}','{data[0][1]}') ON CONFLICT (name) DO NOTHING;""")
         elif typ == 'jobType':
             idd = request.form.get("idd")
             job_type = request.form.getlist("jobType")

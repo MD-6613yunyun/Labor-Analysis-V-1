@@ -24,7 +24,7 @@ Datas Tree View
                         <input class="form-control" name="upload_serivce_datas" type="file" id="formFile" required>
                         <input value="Jobs Data" name="selectExcelFile" type="text" hidden>
                         <input value="service-datas" name="selectView" type="text" hidden>
-                        <button class="btn btn-outline-dark" type="submit" id="button-addon2">Button</button>
+                        <button class="btn btn-outline-dark" type="submit" id="button-addon2">Import</button>
                     </div>
                 </form>
             </div>
@@ -39,7 +39,9 @@ Datas Tree View
                         <input type="text" hidden value="eachJob" name="database">
                         <div class="drop-box d-none">
                             <p onclick="addValForTable('job_no')">Job. No. - <span class="dropdownFormClicker"></span></p>
-                            <p onclick="addValForTable('plate')">Reg. No. - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('plate')">Reg.  No. - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('unit.name')">Unit      - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('shop.name')">Shop      - <span class="dropdownFormClicker"></span></p>
                         </div>
                         <input hidden type="text" value="False" id="editOrSubmit" name="editOrSubmit"/>
                     </div>
@@ -88,6 +90,7 @@ Datas Tree View
 {% elif typ == 'pic-rate' %}
 
     <h1 class="header">PIC table</h1>
+    <button class="add-btn">Add +</button>
     <div class="table-sec">
         <form action="{{url_for('imports.keep_in_import',typ='pic-rate')}}" id="rate-form" method="post">
         <table class="table-table">
@@ -113,7 +116,7 @@ Datas Tree View
                     <td class="check-icon" onclick="checkRateFormAndSumbit(this)"><i class="fa-solid fa-square-check"></i></td>
                 </tr>
                 {% for data in result %}
-                <tr class="testRowForDblClick" ondblclick="replaceInputFormInViewForm('{{data[0]}}',this)">
+                <tr class="testRowForDblClick" ondblclick="replaceInputFormInViewForm(this)">
                     <td><input hidden type="number"  value="{{data[0]}}" form="rate-form"></td>
                     {% for val in data[1:] %}
                     <td>{{val}}</td>
@@ -136,23 +139,25 @@ Datas Tree View
             <form action="{{url_for('imports.excel_import')}}" method="post" enctype="multipart/form-data">
                 <div class="input-group mb-3">
                     <input class="form-control" name="upload_serivce_datas" type="file" id="formFile" required>
-                    <input value="Technician Data" name="selectExcelFile" type="text" hidden>
-                    <input value="" name="selectExcelFile" type="text" hidden>
-                    <button class="btn btn-outline-dark" type="submit" id="button-addon2">Button</button>
+                    <input value="Technicians" name="selectExcelFile" type="text" hidden>
+                    <input value="technician" name="selectView" type="text" hidden>
+                    <button class="btn btn-outline-dark" type="submit" id="button-addon2">Import</button>
                 </div>
             </form>
         </div>
         <div class="paginate">
-            <form action="{{url_for('views.show_service_datas',typ='service-datas')}}" method="POST">
+            <form action="{{url_for('views.show_service_datas',typ='technician')}}" method="POST">
                 <div class="search-bar">
                     <input type="text" hidden value="" name="column" id="column"/>
                     {% if filt %}
-                        <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ='service-datas')}}">X</a>                        
+                        <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ='technician')}}">X</a>                        
                     {% endif %}
                     <input type="text" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)">
-                    <input type="text" hidden value="eachJob" name="database">
+                    <input type="text" hidden value="technicians" name="database">
                     <div class="drop-box d-none">
-                        <p onclick="addValForTable('tech_name')">Name - <span class="dropdownFormClicker"></span></p>
+                        <p onclick="addValForTable('tech')">Name - <span class="dropdownFormClicker"></span></p>
+                        <p onclick="addValForTable('bi')">Unit - <span class="dropdownFormClicker"></span></p>
+                        <p onclick="addValForTable('shop')">Shop - <span class="dropdownFormClicker"></span></p>
                     </div>
                     <input hidden type="text" value="False" id="editOrSubmit" name="editOrSubmit"/>
                 </div>
@@ -169,21 +174,39 @@ Datas Tree View
                     <tr>
                         <th></th>
                         <th>Name</th>
+                        <th>Business Unit</th>
+                        <th>Shop</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr id="hidden-rate-form-input" class="d-none">
                         <td></td>
-                        <td><input type="text" required name="tech"></td>
+                        <td><input type="text" autocomplete="off" required name="tech"></td>
+                        <td>
+                            <input type="text"  list="unitListOptions" required name="unit">
+                            <datalist id="unitListOptions">
+                                {% for dt in extra_datas[0] %}
+                                    <option value="{{dt[0]}}">
+                                {% endfor %}
+                            </datalist>
+                        </td>
+                        <td>
+                            <input type="text" list="shopListOptions" required name="shop">
+                            <datalist id="shopListOptions">
+                                {% for dt in extra_datas[1] %}
+                                    <option value="{{dt[0]}}">
+                                {% endfor %}
+                            </datalist>
+                        </td>
                         <td class="check-icon" onclick="checkRateFormAndSumbit(this)"><i class="fa-solid fa-square-check"></i></td>
                     </tr>
                     {% for data in result %}
-                        <tr class="testRowForDblClick" id="technician" ondblclick="replaceInputFormInViewForm('{{data[0]}}',this)">
+                        <tr class="testRowForDblClick" id="technician" ondblclick="replaceInputFormInViewForm(this)">
                             <td><input hidden type="number" value="{{data[0]}}"></td>
-                            {% for val in data[1:] %}
-                                <td>{{val}}</td>
-                            {% endfor %}
+                            <td>{{data[1]}}</td>
+                            <td>{{data[2]}}</td>
+                            <td>{{data[3]}}</td>
                             <td class="trash-icon" onclick="deleteLineDataFromViewForm('{{data[0]}}','technicians')"><i class="fa-solid fa-trash"></i></td>
                         </tr>
                     {% endfor %}
@@ -213,7 +236,7 @@ Datas Tree View
                         <td class="check-icon" onclick="checkRateFormAndSumbit(this)" ><i class="fa-solid fa-square-check"></i></td>
                     </tr>
                     {% for data in result %}
-                    <tr class="testRowForDblClick" id="jobType" ondblclick="replaceInputFormInViewForm('{{data[0]}}',this)">
+                    <tr class="testRowForDblClick" id="jobType" ondblclick="replaceInputFormInViewForm(this)">
                         <td><input hidden type="number"  value="{{data[0]}}" form="rate-form"></td>
                         <td>{{data[1]}}</td>
                         <td class="trash-icon" onclick="deleteLineDataFromViewForm('{{data[0]}}','jobType')" ><i class="fa-solid fa-trash"></i></td>

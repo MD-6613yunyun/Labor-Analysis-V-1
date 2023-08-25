@@ -15,9 +15,24 @@ create table jobType (
     name varchar(200) not null unique
 );
 
+create table vehicle_brand(
+    id serial primary key,
+    name varchar(100) not null unique
+)
+
+create table vehicle_model(
+    id serial primary key,
+    brand_id int references vehicle_brand(id),
+    name varchar(100) not null
+)
+
 create table customer (
     id serial primary key,
+    code varchar(10) not null unique,
     name varchar(200) not null unique,
+    address varchar(100) not null,
+    ph_no varhcar(50) not null unique,
+    create_date date default CURRENT_DATE,
 );
 
 create table res_partner (
@@ -44,6 +59,7 @@ create table eachJob (
     job_name varchar(255) not null,
     job_type_id int references jobType (id) not null,
     total_amt numeric(10,2) not null,
+    pic_rate_id int references pic(id) not null,
     fst_pic_id int references technicians (id) not null,
     fst_pic_amt numeric(10,2) not null,
     sec_pic_id int references technicians (id) not null,
@@ -58,13 +74,13 @@ create table eachJob (
 );
 
 create table pic (
-    id serial,
+    id serial primary key,
     fst_rate int not null,
     sec_rate int not null,
     thrd_rate int not null,
     frth_rate int not null,
     lst_rate int not null,
-    active bool default '0',
+    unique_rate varchar(100) unique,
     created_date date default CURRENT_DATE
 );
 

@@ -107,6 +107,7 @@ Edit Datas
                                 {% endfor %}
                             </select>
                         </td>
+                        <input type="text" name="pic-rate" value="" hidden>
                         <td><input type="text" name="picOne" class="pic" list="datalistOptions" autocomplete="off"></td>
                         <td><input type="text" name="picTwo" class="pic" list="datalistOptions" autocomplete="off"></td>
                         <td><input type="text" name="picThree" class="pic" list="datalistOptions" autocomplete="off"></td>
@@ -129,6 +130,7 @@ Edit Datas
                                     {% endfor %}
                                 </select>
                             </td>
+                            <input type="text" name="pic-rate" value="{{data[18]}}" hidden>
                             <td><input type="text"  value="{{data[12]}}"  name="picOne"  class="{{ 'pic d-none' if data[12] == 'Bot | 0' else 'pic' }}"   list="datalistOptions" autocomplete="off"></td>
                             <td><input type="text" value="{{data[13]}}" name="picTwo"  class="{{ 'pic d-none' if data[13] == 'Bot | 0' else 'pic' }}"   list="datalistOptions" autocomplete="off"></td>
                             <td><input type="text" value="{{data[14]}}" name="picThree"  class="{{ 'pic d-none' if data[14] == 'Bot | 0' else 'pic' }}"   list="datalistOptions" autocomplete="off"></td>

@@ -11,7 +11,7 @@
 
 {% block innertemplate %}
 
-<h1 class="text-center mt-5">Technicians Activities Report (<span id="start-dt">{{extra_datas[2]}}</span>&lt;=&gt;<span id="end-dt">{{extra_datas[3]}}</span>)</h1>
+<h1 class="text-center mt-5">Technicians Activities Report <span id="start-dt" class="extra-datas">( {{extra_datas[2]}} &lt; = &gt; </span><span id="end-dt" class="extra-datas">{{extra_datas[3]}}  - {{extra_datas[4]}})</span></h1>
 
 <div id="chartContainer" class="m-5 mt-2" style="width: 93%;overflow-x: scroll;">
     <div id="container" style="width: 5000px;height: 500px;"></div>

@@ -37,7 +37,7 @@
         </div>
 
         <div id="mySidenav" class="sidenav">
-            <a href="#">Dashboard<i class="fa-solid fa-angle-down"></i></a>
+            <a href="{{url_for('views.show_dashboard')}}">Dashboard<i class="fa-solid fa-angle-down"></i></a>
             <a href="#"  onclick="showDropdown(this)">Reporting<i class="fa-solid fa-angle-down"></i></a>
             <div class="dropdown-container">
                 <a href="#" class="sub-head" onclick="callModalForDateRange('get_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">JOB Ability</a>
@@ -74,6 +74,26 @@
                             <div class="col">
                                 <label for="end-dt" class="mb-1">End Date</label>
                                 <input type="date" id="end-dt" name="end-dt" value="2023-05-11">                        
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="bi" class="mb-1">Business Unit</label>
+                                <select name="bi" id="bi" class="form-select form-select-sm" aria-label="Small select example">
+                                    <option selected value="1">PIT & GO</option>
+                                    <option value="2">TOYOTA</option>                                    
+                                    <option selected value="0">All Units</option>
+                                </select>                        
+                            </div>
+                            <div class="col">
+                                <label for="shop"  class="mb-1">Shop</label>
+                                <select name="shop" id="shop" class="form-select form-select-sm" aria-label="Small select example">
+                                    <option selected value="3">PIT & GO BAWGA</option>
+                                    <option value="1">PIT & GO BGO</option>
+                                    <option value="2">PIT & GO SKP</option>
+                                    <option value="4">TOYOTA BAWGA</option>
+                                    <option value="0">All Shops</option>
+                                </select>                      
                             </div>
                         </div>
                     </div>
@@ -115,8 +135,9 @@
             function get_dates_for_form_submit(){
                 start_dt = document.getElementById("start-dt").value
                 end_dt = document.getElementById("end-dt").value
-                console.log(start_dt,end_dt)
-                localStorage.setItem("date",JSON.stringify([start_dt,end_dt]))                
+                bi_id = document.getElementById("bi").value
+                shop_id = document.getElementById("shop").value
+                localStorage.setItem("date",JSON.stringify([start_dt,end_dt,bi_id,shop_id]))                
             }
             function callModalForDateRange(txt){
                 form = document.getElementById("submitForm")

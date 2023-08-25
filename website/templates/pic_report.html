@@ -5,7 +5,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
 {% endblock %}
 {% block innertemplate %}
-<h1 class="text-center m-3 mt-5">PIC Report (<span id="start-dt">{{extra_datas[0]}}</span>&lt;=&gt;<span id="end-dt">{{extra_datas[1]}}</span>)</h1>
+<h1 class="text-center m-3 mt-5">PIC Report <span id="start-dt" class="extra-datas">( {{extra_datas[0]}} &lt; = &gt; </span><span id="end-dt" class="extra-datas">{{extra_datas[1]}}  - {{extra_datas[2]}})</span></h1>
 <div class="tableContainer">
   <table class="table" id="pic-table">
     <thead class="align-middle text-center">

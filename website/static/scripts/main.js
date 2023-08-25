@@ -43,7 +43,7 @@ function showDropdown(btn){
 
 if (window.location.href.endsWith("/get-report")){
     dates = JSON.parse(localStorage.getItem('date'))
-    fetch(`/get-graph-report/${dates[0]}/${dates[1]}`)
+    fetch(`/get-graph-report/${dates[0]}/${dates[1]}/${dates[2]}/${dates[3]}`)
     .then(response => response.json())
     .then(result => {
         function drawChart() {
@@ -116,11 +116,6 @@ if (window.location.href.endsWith("/get-report")){
     })
     .catch(err => console.log(err))
 
-    var chartContainer = document.getElementById('chartContainer');
-    chartContainer.addEventListener('scroll', function () {
-        var scrollLeft = chartContainer.scrollLeft;
-        chartWrapper.style.width = 1200 + scrollLeft + 'px';
-    });
 }
 
 function exportTableToExcel() {
@@ -398,17 +393,20 @@ function deleteLineDataFromViewForm(idd,db){
 }
 
 
-function replaceInputFormInViewForm(idd,tr){
+function replaceInputFormInViewForm(tr){
     let inputType = ""
     let inputName = ""
     if(tr.children.length == 7){
         inputType = "number"
-        inputName = "rate"
+        inputName = ["rate","rate","rate","rate","rate"]
+        optionList = ["","","","",""]
     }else{
         if (tr.id == 'technician'){ 
-            inputName = "tech"
+            inputName = ['tech','unit','shop']
+            optionList = ['','unitListOptions','shopListOptions']
         }else{
-            inputName = "jobType"            
+            inputName = ["jobType"] 
+            optionList = ['']           
         }
         inputType = "text" 
     }
@@ -419,7 +417,7 @@ function replaceInputFormInViewForm(idd,tr){
     if (tr.getElementsByClassName("trash-icon")[0].getAttribute('onclick')[0] != 'c'){
         inpArr[0].getElementsByTagName("input")[0].setAttribute("name","idd")
         for (let i=1;i < inpArr.length-1;i++){
-            inpArr[i].innerHTML = `<input class="rate-inps" value="${inpArr[i].textContent}" type="${inputType}" min="0" max="100" name="${inputName}">`        
+            inpArr[i].innerHTML = `<input class="rate-inps" list='${optionList[i-1]}' autocomplete='off' value="${inpArr[i].textContent}" type="${inputType}" min="0" max="100" name="${inputName[i-1]}">`        
         }
         lastTdRow.setAttribute("onclick","checkRateFormAndSumbit(this)")
         lastTdRow.innerHTML = `<i class="fa-solid fa-square-check"></i>`

@@ -19,8 +19,8 @@
             <nav class="head-class">
                 <div class="logo-img">
                     <a href="{{url_for('views.home')}}"><img src="{{url_for('static',filename='images/web_logo.png')}}"/></a>
-                    <i class="fa-solid fa-angle-right open-btn" onclick="openNav()"></i>
-                    <i class="fa-solid fa-angle-left close-btn" style="display: none;" onclick="closeNav()"></i>
+                    <i class="fa-solid fa-angle-right open-btn logo-arrow" onclick="openNav()"></i>
+                    <i class="fa-solid fa-angle-left close-btn logo-arrow" style="display: none;" onclick="closeNav()"></i>
                 </div>
                 <h1 class="job-data-header">{% block pageHeader %} {% endblock %}</h1>
                 <div class="profile-tab">

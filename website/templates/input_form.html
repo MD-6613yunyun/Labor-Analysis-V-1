@@ -17,60 +17,74 @@ Create Form
         </div>
     </div>
     <form  class="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='service-datas')}}" method="post">
-        <div class="form-area">
-            <div class="form-grid">       
-                <div class="material-textfield">
-                    <input placeholder="" hidden name="vehicleInformation" id="vehicleInformation" type="number"> 
-                    <datalist id="plateListOptions">
-                        {% for dt in result[0]%}
-                            <option value="{{dt[0]}}">
-                        {% endfor %}
-                    </datalist>
-                    <input  autocomplete="off" required placeholder="" id="vehiclePlate" name="plate"  onchange="chooseRegistartionNo()" type="text" list="plateListOptions">
-                    <label class="custom-label">Vehicle Registration No</label>
-                </div>
-                <div class="material-textfield">
-                    <input autocomplete="off"  required placeholder="" name="invoiceNo" type="text">
-                    <label class="custom-label">Invoice No</label>
-                </div>       
-                <div class="material-textfield">
-                    <input autocomplete="off"  required placeholder="" name="jobNo" type="text" >
-                    <label class="custom-label">Job No</label>
-                </div>     
-                <div class="material-textfield">               
-                    <input autocomplete="off"  required placeholder="" name="customerName" class="vehicle-datas" type="text">
-                    <label class="custom-label">Customer</label>
-                </div>
-                <div class="material-textfield">
-                    <input autocomplete="off"  required placeholder=" " class="vehicle-datas" name="model" type="text">
-                    <label class="custom-label">Vehicle Model</label>
-                </div>
-                <div class="material-textfield">
-                    <input autocomplete="off" style="width: 17vw;"  required placeholder="" minlength="4" maxlength="4" min="1990" max="2050"  type="number" class="vehicle-datas" name="modelYear" list="yearListOptions">
-                    <label class="custom-label">Vehicle Model Year</label>
-                </div>
-                <div class="material-textfield">
-                    <input autocomplete="off"  required placeholder=" " name="jobDate" type="date" >
-                    <label class="custom-label">Date</label>
-                </div>
-                <div class="material-textfield">
-                    <datalist id="shopListOptions">
-                        {% for dt in result[2]%}
-                            <option value="{{dt[1]}} | {{dt[0]}}">
-                        {% endfor %}
-                    </datalist>
-                    <input required autocomplete="off" placeholder="" class="upperPic" name="shopID" type="text" list="shopListOptions">
-                    <label class="custom-label">Shop</label>
-                </div>
-                <div class="material-textfield">
-                    <datalist id="unitListOptions">
-                        {% for dt in result[1]%}
-                            <option value="{{dt[1]}} | {{dt[0]}}">
-                        {% endfor %}
-                    </datalist>
-                    <input required autocomplete="off" placeholder="" class="upperPic" name="unitID" type="text" list="unitListOptions">
-                    <label class="custom-label">Business Unit</label>
-                </div>
+        <div class="input-sec">
+            <div class="each-input">
+                <label for="">Vehicle Register No</label>
+                <select name="" id="" class="vehicle-register-box">
+                    <option value="">YGN</option>
+                    <option value="">MDY</option>
+                    <option value="">AYA</option>
+                </select>
+                <input type="text" class="text-one">
+                <input type="number" class="text-two">
+            </div>
+            <div class="each-input">
+                <label for="">Date</label>
+                <input type="date">
+            </div>
+            <div class="each-input">
+                <label for="">Customer</label>
+                <input type="text">
+            </div>
+            <div class="each-input">
+                <label for="">Invoice No</label>
+                <input type="text">
+            </div>
+            <div class="each-input">
+                <label for="">Customer Address</label>
+                <input type="text" style="width: 30%" class="text-three">
+                <select name="" id="" class="state-register-box">
+                    <option value="" selected>State</option>
+                    <option value="">YGN</option>
+                    <option value="">MDY</option>
+                    <option value="">AYA</option>
+                </select>
+            </div>
+            <div class="each-input">
+                <label for="">Vehicle Make</label>
+                <select name="" id="" class="vehicle-box">
+                    <option value="">YGN</option>
+                    <option value="">MDY</option>
+                    <option value="">AYA</option>
+                </select>
+            </div>
+            <div class="each-input">
+                <label for="">Customer Ph</label>
+                <input type="number">
+            </div>
+            <div class="each-input">
+                <label for="">Vehicle Model</label>
+                <select name="" id="" class="vehicle-box">
+                    <option value="">YGN</option>
+                    <option value="">MDY</option>
+                    <option value="">AYA</option>
+                </select>
+            </div>
+            <div class="each-input">
+                <label for="">Job no</label>
+                <select name="" id="" class="vehicle-box">
+                    <option value="">YGN</option>
+                    <option value="">MDY</option>
+                    <option value="">AYA</option>
+                </select>
+            </div>
+            <div class="each-input">
+                <label for="">Vehicle Model Year</label>
+                <select name="" id="" class="vehicle-box">
+                    <option value="">YGN</option>
+                    <option value="">MDY</option>
+                    <option value="">AYA</option>
+                </select>
             </div>
         </div>
         <div class="input-table">
@@ -145,7 +159,7 @@ Create Form
                         <td class="d-none"><input type="text" name="picrow"></td>
                     </tr>
                     <tr>
-                        <td colspan="8" class="add-job-row" onclick="addAnotherRow(this)"><button type="button" class="btn btn-outline-dark btn-sm">Add Job +</button></td>
+                        <td colspan="8" class="add-job-row" style="background-color: #F3FAE1;" onclick="addAnotherRow(this)"><button type="button" class="btn btn-outline-dark btn-sm">Add Job +</button></td>
                         <td class="d-none"><input type="number" value="0.0" step=".01" class="total-amount" name="totalCost"></td>
                         <td class="total-label"><b>Total</b></td>
                         <td class="total-amount">0.0</td>

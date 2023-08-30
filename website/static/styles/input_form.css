@@ -8,7 +8,7 @@ body{
 }
 
 /* input's css */
-  /* button */
+/* button */
 .submit-discard{
     width: 99%;
     margin: 10px auto;
@@ -392,7 +392,7 @@ table td input:focus{
     /* background-color: rgb(192, 190, 190); */
     text-align: center;
     padding: 2px;
-    box-shadow: inset 5px 5px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 /* td{
@@ -448,61 +448,48 @@ table td input:focus{
     overflow: auto;
 }
 
+.technician-table{
+    width: 99%;
+    margin: 0 auto;
+}
+
 .table-table{
     border-collapse: collapse;
-    width: 100%;
+    width: 99%;
     margin: 0 auto;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
 }
 
 .table-table td{
-    padding: 10px 5px;
     text-align: center;
     cursor: pointer;
-    border: 1px solid #7570d4;
+    padding: 5px;
 }
 
 .table-table th{
-    padding: 10px;
-    border-bottom: 1px solid #7570d4;
+    font-size: 20px;
+    background: linear-gradient(to bottom, #ffffff, #bbbbbb);
     position: sticky;
     top: 0;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 1);
 }
 
-.table-table thead{
-    background-color: #8f8bd3;
-}
-
-.table-table thead tr th:first-child{
-    border-top-left-radius: 10px;
-}
-
-.table-table thead tr th:last-child{
-    border-top-right-radius: 10px;
-}
-
-.table-table tbody tr:nth-child(even){
-    background-color: rgb(175, 175, 175);
-    transition: background-color .5s ease;
-}
-
-.table-table tbody tr:nth-child(odd){
-    background-color: rgb(200, 200, 200);
-    transition: background-color .5s ease;
+.table-table tbody tr{
+    background-color: #e5e5e5;
 }
 
 .table-table tbody tr:hover{
-    background-color: #b1b1d1;
+    background-color: #A8A8E0;
 }
 
-.table-table tbody tr td:first-child input{
+/* .table-table tbody tr td:first-child input{
     width: 20px;
 }
 
 .table-table tbody tr td:first-child label{
     font-size: 15px;
-}
+} */
 
 #table-body-of-pic tr td input{
     width: 100%;
@@ -542,7 +529,7 @@ table td input:focus{
     background-color: #446045;
 }
 
-.trash-icon, .check-icon{
+.trash-icon{
     background-color: #FF4242;
     padding: 10px;
     color: white;
@@ -556,6 +543,7 @@ table td input:focus{
 
 .check-icon{
     background-color: #7EE081;
+    color: white;
     font-size: 20px;
 }
 
@@ -585,31 +573,39 @@ table td input:focus{
     width: 100%;
     margin: 0 auto;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
 }
 
 .technician-table table td{
-    padding: 10px 5px;
     text-align: start;
     cursor: pointer;
-    border: 1px solid #7570d4;
+    font-size: 15px;
+    padding-left: 20px;
 }
 
 .technician-table tbody td:last-child{
     text-align: center;
+    padding: unset;
 }
 
+/* 
+.technician-table tbody td:last-child:hover{
+    background-color: red;
+} */
+
 .technician-table table th{
+    font-size: 20px;
     position: sticky;
     top: 0;
-    padding: 10px;
-    border-bottom: 1px solid #7570d4;
-    background-color: #8f8bd3;
+    background: linear-gradient(to bottom, #ffffff, #888888);
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 1);
+}
+
+.technician-table tbody tr{
+    background-color: #e5e5e5;
 }
 
 .technician-table tbody tr:hover{
-    background-color: #b1b1d1;
+    background-color: #a8a8e0;
 }
 
 
@@ -632,16 +628,11 @@ table td input:focus{
     width: 50px;
 }
 
-.technician-table td:first-child input{
+.technician-table th:last-child, .technician-table td:last-child{
     width: 50px;
 }
 
-.technician-table th:last-child, .technician-table td:last-child{
-    width: 40px;
-}
-
-
-.trash-icon, .check-icon{
+/* .trash-icon{
     background-color: #FF4242;
     padding: 10px;
     color: white;
@@ -651,17 +642,16 @@ table td input:focus{
 
 .trash-icon:hover{
     background-color: #ca0000;
-}
+} */
 
-.check-icon{
+/* .check-icon{
     background-color: #7EE081;
     font-size: 20px;
 }
 
 .check-icon:hover{
     background-color: #30ee36;
-}
-
+} */
 
 .input-table,.edit-table-container{
     width: 99%;
@@ -710,7 +700,6 @@ table td input:focus{
 }
 
 /* input-form-input-sec  */
-
 .input-sec{
     display: grid;
     grid-template-columns: auto auto;
@@ -727,7 +716,6 @@ table td input:focus{
     align-items: center;
     text-align: start;
     margin: 10px 0px;
-    /* background-color: red; */
 }
 
 .each-input label{
@@ -750,17 +738,8 @@ table td input:focus{
 }
 
 .each-input input[type="date"]{
-    /* border-top-right-radius: 10px; */
-    /* border-bottom-right-radius: 10px; */
     padding: 2px;
 }
-
-/* .each-input input[type="date"]::-webkit-calendar-picker-indicator {
-    width: 20px; 
-    height: 20px;
-    background-size: cover;
-    cursor: pointer;
-} */
 
 .each-input select{
     border: none;
@@ -801,7 +780,6 @@ table td input:focus{
 
     .each-input input{
         height: 19px;
-        /* padding: 10px; */
         width: 50%;
     }
 
@@ -820,4 +798,18 @@ table td input:focus{
     .input-sec .each-input .vehicle-box{
         height: 19px;
     }
+}
+
+.table-gradient{
+    background: linear-gradient(to bottom, #ffffff, #bbbbbb);
+    /* padding: 5px 2%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 1); */
+}
+
+.customer-table table{
+    width: 100%;
+    background-color: red;
 }

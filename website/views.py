@@ -1,6 +1,7 @@
 from flask import Blueprint,render_template,request,jsonify,url_for,redirect
 from website import db_connect
 from decimal import Decimal 
+from datetime import datetime
 
 views = Blueprint('views',__name__)
 
@@ -21,16 +22,21 @@ def get_report(start_dt=None,end_dt=None,bi=None,shop=None):
             start_dt = request.form.get('start-dt')
             end_dt = request.form.get('end-dt')
             bi = request.form.get('bi')
-            shop = request.form.get('shop')
+            shop = request.form.get('shop') 
         else:
             if not request.cookies.get('username'): 
                 return redirect(url_for('views.home'))
         where_clause = ""
-        where_clause += f"WHERE ej.business_unit_id = '{bi}' " if bi != '0' else ""
+        where_clause += f"AND ej.business_unit_id = '{bi}' " if bi != '0' else ""
         where_clause += f"AND ej.shop_id = '{shop}' " if shop != '0' else ""
         conn = db_connect()
         cur = conn.cursor()
-        cur.execute("SELECT id,name FROM technicians WHERE id != 0 ORDER BY id;")
+        technician_where_clause = ""
+        if bi != "0":
+            technician_where_clause = f"AND business_unit_id = '{bi}'"
+        if shop != "0":
+            technician_where_clause = f"AND shop_id = '{shop}'" 
+        cur.execute(f"SELECT id,name FROM technicians WHERE id != 0 {technician_where_clause} ORDER BY id;")
         technicians_ids = cur.fetchall()
         technicians_names = [tech[1] for tech in technicians_ids]
         cur.execute("SELECT id,name FROM jobType ORDER BY id;")
@@ -99,90 +105,68 @@ def pic_report():
         end_dt = request.form.get('end-dt')
         bi_id = request.form.get('bi')
         shop_id = request.form.get('shop')
+        technician_where_clause = ""
+        if bi_id != "0":
+            technician_where_clause = f"AND business_unit_id = '{bi_id}'"
+        if shop_id != "0":
+            technician_where_clause = f"AND shop_id = '{shop_id}'"            
         where_clause = ""
-        where_clause += f"WHERE ej.business_unit_id = '{bi_id}' " if bi_id != '0' else ""
+        where_clause += f"AND ej.business_unit_id = '{bi_id}' " if bi_id != '0' else ""
         where_clause += f"AND ej.shop_id = '{shop_id}' " if shop_id != '0' else ""
         cur.execute("SELECT id,name FROM jobType ORDER BY id;")
         job_types = cur.fetchall()
-        cur.execute("SELECT id,name FROM technicians WHERE id != 0 ORDER BY id;")
+        cur.execute(f"SELECT id,name FROM technicians WHERE id != 0  {technician_where_clause} ORDER BY id;")
         technicians_ids = cur.fetchall()
         technicians_names = [tech[1] for tech in technicians_ids]
         total_result = {}
 
         for idx,technician_id in enumerate(technicians_ids):
-            print(f""" 
-                SELECT 
-                    COALESCE(SUM(
-                            CASE WHEN ej.fst_pic_id = {technician_id[0]} THEN ej.fst_pic_amt ELSE 0.0 END +
-                            CASE WHEN ej.sec_pic_id = {technician_id[0]} THEN ej.sec_pic_amt ELSE 0.0 END +
-                            CASE WHEN ej.thrd_pic_id = {technician_id[0]} THEN ej.thrd_pic_amt ELSE 0.0 END +
-                            CASE WHEN ej.frth_pic_id = {technician_id[0]} THEN ej.frth_pic_amt ELSE 0.0 END +
-                            CASE WHEN ej.lst_pic_id = {technician_id[0]} THEN ej.lst_pic_amt ELSE 0.0 END
-                        ), 0.0) AS total_sum,
-                        COALESCE(SUM(CASE WHEN ej.fst_pic_id = {technician_id[0]} THEN ej.fst_pic_amt ELSE 0.0 END)) AS pic_1,
-                        COALESCE(SUM(CASE WHEN ej.sec_pic_id = {technician_id[0]} THEN ej.sec_pic_amt ELSE 0.0 END)) AS pic_2,
-                        COALESCE(SUM(CASE WHEN ej.thrd_pic_id = {technician_id[0]} THEN ej.thrd_pic_amt ELSE 0.0 END)) AS pic_3,
-                        COALESCE(SUM(CASE WHEN ej.frth_pic_id = {technician_id[0]} THEN ej.frth_pic_amt ELSE 0.0 END)) AS pic_4,
-                        COALESCE(SUM(CASE WHEN ej.lst_pic_id = {technician_id[0]} THEN ej.lst_pic_amt ELSE 0.0 END)) AS pic_5
-                FROM (
-                    SELECT id
-                    FROM jobtype
-                ) AS jt
-                CROSS JOIN (
-                    SELECT DISTINCT month_extracted
-                    FROM eachJob
-                ) AS months
-                LEFT JOIN (
-                    SELECT *
-                    FROM eachJob
-                    WHERE job_date BETWEEN '{start_dt}' AND '{end_dt}'
-                ) AS ej ON jt.id = ej.job_type_id AND months.month_extracted = ej.month_extracted
-                {where_clause}
-                GROUP BY jt.id
-                ORDER BY jt.id;
-            """)
             query = f""" 
-                SELECT 
-                    COALESCE(SUM(
+                    SELECT
+                        jt.id,
+                        COALESCE(SUM(
                             CASE WHEN ej.fst_pic_id = {technician_id[0]} THEN ej.fst_pic_amt ELSE 0.0 END +
                             CASE WHEN ej.sec_pic_id = {technician_id[0]} THEN ej.sec_pic_amt ELSE 0.0 END +
                             CASE WHEN ej.thrd_pic_id = {technician_id[0]} THEN ej.thrd_pic_amt ELSE 0.0 END +
                             CASE WHEN ej.frth_pic_id = {technician_id[0]} THEN ej.frth_pic_amt ELSE 0.0 END +
                             CASE WHEN ej.lst_pic_id = {technician_id[0]} THEN ej.lst_pic_amt ELSE 0.0 END
                         ), 0.0) AS total_sum,
-                        COALESCE(SUM(CASE WHEN ej.fst_pic_id = {technician_id[0]} THEN ej.fst_pic_amt ELSE 0.0 END)) AS pic_1,
-                        COALESCE(SUM(CASE WHEN ej.sec_pic_id = {technician_id[0]} THEN ej.sec_pic_amt ELSE 0.0 END)) AS pic_2,
-                        COALESCE(SUM(CASE WHEN ej.thrd_pic_id = {technician_id[0]} THEN ej.thrd_pic_amt ELSE 0.0 END)) AS pic_3,
-                        COALESCE(SUM(CASE WHEN ej.frth_pic_id = {technician_id[0]} THEN ej.frth_pic_amt ELSE 0.0 END)) AS pic_4,
-                        COALESCE(SUM(CASE WHEN ej.lst_pic_id = {technician_id[0]} THEN ej.lst_pic_amt ELSE 0.0 END)) AS pic_5
-                FROM (
-                    SELECT id
-                    FROM jobtype
-                ) AS jt
-                CROSS JOIN (
-                    SELECT DISTINCT month_extracted
-                    FROM eachJob
-                ) AS months
-                LEFT JOIN (
-                    SELECT *
-                    FROM eachJob
-                    WHERE job_date BETWEEN '{start_dt}' AND '{end_dt}'
-                ) AS ej ON jt.id = ej.job_type_id AND months.month_extracted = ej.month_extracted
-                {where_clause}
-                GROUP BY jt.id
-                ORDER BY jt.id;
-            """
+                        COALESCE(SUM(CASE WHEN ej.fst_pic_id = {technician_id[0]} THEN ej.fst_pic_amt ELSE 0.0 END), 0.0) AS pic_1,
+                        COALESCE(SUM(CASE WHEN ej.sec_pic_id = {technician_id[0]} THEN ej.sec_pic_amt ELSE 0.0 END), 0.0) AS pic_2,
+                        COALESCE(SUM(CASE WHEN ej.thrd_pic_id = {technician_id[0]} THEN ej.thrd_pic_amt ELSE 0.0 END), 0.0) AS pic_3,
+                        COALESCE(SUM(CASE WHEN ej.frth_pic_id = {technician_id[0]} THEN ej.frth_pic_amt ELSE 0.0 END), 0.0) AS pic_4,
+                        COALESCE(SUM(CASE WHEN ej.lst_pic_id = {technician_id[0]} THEN ej.lst_pic_amt ELSE 0.0 END), 0.0) AS pic_5
+                    FROM (
+                        SELECT id
+                        FROM jobtype
+                    ) AS jt
+                    CROSS JOIN (
+                        SELECT DISTINCT month_extracted
+                        FROM eachJob
+                    ) AS months
+                    LEFT JOIN (
+                        SELECT *
+                        FROM eachJob
+                        WHERE job_date BETWEEN '{start_dt}' AND '{end_dt}'
+                    ) AS ej ON jt.id = ej.job_type_id AND months.month_extracted = ej.month_extracted
+                        {where_clause}
+                    GROUP BY jt.id
+                    ORDER BY jt.id;
+                """        
             cur.execute(query)
             datas = cur.fetchall()
-            result = [[],[],[],[],[],[]]
+            result = [[] for _ in range(len(job_types))]
             for data in datas:
-                for i,dt in enumerate(data):
+                for i,dt in enumerate(data[1:]):
                     result[i].append(dt)
             result[0].append(sum(result[0]))
             result = [item for subitem in result for item in subitem]
             total_result[technicians_names[idx]] = result
-            cur.execute("SELECT name FROM shop WHERE id = %s;",(shop_id,))
-            shop_name = cur.fetchall()[0][0]
+            if shop_id == '0':
+                shop_name = 'ALL SHOPS'
+            else:
+                cur.execute("SELECT name FROM shop WHERE id = %s;",(shop_id,))        
+                shop_name = cur.fetchall()[0][0]
     else:
         return redirect(url_for('views.home'))
     return render_template('pic_report.html',total_result=total_result,job_types=job_types,extra_datas = [start_dt,end_dt,shop_name])
@@ -203,9 +187,10 @@ def show_service_datas(typ,mgs=None):
         if typ == 'service-datas':
             if db == 'eachJob':
                 with_id_query =f""" SELECT 
-                                        jb.job_date,unit.name || ' | ' || unit.id,shop.name || ' | ' || shop.id,jb.job_no,customer.name,vehicle.plate,vehicle.model,
-                                        vehicle.year,jb.invoice_no,jb.job_name,jobType.name,jb.total_amt,t_one.name || ' | ' || t_one.id,t_two.name || ' | ' || t_two.id,
-                                        t_three.name|| ' | ' || t_three.id,t_four.name|| ' | ' || t_four.id,t_five.name|| ' | ' || t_five.id,vehicle.id,pic.unique_rate
+                                        jb.job_date,unit.id,shop.id,jb.job_no,customer.name,vehicle.plate,jb.customer_id,jb.vehicle_id,customer.address,
+                                        customer.phone,state.name,model.name,brand.name,model.brand_id,model.id,vehicle.year,jb.invoice_no,jb.business_unit_id,
+                                        jb.shop_id,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,
+                                        t_three.name,t_four.name,t_five.name,pic.unique_rate,jb.id
                                     FROM eachJob jb 
                                     LEFT JOIN res_partner AS unit
                                     ON unit.id = jb.business_unit_id
@@ -229,6 +214,12 @@ def show_service_datas(typ,mgs=None):
                                     ON t_five.id = jb.lst_pic_id 
                                     LEFT JOIN pic 
                                     ON pic.id = jb.pic_rate_id
+                                    LEFT JOIN vehicle_model model
+                                    ON model.id = vehicle.model_id
+                                    LEFT JOIN vehicle_brand brand
+                                    ON brand.id = model.brand_id
+                                    LEFT JOIN state
+                                    ON state.id = customer.state_id
                                     WHERE job_no = '{val}'
                                     ORDER BY jb.job_date DESC,job_no DESC;""" 
                 query = f""" WITH month_cte AS (
@@ -238,7 +229,7 @@ def show_service_datas(typ,mgs=None):
                     FROM generate_series(1, 12) AS month_id
                     )
                     SELECT 
-                        month_cte.month_text,jb.job_date,unit.name,shop.name,jb.job_no,customer.name,vehicle.plate,vehicle.model,
+                        month_cte.month_text,jb.job_date,unit.name,shop.name,jb.job_no,customer.name,vehicle.plate,model.name,
                         vehicle.year,jb.invoice_no,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,t_three.name,t_four.name,t_five.name
                     FROM eachJob jb 
                     LEFT JOIN month_cte
@@ -263,22 +254,23 @@ def show_service_datas(typ,mgs=None):
                     ON t_four.id = jb.frth_pic_id 
                     LEFT JOIN technicians AS t_five
                     ON t_five.id = jb.lst_pic_id 
+                    LEFT JOIN vehicle_model model
+                    ON model.id = vehicle.model_id
                     WHERE {column} iLIKE '%{val}%'
                     ORDER BY jb.job_date DESC,job_no DESC;"""
                 if eval(bol):
+                    print("nani")
                     cur.execute(with_id_query)
                     result = []
-                    result.append(cur.fetchall())
-                    cur.execute("SELECT plate FROM vehicle;")
-                    result.append(cur.fetchall())
-                    cur.execute("SELECT id,name FROM res_partner;")
-                    result.append(cur.fetchall())
-                    cur.execute("SELECT id,name FROM shop;")
                     result.append(cur.fetchall())
                     cur.execute("SELECT id,name FROM technicians;")
                     result.append(cur.fetchall())
                     cur.execute("SELECT id,name FROM jobType;")
                     result.append(cur.fetchall())
+                    cur.execute("SELECT id,unique_rate FROM pic;")
+                    result.append(cur.fetchall())
+                    result.append(datetime.now().year)
+                    result.append(sum(data[21] for data in result[0]))
                     return render_template('edit_form.html',result = result)
                 cur.execute(query)
                 result = cur.fetchall()
@@ -311,7 +303,7 @@ def show_service_datas(typ,mgs=None):
             FROM generate_series(1, 12) AS month_id
             )
             SELECT 
-                month_cte.month_text,jb.job_date,unit.name,shop.name,jb.job_no,customer.name,vehicle.plate,vehicle.model,
+                month_cte.month_text,jb.job_date,unit.name,shop.name,jb.job_no,customer.name,vehicle.plate,model.name,
                 vehicle.year,jb.invoice_no,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,t_three.name,t_four.name,t_five.name
             FROM eachJob jb 
             LEFT JOIN month_cte
@@ -336,6 +328,8 @@ def show_service_datas(typ,mgs=None):
             ON t_four.id = jb.frth_pic_id 
             LEFT JOIN technicians AS t_five
             ON t_five.id = jb.lst_pic_id 
+            LEFT JOIN vehicle_model model
+            ON model.id = vehicle.model_id
             ORDER BY jb.job_date DESC,job_no DESC
             LIMIT 81;"""
             db = 'eachJob'
@@ -364,20 +358,57 @@ def show_service_datas(typ,mgs=None):
     return render_template('view_datas.html',mgs=mgs,extra_datas=extra_datas,result=result,length=length,filt = filt,typ=typ)
 
 @views.route("/get-data/<db>/<idd>")
-def get_data(db,idd):
+def get_data(db,idd:str):
     conn = db_connect()
     cur = conn.cursor()
     if db == 'vehicle':
-        cur.execute("SELECT vehicle.id,name,model,year,customer.id FROM vehicle LEFT JOIN customer ON customer.id = vehicle.customer_id WHERE plate = %s;",(idd,))
+        plate = idd.split("||")[0]
+        cus_id =  f"and customer.id = {idd.split('||')[1]}" if "||" in idd else ""
+        cur.execute(f"""SELECT vehicle.plate,brand.name,model.name,customer.name,customer.phone,customer.state_id,customer.id,customer.address,vehicle.year,vehicle.id
+                    FROM ownership
+                    LEFT JOIN vehicle
+                    ON ownership.vehicle_id = vehicle.id
+                    LEFT JOIN customer
+                    ON customer.id = ownership.customer_id
+                    LEFT JOIN vehicle_brand brand
+                    ON brand.id = vehicle.brand_id
+                    LEFT JOIN vehicle_model model
+                    ON model.id = vehicle.model_id
+                    WHERE vehicle.plate = '{plate}' {cus_id} ORDER BY end_date;""")
+    elif db == 'autofill-vehicle':
+        cur.execute("SELECT car.plate,car.make,car.model,cus.name,cus.phone,state.name,cus.id FROM vehicle AS car INNER JOIN customer AS cus on cus.id = car.customer_id LEFT JOIN state ON state.id = cus.state_id WHERE plate = %s;",(idd,))
+    elif db == 'autofill-customer':
+        cur.execute("SELECT address,state_id,phone,id FROM customer WHERE name = %s;",(idd,))
+    elif db == 'get-brand-model':
+        cur.execute("SELECT brand_id,id FROM vehicle_model WHERE name = %s;",(idd,))
     elif db == 'eachJobDelForm':
-        cur.execute("DELETE FROM eachJob WHERE job_no = %s",(idd,))
+        cur.execute("DELETE FROM eachJob WHERE job_no = %s;",(idd,))
         conn.commit()
         return "Finished"
     elif db in ('pic','technicians','jobType'):
         cur.execute("DELETE FROM {} WHERE id = %s;".format(db), (idd,))
         conn.commit()
         return "finished"
+    elif db == 'vehicle_model':
+        cur.execute("SELECT name FROM vehicle_model WHERE brand_id = (SELECT id FROM vehicle_brand WHERE name = %s);",(idd,))
+    elif db == 'check-technician':
+        cur.execute("SELECT id FROM technicians WHERE name = %s",(idd,))
+    elif db == 'change-owner':
+        cur.execute(""" UPDATE ownership AS o
+                            SET end_date = CURRENT_DATE
+                        FROM (
+                            SELECT id
+                            FROM ownership
+                            WHERE vehicle_id = (SELECT id FROM vehicle WHERE plate = %s)
+                            ORDER BY end_date DESC
+                            LIMIT 1
+                        ) AS subquery
+                        WHERE o.id = subquery.id;
+                        """,(idd,))
+        conn.commit()
+        return "Finished"
     datas = cur.fetchall()
+    print(datas)
     # print(datas)
     return jsonify(datas)
 
@@ -455,3 +486,8 @@ def offset_display(for_what,ofset):
 @views.route('dashboard')
 def show_dashboard():
     return render_template('dashboard.html')
+
+@views.route('registartions/<typ>',)
+def show_registartions(typ):
+    print(typ)
+    return render_template('registrations.html')

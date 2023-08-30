@@ -40,11 +40,6 @@ body{
     position: relative;
 }
 
-.head-class .logo-img i{
-    position: absolute;
-    right: 0;
-}
-
 .head-class img{
     max-width: 170px;
     padding: 0;
@@ -97,7 +92,7 @@ body{
     padding: 8px 8px 8px 32px;
     text-decoration: none;
     font-size: 25px;
-    color: #818181;
+    color: black;
     display: block;
     transition: 0.3s;
     font-size: 15px;
@@ -194,21 +189,7 @@ input[type="date"] {
     box-shadow:0 0 0 0.25rem rgba(0, 120, 250, 0.1);
   }
   
-  ::-webkit-datetime-edit {}
-  ::-webkit-datetime-edit-fields-wrapper {}
-  ::-webkit-datetime-edit-month-field:hover,
-  ::-webkit-datetime-edit-day-field:hover,
-  ::-webkit-datetime-edit-year-field:hover {
-    background:rgba(0, 120, 250, 0.1);
-  }
-  ::-webkit-datetime-edit-text {
-    opacity:0;
-  }
-  ::-webkit-clear-button,
-  ::-webkit-inner-spin-button {
-    display:none;
-  }
-  ::-webkit-calendar-picker-indicator {
+::-webkit-calendar-picker-indicator {
     position:absolute;
     width:2.5rem;
     height:100%;
@@ -223,7 +204,6 @@ input[type="date"] {
     background:rgba(0, 120, 250, 1);
    
 }
-  
 input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity:0.05; }
 input[type="date"]:hover::-webkit-calendar-picker-indicator:hover { opacity:0.15; }
 
@@ -243,4 +223,8 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator:hover { opacity:0.15
     background-repeat: no-repeat;
     background-size: 300px 250px;
     background-position: center;
+}
+
+.logo-arrow{
+    font-size: 30px;
 }

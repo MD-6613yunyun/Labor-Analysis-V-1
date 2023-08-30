@@ -12,65 +12,101 @@ Create Form
 
     <div class="submit-discard">
         <div>
-            <button class="submit-btn" onclick="checkAllServiceDatas()">Submit</button>
+            <button class="submit-btn"  type="button" onclick="checkAllServiceDatas()">Submit</button>
             <button class="discard-btn" onclick=""><a class="nav-link" href="{{url_for('views.show_service_datas',typ='service-datas')}}">Discard</a></button>
         </div>
     </div>
-    <form  class="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='service-datas')}}" method="post">
-        <div class="form-area">
-            <div class="form-grid">       
-                <div class="material-textfield">
-                    <input placeholder="" hidden name="vehicleInformation" id="vehicleInformation" type="number"> 
-                    <datalist id="plateListOptions">
-                        {% for dt in result[0]%}
-                            <option value="{{dt[0]}}">
-                        {% endfor %}
-                    </datalist>
-                    <input  autocomplete="off" required placeholder="" id="vehiclePlate" name="plate"  onchange="chooseRegistartionNo()" type="text" list="plateListOptions">
-                    <label class="custom-label">Vehicle Registration No</label>
-                </div>
-                <div class="material-textfield">
-                    <input autocomplete="off"  required placeholder="" name="invoiceNo" type="text">
-                    <label class="custom-label">Invoice No</label>
-                </div>       
-                <div class="material-textfield">
-                    <input autocomplete="off"  required placeholder="" name="jobNo" type="text" >
-                    <label class="custom-label">Job No</label>
-                </div>     
-                <div class="material-textfield">               
-                    <input autocomplete="off"  required placeholder="" name="customerName" class="vehicle-datas" type="text">
-                    <label class="custom-label">Customer</label>
-                </div>
-                <div class="material-textfield">
-                    <input autocomplete="off"  required placeholder=" " class="vehicle-datas" name="model" type="text">
-                    <label class="custom-label">Vehicle Model</label>
-                </div>
-                <div class="material-textfield">
-                    <input autocomplete="off" style="width: 17vw;"  required placeholder="" minlength="4" maxlength="4" min="1990" max="2050"  type="number" class="vehicle-datas" name="modelYear" list="yearListOptions">
-                    <label class="custom-label">Vehicle Model Year</label>
-                </div>
-                <div class="material-textfield">
-                    <input autocomplete="off"  required placeholder=" " id="hh" name="jobDate" type="date" >
-                    <label class="custom-label">Date</label>
-                </div>
-                <div class="material-textfield">
-                    <datalist id="shopListOptions">
-                        {% for dt in result[2]%}
-                            <option value="{{dt[1]}} | {{dt[0]}}">
-                        {% endfor %}
-                    </datalist>
-                    <input required autocomplete="off" placeholder="" class="upperPic" name="shopID" type="text" list="shopListOptions">
-                    <label class="custom-label">Shop</label>
-                </div>
-                <div class="material-textfield">
-                    <datalist id="unitListOptions">
-                        {% for dt in result[1]%}
-                            <option value="{{dt[1]}} | {{dt[0]}}">
-                        {% endfor %}
-                    </datalist>
-                    <input required autocomplete="off" placeholder="" class="upperPic" name="unitID" type="text" list="unitListOptions">
-                    <label class="custom-label">Business Unit</label>
-                </div>
+    <form  id="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='service-datas')}}" method="post">
+        <div class="input-sec">
+            <div class="each-input">
+                <label for="regState">Vehicle Register No</label>
+                <select name="regState" id="regState" class="vehicle-register-box">
+                    {% for data in result[6] %}
+                        <option value="{{data[1]}}">{{data[1]}}</option>                        
+                    {% endfor %}
+                </select>
+                <input name="regPrefix" id="regPrefix" onchange="checkVehiclePlate(this,'prefix')" value="" required autocomplete="off" type="text" class="text-one required-fields" onkeyup="checkRegNumber(this,3)">
+                <input name="regDigits" id="regDigits" onchange="checkVehiclePlate(this,'digit')" required autocomplete="off" type="number" onkeyup="checkRegNumber(this,4)" class="text-two required-fields">
+                <input id="vehicleInformation" name="vehicleInformation" value="0" hidden/>
+                <input id="customerInformation" name="customerInformation" value="0" hidden/>
+            </div>
+            <div class="each-input">
+                <label for="">Date</label>
+                <input name="jobDate" autocomplete="off"  required type="date" class="date-error-input ">
+            </div>
+            <div class="each-input">
+                <label for="">Name</label>
+                <input name="customerName" onchange="autoFillByCustomer(this)" list="customerListOptions" autocomplete="off" class="autoFillByVehicle" required type="text">
+                <datalist id="customerListOptions">
+                    {% for dt in result[9]%}
+                        <option value="{{dt[0]}}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="each-input">
+                <label for="">Invoice No</label>
+                <input autocomplete="off" name="invoiceNo"  required type="text">
+            </div>
+            <div class="each-input">
+                <label for="">Address</label>
+                <input autocomplete="off" resname="fullAddress" required type="text" style="width: 30%" class="text-three autoFillByVehicle">
+                <select name="state" id="address-state" class="state-register-box autoFillByVehicle">
+                    {% for data in result[6] %}
+                        <option value="{{data[0]}}">{{data[2]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="each-input">
+                <label for="brand">Vehicle Make</label>
+                <input type="text" onchange="generateVehicleModel(this)"  class="autoFillByVehicle autoFillNewOwner" list="brandListOptions" value="" name="brand" id="brand"/>
+                <datalist id="brandListOptions">
+                    {% for dt in result[7]%}
+                        <option value="{{dt[1]}}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="each-input">
+                <label for="phone">Phone</label>
+                <input id="phone" autocomplete="off" class="autoFillByVehicle" name="phone" required type="number">
+            </div>
+            <input type="number" value="" id="model_id" name="model_id" hidden/>
+            <input type="number" value="" id="brand_id" name="brand_id" hidden/>
+            <div class="each-input">
+                <label for="model">Vehicle Model</label>
+                <input type="text" list="modelListOptions" class="autoFillByVehicle autoFillNewOwner" required autocomplete="off" value="" name="model" id="model"/>
+
+                <datalist id="modelListOptions">
+                    <option value="No model was found">
+                </datalist>
+            </div>
+            <div class="each-input">
+                <label for="jobNo">Job no</label>
+                <input type="text"  autocomplete="off" name="jobNo" required id="jobNo">
+            </div>
+            <div class="each-input">
+                <label for="year">Vehicle Model Year</label>
+                <select name="year" id="year"  class="vehicle-box autoFillByVehicle autoFillNewOwner">
+                    {% set start_year = result[8] %}
+                    {% for i in range(start_year,1900,-1) %}
+                        <option value="{{i}}">{{i}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="each-input">
+                <label for="unit">Business Unit</label>
+                <select name="unit" class="vehicle-box" id="unit">
+                    <option value="1">PIT & GO</option>
+                    <option value="2">TOYOTA</option>
+                </select>
+            </div>
+            <div class="each-input">
+                <label for="shop">Shop</label>
+                <select name="shop" class="vehicle-box" id="shop">
+                    <option value="1">PIT & GO BGO</option>
+                    <option value="2">PIT & GO SKP</option>
+                    <option value="3">PIT & GO BAWGA</option>
+                    <option value="4">TOYOTA BAWGA</option>
+                </select>
             </div>
         </div>
         <div class="input-table">
@@ -92,7 +128,7 @@ Create Form
                 <tbody id="table-body-of-pic"> 
                     <datalist id="datalistOptions">
                         {% for dt in result[3]%}
-                            <option value="{{dt[1]}} | {{dt[0]}}">
+                            <option value="{{dt[1]}}">
                         {% endfor %}
                     </datalist>
                     <datalist id="piclistOptions">
@@ -156,7 +192,7 @@ Create Form
             <button type="button" class="d-none validateModal" data-bs-toggle="modal" data-bs-target="#staticBackdropValidate"></button>
         
             <!-- Modal -->
-            <div class="modal fade" style="z-index: 10123;" id="staticBackdropValidate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal modal-lg fade" style="z-index: 10123;" id="staticBackdropValidate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -164,17 +200,25 @@ Create Form
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <strong>Are you sure want to create a new vehicle???</strong>
-                            <ul class="list-group-vehicle-information">
-                                <li class="list-group-item">A second item</li>
-                                <li class="list-group-item">A third item</li>
-                                <li class="list-group-item">A fourth item</li>
-                                <li class="list-group-item">And a fifth one</li>
-                            </ul>
+                            <strong>Chosse associated vehicle...</strong> <br>
+                            <table class="table table-bordered mt-3" style="font-size: 13px;width: max-content;">
+                                <thead>
+                                    <tr>
+                                        <td>Activate</td>
+                                        <td>Reg. No.</td>
+                                        <td>Brand</td>
+                                        <td>Model</td>
+                                        <td>Owner</td>
+                                        <td>Contact</td>
+                                        <td>State</td>
+                                    </tr>
+                                </thead>
+                                <tbody class="list-group-vehicle-information" style="font-size: 10px;">
+                                </tbody>
+                            </table>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit"  class="btn btn-primary service-data-submit">Understood</button>
+                            <button type="button" class="btn btn-secondary"  id="changeOwner" data-bs-dismiss="modal">Add new owner..</button>
                         </div>
                     </div>
                 </div>

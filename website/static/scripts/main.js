@@ -146,21 +146,18 @@ function exportTableToExcel() {
 
 function addAnotherRow(td) {
     let no_error = true
-    let pics = td.parentElement.previousElementSibling.querySelectorAll("input.pic:not(.d-none)");
     let inps = td.parentElement.previousElementSibling.getElementsByClassName("inp");
     
-    for (let pic of pics) {
-        if (isNaN(pic.value.split("|")[1])) {
-            no_error = false;
-            break;
+    td.parentElement.previousElementSibling.querySelectorAll("input.pic:not(.d-none)").forEach(pic => {
+        if (pic.value.trim() == ""){
+            no_error = false
         }
-    }
+    })
     
     if (no_error) {
         for (let inp of inps) {
             if (inp.value.trim() == "") {
             no_error = false;
-            console.log(inp.value)
             break;
             }
         }
@@ -190,63 +187,173 @@ function deleteJobRow(btn,bool){
     }
 }
 
-function chooseRegistartionNo(){
-    let plate = document.getElementById("vehiclePlate").value.trim()
-    if (plate.length != 0){
-        fetch(`/get-data/vehicle/${plate.trim()}`)
-        .then(response => response.json() )
-        .then(result => {
-            if (result.length != 0){
-                let changeDatas = document.getElementsByClassName("vehicle-datas")
-                document.getElementById("vehicleInformation").value = result[0][0]
-                var i = 1;
-                for (let changeData of changeDatas){
-                    changeData.value = result[0][i]
-                    changeData.focus()
-                    i += 1;
-                }
-            }
-        })
-        .catch(err => console.log(err))
+function checkVehiclePlate(inp,what){
+    let state = prefix = digit = plate = ''
+    state = inp.previousElementSibling.value
+    prefix = inp.value
+    digit = inp.nextElementSibling.value
+    if (what == 'digit'){
+        state = inp.previousElementSibling.previousElementSibling.value
+        prefix = inp.previousElementSibling.value
+        digit = inp.value
     }
-}
-
-function checkAllServiceDatas(){
-    let plate = document.getElementById("vehiclePlate").value.trim()
-    let picRows = document.querySelectorAll('#table-body-of-pic tr:not(.d-none) .pic:not(.d-none),.form-area .upperPic');
-    let no_error = true;
-    console.log(picRows)
-    picRows.forEach(pic=>{
-        userVals = pic.value.split("|")
-        if (userVals.length != 2 || isNaN(userVals[1])){
-            pic.setAttribute('style','border: 2px solid red;')
-            no_error = false;
-        }else{
-            pic.removeAttribute('style')
-        }
-    })
-    if (plate.length != 0){
+    if (prefix.length >=2 && digit.length == 4){
+        plate = state.trim() + prefix.trim() + digit.trim()
         fetch(`/get-data/vehicle/${plate}`)
         .then(response => response.json() )
         .then(result => {
-            if (result.length == 0){
+            console.log(result)
+            if(result.length > 0){
+                let lst = document.getElementsByClassName('list-group-vehicle-information')[0]
+                lst.innerHTML = ""
+                let i = 1
+                for (data of result){
+                    let class_name = ""
+                    if (i == result.length){
+                        class_name = "class='table-dark'"
+                    }
+                    lst.innerHTML += `<tr ${class_name}>
+                    <td><button type='button' data-bs-dismiss='modal' onclick="autoFillVehicleInfo('${data[0]}','${data[6]}')" style="font-size:5px;" class='btn btn-sm btn-info'>✔️</button></td>
+                    <td>${data[0]}</td>
+                    <td>${data[1]}</td>
+                    <td>${data[2]}</td>
+                    <td>${data[3]}</td>
+                    <td>${data[4]}</td>
+                    <td>${data[5]}</td>
+                </tr>`
+                i ++;
+                }
+                document.getElementById("changeOwner").setAttribute("onclick",`autoFillVehicleInfo('${data[0]}',null)`)
+                document.getElementById("vehicleInformation").value = data[9]
                 let modalClicker = document.getElementsByClassName("validateModal")
-                document.getElementById("vehicleInformation").value = -100
-                liItems = document.getElementsByClassName("list-group-vehicle-information")[0].querySelectorAll("li")
-                let changeDatas = document.getElementsByClassName("vehicle-datas")
-                liItems[0].innerText = plate
-                liItems[1].innerText = changeDatas[0].value
-                liItems[2].innerText = changeDatas[1].value
-                liItems[3].innerText = changeDatas[2].value
                 modalClicker[0].click()
-            }else if(no_error){
-                console.log("nani")
-                let submitBtn = document.getElementsByClassName("service-data-submit")[0]
-                submitBtn.click()
+            }else{
+                document.querySelectorAll(".autoFillByVehicle").forEach(val => {
+                    val.disabled = false
+                    val.value = ""
+                    document.getElementById("vehicleInformation").value = "None"
+                })
             }
         })
         .catch(err => console.log(err))
+
     }
+}
+
+function autoFillVehicleInfo(idd,cus_id){
+    let vari = ""
+    if (cus_id){
+        document.getElementById("customerInformation").value = cus_id
+        vari = idd + '||' + cus_id
+    }else{
+        vari = idd
+        document.getElementById("customerInformation").value = "None"
+        fetch(`/get-data/change-owner/${idd}`)
+        .then(response => console.log(response.status) )
+        .catch(err => console.log(err))
+    }
+    fetch(`/get-data/vehicle/${vari}`)
+    .then(response => response.json() )
+    .then(result => {
+        let values = cus_id ? [result[0][3],result[0][7],result[0][5],result[0][1],result[0][4],result[0][2],result[0][8]] : [result[0][1],result[0][2],result[0][8]]
+        let classPlacer = cus_id ? 'autoFillByVehicle' : 'autoFillNewOwner'
+        var i = 0;
+        document.querySelectorAll(`.${classPlacer}`).forEach(val => {
+            val.disabled = true;
+            val.value = values[i]
+            i ++;
+        })
+        
+    })
+    .catch(err => console.log(err))
+}
+
+function autoFillByCustomer(inp){
+    let cus_name = inp.value.toUpperCase().trim()
+    fetch(`/get-data/autofill-customer/${cus_name}`)
+    .then(response => response.json())
+    .then(result => {
+        let customerHolders = document.querySelectorAll(".autoFillByVehicle")
+        let cus_id_set = document.getElementById("customerInformation")
+        if (result.length > 0){
+            customerHolders[1].value = result[0][0]
+            customerHolders[2].value = result[0][1]
+            customerHolders[4].value = result[0][2]
+            cus_id_set.value = result[0][3]
+        }else{
+            customerHolders[1].value = customerHolders[2].value = customerHolders[4].value = ""
+            cus_id_set.value = "None"
+        }
+    })
+    .catch(err => console.log(err))
+}
+
+function checkAllServiceDatas() {
+    let picRows = document.querySelectorAll('#table-body-of-pic tr:not(.d-none) .pic:not(.d-none),.form-area .upperPic');
+    let allRows = document.querySelectorAll('.input-sec input:not([hidden]):not([disabled]),#table-body-of-pic tr:not(.d-none) .inp');
+    let promises = [];
+
+    // Validate allRows inputs
+    for (let pic of allRows) {
+        if (pic.value.trim() == "") {
+            pic.setAttribute('style', 'border: 2px solid red;');
+            promises.push(Promise.resolve(false));
+        } else {
+            promises.push(Promise.resolve(true));
+        }
+    }
+
+    promises.push(
+        fetch(`/get-data/get-brand-model/${document.getElementById("model").value}`)
+        .then(response => response.json())
+        .then(result => {
+            console.log(result)
+            if (result.length != 1) {
+                document.getElementById("model").setAttribute('style', 'border: 2px solid red;');
+                return false;
+            } else {
+                document.getElementById("brand_id").value = result[0][0]
+                document.getElementById("model_id").value = result[0][1]
+                return true;
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            return false;
+        })
+    );
+    // Validate picRows inputs
+    for (let pic of picRows) {
+        if (pic.value.trim() == "") {
+            pic.setAttribute('style', 'border: 2px solid red;');
+            promises.push(Promise.resolve(false));
+        } else {
+            promises.push(
+                fetch(`/get-data/check-technician/${pic.value}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.length != 1) {
+                        pic.setAttribute('style', 'border: 2px solid red;');
+                        return false;
+                    } else {
+                        return true;
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    return false;
+                })
+            );
+        }
+    }
+
+    Promise.all(promises).then(results => {
+        let no_error = results.every(result => result);
+
+        if (no_error) {
+            document.getElementById("service-data-input-form").submit();
+        }
+    });
 }
 
 
@@ -330,10 +437,11 @@ function redirectToFormEdit(dt,table){
     let column = document.getElementById('column')
     if (table == 'eachJob'){
         column.value = 'job_no'
-        if (column.nextElementSibling.classList.length == 1){
-            column.nextElementSibling.nextElementSibling.value = dt
+        console.log(column.nextElementSibling)
+        if (column.nextElementSibling.classList.contains("rounded")){
+            column.nextElementSibling.value = dt
         }else{
-            column.nextElementSibling.value = dt     
+            column.nextElementSibling.nextElementSibling.value = dt            
         }
         document.getElementById('editOrSubmit').value = 'True'
         column.parentElement.parentElement.submit()
@@ -392,7 +500,15 @@ function deleteLineDataFromViewForm(idd,db){
 
 }
 
-
+function showBtnAndRemoveDisabled(btn){
+    btn.nextElementSibling.classList.remove("d-none")
+    document.querySelectorAll("#service-data-input-form .let-edit-user").forEach(inp => {
+        inp.disabled = false
+    })
+    document.getElementsByClassName("total-last-row")[0].classList.remove("d-none")
+    btn.classList.add('d-none')
+}
+var temp_datas_for_replace_input = []
 function replaceInputFormInViewForm(tr){
     let inputType = ""
     let inputName = ""
@@ -415,23 +531,28 @@ function replaceInputFormInViewForm(tr){
     let lastTdRow = inpArr[inpArr.length -1 ]
     inpArr[0].getElementsByTagName("input")[0].setAttribute("name","idd")
     if (tr.getElementsByClassName("trash-icon")[0].getAttribute('onclick')[0] != 'c'){
-        inpArr[0].getElementsByTagName("input")[0].setAttribute("name","idd")
-        for (let i=1;i < inpArr.length-1;i++){
-            inpArr[i].innerHTML = `<input class="rate-inps" list='${optionList[i-1]}' autocomplete='off' value="${inpArr[i].textContent}" type="${inputType}" min="0" max="100" name="${inputName[i-1]}">`        
+        if (temp_datas_for_replace_input.length == 0){
+            inpArr[0].getElementsByTagName("input")[0].setAttribute("name","idd")
+            for (let i=1;i < inpArr.length-1;i++){
+                temp_datas_for_replace_input.push(inpArr[i].textContent)
+                inpArr[i].innerHTML = `<input class="rate-inps" list='${optionList[i-1]}' autocomplete='off' value="${inpArr[i].textContent}" type="${inputType}" min="0" max="100" name="${inputName[i-1]}">`        
+            }
+            lastTdRow.setAttribute("onclick","checkRateFormAndSumbit(this)")
+            lastTdRow.innerHTML = `<i class="fa-solid fa-square-check"></i>`
+            lastTdRow.classList.add('check-icon')
         }
-        lastTdRow.setAttribute("onclick","checkRateFormAndSumbit(this)")
-        lastTdRow.innerHTML = `<i class="fa-solid fa-square-check"></i>`
-        lastTdRow.classList.add('check-icon')
     }else{
         inpArr[0].getElementsByTagName("input")[0].removeAttribute("name")
         for (let i=1;i < inpArr.length-1;i++){
-            inpArr[i].innerHTML = inpArr[i].getElementsByTagName("input")[0].value      
+            inpArr[i].innerHTML = temp_datas_for_replace_input[i-1]     
         }
         lastTdRow.setAttribute("onclick",`deleteLineDataFromViewForm('${inpArr[0].getElementsByTagName("input")[0].value}','pic')`)
         lastTdRow.innerHTML = `<i class="fa-solid fa-trash"></i>`
         lastTdRow.classList.remove('check-icon')
+        temp_datas_for_replace_input = []
     }
     // console.log(document.getElementById("rate-form"))
+    console.log(temp_datas_for_replace_input)
 }
 
 function findConsecutiveEndingZeroIndexes(arr) {
@@ -451,8 +572,8 @@ function storeValueFromListToHiddenInput(inp){
     if (rateValues.length == 5 && inpValues.length == 2){
         let picInputs = inp.parentElement.parentElement.getElementsByClassName("pic")
         let disabledIndex = findConsecutiveEndingZeroIndexes(rateValues)
-        console.log(disabledIndex)
-        console.log(picInputs)
+        // console.log(disabledIndex)
+        // console.log(picInputs)
         for (let idx in [0,1,2,3,4]){
             if (disabledIndex.includes(Number(idx))){
                 picInputs[idx].classList.add('d-none')              
@@ -464,4 +585,26 @@ function storeValueFromListToHiddenInput(inp){
         inp.value = inpValues[0].trim()
         inp.nextElementSibling.value = inpValues[0].trim()
     }
+}
+
+function checkRegNumber(val,maxlength){
+    if (val.value.length > maxlength){
+        val.value = val.value.slice(0,maxlength)
+    }
+}
+
+function generateVehicleModel(inp){
+    console.log(inp.value)
+    fetch(`/get-data/vehicle_model/${inp.value}`)
+    .then(response => response.json())
+    .then(result => {
+        if(result.length != 0){
+            modelList = document.getElementById("modelListOptions")
+            modelList.innerHTML = ""
+            result.forEach(data => {
+                modelList.innerHTML += `<option value="${data[0]}"></option>`
+            })
+        }
+    })
+    .catch(err => consoley.log(err))
 }

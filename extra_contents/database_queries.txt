@@ -26,6 +26,13 @@ create table vehicle_model(
     name varchar(100) not null
 )
 
+create table state(
+    id serial primary key,
+    short_name varchar(5) not null unique,
+    name varchar(20) not null unique
+);
+
+
 create table customer (
     id serial primary key,
     code varchar(10) not null unique,

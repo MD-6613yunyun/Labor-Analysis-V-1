@@ -375,6 +375,22 @@ def offset_display(for_what,ofset):
     result_datas = cur.fetchall()
     return jsonify(result_datas)
 
+@views.route('dashboard')
+def dashboard_datas():
+    return render_template('dashboard.html')
+
 @views.route('edit-form-redirect')
 def edit_form_redirect():
     return render_template('edit_form.html')
+
+@views.route('customers')
+def customer_datas():
+    return render_template('customer_table.html')
+
+@views.route('vehicles')
+def vehicle_datas():
+    return render_template('vehicle_table.html')
+
+@views.route('configuration_create')
+def configuration_create_datas():
+    return render_template('configuration_create_form.html')

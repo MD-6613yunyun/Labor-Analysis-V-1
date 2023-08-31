@@ -227,15 +227,26 @@ input[type="date"] {
   input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity:0.05; }
   input[type="date"]:hover::-webkit-calendar-picker-indicator:hover { opacity:0.15; }
 
-.dashboard-holder{
+/* .dashboard-holder{
     background-image: url('../images/pitngo-home.jpg');
     height: 91vh;
     padding: 0;
     margin: 0;
     background-repeat: no-repeat;
     background-size: cover;
-}
+} */
 
 .logo-arrow{
     font-size: 30px;
+}
+
+.warning-text{
+    width: 50%;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.warning-text h3{
+    display: inline-block;
+    animation: 5s slide infinite linear;
 }

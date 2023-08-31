@@ -8,7 +8,6 @@ Datas Tree View
 <link type="text/css" rel="stylesheet" href="{{url_for('static',filename='styles/input_form.css')}}">
 {% endblock %}
 
-
 {% block innertemplate %}
 
 {% if typ == 'service-datas' %}
@@ -125,7 +124,6 @@ Datas Tree View
     </div>
 
 {% elif typ == 'technician' %}
-
     <h1 class="header">Technician Table</h1>
     <div class="left-side">
         <div class="button-search">
@@ -148,7 +146,7 @@ Datas Tree View
                     {% if filt %}
                         <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ='service-datas')}}">X</a>                        
                     {% endif %}
-                    <input type="text" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)">
+                    <input type="text" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)" style="border-radius: 5px;">
                     <input type="text" hidden value="eachJob" name="database">
                     <div class="drop-box d-none">
                         <p onclick="addValForTable('tech_name')">Name - <span class="dropdownFormClicker"></span></p>
@@ -159,8 +157,7 @@ Datas Tree View
             <span id="paginate-amount"> 1 - {% if length[0][0] >= 81 %} 81 {% else %} {{length[0][0]}} {% endif %} / {{length[0][0]}}</span>
             <i class="fa-solid fa-circle-chevron-left" onclick="clickPagination('job','prev')"></i>
             <i class="fa-solid fa-circle-chevron-right" onclick="clickPagination('job','next')"></i></div>
-    </div>
-
+        </div>
     <div class="technician-table">
         <form action="{{url_for('imports.keep_in_import',typ='technician')}}" id="rate-form" method="post">
             <table>

@@ -810,6 +810,15 @@ table td input:focus{
 }
 
 .customer-table table{
-    width: 100%;
-    background-color: red;
+    width: 99%;
 }
+
+.customer-top-section{
+    display: flex;
+    justify-content: space-between;
+} 
+
+.customer-top-section .button-search{
+    align-items: center;
+}
+

@@ -168,6 +168,8 @@ body{
 
 /* list tags */
 .list-tags{
+    height: 300px;
+    overflow: auto;
 }
 
 
@@ -209,10 +211,10 @@ body{
 }
 
 .list-sec div{
-    /* display: grid; */
-    /* grid-template-columns: auto auto; */
-    display: flex;
-    justify-content: space-around;
+    display: grid;
+    grid-template-columns: 25% 25% 25% 25%;
+    /* display: flex;
+    justify-content: space-around; */
 }
 
 .list-sec div b{
@@ -237,4 +239,49 @@ body{
 
 #amount{
     display: none;
+}
+
+.add-car .add-car-box{
+    display: flex;
+}
+
+.add-car-box .add-car-btn{
+    padding: 0px 5px;
+    border-radius: 5px;
+    border: none;
+    font-size: 17px;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    background-color: #0ebb59;
+    color: white;
+    margin-left: 20px;
+}
+
+.add-car-box label{
+    background-color: #304C89;
+    color: white;
+    padding: 0 10px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    box-shadow: inset 3px 0px 4px rgba(0, 0, 0, 0.5);
+    height: 24px;
+}
+
+.add-car-box input, .add-car-box select{
+    height: 24px;
+    box-shadow: inset 3px 0px 4px rgba(0, 0, 0, 0.5);
+    border: none;
+}
+
+.add-car-box .text-two{
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    width: 100px;
+}
+
+.add-car-box .text-one{
+    width: 100px;
+}
+
+.add-car-box .add-car-btn:hover{
+    background-color: #2dd476;
 }

@@ -1,0 +1,157 @@
+{% extends 'nav.html' %}
+
+{% block title %}
+Datas Tree View
+{% endblock %}
+
+{% block styles %}
+<link type="text/css" rel="stylesheet" href="{{url_for('static',filename='styles/admin_panel.css')}}">
+{% endblock %}
+
+{% block innertemplate %}
+<div class="account-nav-list">
+    <ul>
+        <li onclick="changeTab(this)" class="tab-list pending">Pending Accounts</li>
+        <li onclick="changeTab(this)" class="tab-list edit active">Edit Accounts</li> 
+    </ul>
+</div>
+<div class="account-holder" id="pendingAccount">
+    <h3 class="pending-header">Pending Accounts</h3>
+    <div class="pending-accounts-container">
+        <div class="pending-acc">
+            <div class="text-div">
+                <label>Username</label>
+                <p>Thant Zin Aung</p>
+            </div>
+            <div class="text-div">
+                <label>Email</label>
+                <p>thantzinaung@gmail.com</p>
+            </div>
+            <div class="icon-div">
+                <i class="fa-solid fa-circle-check"></i>
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+        </div>
+    </div>
+    <div class="pending-accounts-container">
+        <div class="pending-acc">
+            <div class="text-div">
+                <label>Username</label>
+                <p>Thant Zin Aung</p>
+            </div>
+            <div class="text-div">
+                <label>Email</label>
+                <p>thantzinaung@gmail.com</p>
+            </div>
+            <div class="icon-div">
+                <i class="fa-solid fa-circle-check"></i>
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="account-holder" id="editAccount">
+    <h3 class="pending-header">Edit Accounts</h3>
+    <div class="pending-accounts-container">
+        <div class="edit-box">
+            <div class="edit-acc">
+                <div class="text-div">
+                    <label>Username</label>
+                    <p>Thant Zin Aung</p>
+                </div>
+                <div class="text-div">
+                    <label>Email</label>
+                    <p>thantzinaung@gmail.com</p>
+                </div>
+                <div class="icon-div">
+                    <i class="fa-solid fa-square-pen edit-icon" onclick="editKey(this)"></i>
+                </div>
+            </div>
+            <div class="shop-list" id="shopList">
+                <input type="text" placeholder="Type Shop Name" id="shopInput">
+                <div>
+                    <span>Bawga<i class="fa-solid fa-xmark"></i></span>
+                    <span>Bago<i class="fa-solid fa-xmark"></i></span>
+                    <span>ShweKyarPin<i class="fa-solid fa-xmark"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pending-accounts-container">
+        <div class="edit-box">
+            <div class="edit-acc">
+                <div class="text-div">
+                    <label>Username</label>
+                    <p>Thant Zin Aung</p>
+                </div>
+                <div class="text-div">
+                    <label>Email</label>
+                    <p>thantzinaung@gmail.com</p>
+                </div>
+                <div class="icon-div">
+                    <i class="fa-solid fa-square-pen edit-icon" onclick="editKey(this)"></i>
+                </div>
+            </div>
+            <div class="shop-list" id="shopList">
+                <input type="text" placeholder="Type Shop Name" id="shopInput" list="shops" onchange="inputShop(this)">
+                <datalist id="shops">
+                    <option value="Bawga">Bawga</option>
+                    <option value="Bago">Bago</option>
+                    <option value="Shwe Kyar Pin">Shwe Kyar Pin</option>
+                </datalist>
+                <div>
+                    <span>Bawga<i class="fa-solid fa-xmark"></i></span>
+                    <span>Bago<i class="fa-solid fa-xmark"></i></span>
+                    <span>ShweKyarPin<i class="fa-solid fa-xmark"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+function changeTab(btn){
+    const allTabs = document.querySelectorAll(".account-holder");
+    const tabLists = document.querySelectorAll(".tab-list");
+    const pendingAccount = document.getElementById("pendingAccount");
+    if(btn.classList.contains("pending")){
+        allTabs.forEach((allTab) => {
+            allTab.style.display = "none";
+        })
+        tabLists.forEach((tabList) => {
+            tabList.classList.remove("active");
+        })
+        pendingAccount.style.display = "block";
+        btn.classList.add("active");
+    }
+    if(btn.classList.contains("edit")){
+        allTabs.forEach((allTab) => {
+            allTab.style.display = "none";
+        })
+        tabLists.forEach((tabList) => {
+            tabList.classList.remove("active");
+        })
+        editAccount.style.display = "block";
+        btn.classList.add("active");
+    }
+}
+
+function editKey(btn){
+   if(btn.parentElement.parentElement.nextElementSibling.style.display != "flex"){
+    btn.parentElement.parentElement.nextElementSibling.style.display = "flex";
+   }else{
+    btn.parentElement.parentElement.nextElementSibling.style.display = "none";
+   }
+}
+
+function inputShop(inp){
+    console.log(inp.value);
+    if(inp.value != ""){
+        let value = inp.value;
+        let spanTag = document.createElement("span");
+        spanTag.innerHTML = `${value}<i class="fa-solid fa-xmark"></i>`;
+        inp.nextElementSibling.nextElementSibling.appendChild(spanTag);
+    }
+}
+</script>
+{% endblock %}

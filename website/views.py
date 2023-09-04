@@ -394,3 +394,7 @@ def vehicle_datas():
 @views.route('configuration_create')
 def configuration_create_datas():
     return render_template('configuration_create_form.html')
+
+@views.route('admin_panel')
+def admin_panel_datas():
+    return render_template('admin_panel.html')

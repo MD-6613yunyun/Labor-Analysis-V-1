@@ -9,8 +9,13 @@ Dashboard
 {% endblock %}
 
 {% block innertemplate %}
-<div class="dashboard-holder">
-    <!-- <h1>PSFU Call</h1> -->
+<div class="dash-nav-list">
+    <ul>
+        <li onclick="changeTab(this)" class="tab-list psfu-call-tab active">PSFU Call</li>
+        <li onclick="changeTab(this)" class="tab-list remainder-call-tab">Remainder Call</li> 
+    </ul>
+</div>
+<div class="dashboard-holder psfu-call" id="psfuCall">
         <div class="dashboard-table">
             <table>
                 <thead>
@@ -21,7 +26,7 @@ Dashboard
                         <th>Date</th>
                         <th>License No</th>
                         <th>Customer Name</th>
-                        <th>Customer Ph</th>
+                        <th>Phone</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -31,42 +36,144 @@ Dashboard
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                     <tr>
                         <td>28/05/2023</td>
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                     <tr>
                         <td>28/05/2023</td>
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                     <tr>
                         <td>28/05/2023</td>
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                     <tr>
                         <td>28/05/2023</td>
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                     <tr>
                         <td>28/05/2023</td>
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834446</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dashboard-table">
+            <table>
+                <thead>
+                    <tr class="main-header">
+                        <th colspan="5">Ba Yint Naung</th>
+                    </tr>
+                    <tr class="sub-header">
+                        <th>Date</th>
+                        <th>License No</th>
+                        <th>Customer Name</th>
+                        <th>Phone</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834446</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung Aung Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                 </tbody>
             </table>
@@ -90,46 +197,107 @@ Dashboard
                         <td>28/05/2023</td>
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
+                        <td>09-998834446</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung Aung Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                     <tr>
                         <td>28/05/2023</td>
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                     <tr>
                         <td>28/05/2023</td>
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                     <tr>
                         <td>28/05/2023</td>
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                     <tr>
                         <td>28/05/2023</td>
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                     <tr>
                         <td>28/05/2023</td>
                         <td>YGN4403</td>
                         <td>Thant Zin Aung</td>
                         <td>09-998834</td>
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
+                    </tr>
+                    <tr>
+                        <td>28/05/2023</td>
+                        <td>YGN4403</td>
+                        <td>Thant Zin Aung</td>
+                        <td>09-998834</td>
+                        <td><input type="checkbox"class="line-through-check"></td>
                     </tr>
                 </tbody>
             </table>
         </div>
 </div>
+<div class="dashboard-holder remainder-call" id="remainderCall">
+    <h1>Remainder Call</h1>
+</div>
+<script type="text/javascript">
+const checkBoxs = document.querySelectorAll("tr");
+checkBoxs.forEach((checkBox) => {
+    checkBox.addEventListener("change", function(e){
+        const tableData = checkBox.children;
+        for(let i = 0; i < tableData.length; i++){
+            tableData[i].classList.toggle("line-through");
+        };
+    })
+})
+function changeTab(btn){
+    const allTabs = document.querySelectorAll(".dashboard-holder");
+    const tabLists = document.querySelectorAll(".tab-list");
+    const psfuCall = document.getElementById("psfuCall");
+    const remainderCall = document.getElementById("remainderCall");
+    if(btn.classList.contains("psfu-call-tab")){
+        allTabs.forEach((allTab) => {
+            allTab.style.display = "none";
+        })
+        tabLists.forEach((tabList) => {
+            tabList.classList.remove("active");
+        })
+       psfuCall.style.display = "grid";
+       btn.classList.add("active");
+    }
+    if(btn.classList.contains("remainder-call-tab")){
+        allTabs.forEach((allTab) => {
+            allTab.style.display = "none";
+        })
+        tabLists.forEach((tabList) => {
+            tabList.classList.remove("active");
+        })
+        remainderCall.style.display = "grid";
+        btn.classList.add("active");
+    }
+}
+</script>
 {% endblock %}

@@ -7,7 +7,7 @@ body{
 }
 
 .account-holder{
-    display: none;
+    display: block;
 }
 
 .pending-header{
@@ -98,7 +98,7 @@ body{
 }
 
 #editAccount{
-    display: block;
+    display: none;
 }
 
 .edit-acc{
@@ -124,14 +124,11 @@ body{
 .shop-list input{
     border-radius: 20px;
     border: 1px solid #56638A;
+    padding: 0 10px;
 }
 
 .shop-list input:focus{
     outline: none;
-}
-
-.shop-list input::placeholder{
-    padding-left: 10px;
 }
 
 .shop-list span{
@@ -155,5 +152,15 @@ body{
 
 .edit-box .fa-square-pen{
     color: #56638A;
+}
+
+@media screen and (max-width: 850px){
+    .account-holder{
+        font-size: 15px;
+    }
+
+    .account-nav-list li{
+        padding: 0 10px;
+    }
 }
 

@@ -11,8 +11,8 @@ Datas Tree View
 {% block innertemplate %}
 <div class="account-nav-list">
     <ul>
-        <li onclick="changeTab(this)" class="tab-list pending">Pending Accounts</li>
-        <li onclick="changeTab(this)" class="tab-list edit active">Edit Accounts</li> 
+        <li onclick="changeTab(this)" class="tab-list pending active">Pending Accounts</li>
+        <li onclick="changeTab(this)" class="tab-list edit">Edit Accounts</li> 
     </ul>
 </div>
 <div class="account-holder" id="pendingAccount">
@@ -68,11 +68,16 @@ Datas Tree View
                 </div>
             </div>
             <div class="shop-list" id="shopList">
-                <input type="text" placeholder="Type Shop Name" id="shopInput">
+                <input type="text" placeholder="Type Shop Name" id="shopInput" list="shopsDataList" onchange="inputShop(this)">
+                <datalist id="shopsDataList">
+                    <option value="Bawga">Bawga</option>
+                    <option value="Bago">Bago</option>
+                    <option value="Shwe Kyar Pin">Shwe Kyar Pin</option>
+                </datalist>
                 <div>
-                    <span>Bawga<i class="fa-solid fa-xmark"></i></span>
-                    <span>Bago<i class="fa-solid fa-xmark"></i></span>
-                    <span>ShweKyarPin<i class="fa-solid fa-xmark"></i></span>
+                    <span>Bawga<i class="fa-solid fa-xmark" onclick="deleteShop(this)"></i></span>
+                    <span>Bago<i class="fa-solid fa-xmark" onclick="deleteShop(this)"></i></span>
+                    <span>ShweKyarPin<i class="fa-solid fa-xmark" onclick="deleteShop(this)"></i></span>
                 </div>
             </div>
         </div>
@@ -93,16 +98,16 @@ Datas Tree View
                 </div>
             </div>
             <div class="shop-list" id="shopList">
-                <input type="text" placeholder="Type Shop Name" id="shopInput" list="shops" onchange="inputShop(this)">
-                <datalist id="shops">
+                <input type="text" placeholder="Type Shop Name" id="shopInput" list="shopsDataList" onchange="inputShop(this)">
+                <datalist id="shopsDataList">
                     <option value="Bawga">Bawga</option>
                     <option value="Bago">Bago</option>
                     <option value="Shwe Kyar Pin">Shwe Kyar Pin</option>
                 </datalist>
                 <div>
-                    <span>Bawga<i class="fa-solid fa-xmark"></i></span>
-                    <span>Bago<i class="fa-solid fa-xmark"></i></span>
-                    <span>ShweKyarPin<i class="fa-solid fa-xmark"></i></span>
+                    <span>Bawga<i class="fa-solid fa-xmark" onclick="deleteShop(this)"></i></span>
+                    <span>Bago<i class="fa-solid fa-xmark" onclick="deleteShop(this)"></i></span>
+                    <span>ShweKyarPin<i class="fa-solid fa-xmark" onclick="deleteShop(this)"></i></span>
                 </div>
             </div>
         </div>
@@ -145,13 +150,17 @@ function editKey(btn){
 }
 
 function inputShop(inp){
-    console.log(inp.value);
     if(inp.value != ""){
         let value = inp.value;
         let spanTag = document.createElement("span");
-        spanTag.innerHTML = `${value}<i class="fa-solid fa-xmark"></i>`;
+        spanTag.innerHTML = `${value}<i class="fa-solid fa-xmark" onclick="deleteShop(this)"></i>`;
         inp.nextElementSibling.nextElementSibling.appendChild(spanTag);
+        inp.value = "";
     }
+}
+
+function deleteShop(icon){
+    icon.parentElement.remove();
 }
 </script>
 {% endblock %}

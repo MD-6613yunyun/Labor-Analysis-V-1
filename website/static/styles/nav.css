@@ -241,3 +241,12 @@ input[type="date"] {
     display: inline-block;
     animation: 5s slide infinite linear;
 }
+
+.noti{
+    background-color: red;
+    border-radius: 50%;
+    padding: 0 3px;
+    margin-left: 5px;
+    color: white;
+    font-size: 10px;
+}

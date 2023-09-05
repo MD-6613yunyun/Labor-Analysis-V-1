@@ -121,7 +121,11 @@ body{
     text-decoration: line-through;
 }
 
-@media(max-width: 800px) {
+#remainderCall{
+    display: none;
+}
+
+@media(max-width: 1100px) {
     .dashboard-holder{
         display: grid;
         grid-template-columns: auto;

@@ -74,16 +74,16 @@
                     <h1 class="modal-title fs-5" id="staticBackdropLabel">Data Option For </h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form  id="submitForm" method="post" >
+                <form  id="submitForm" method="post">
                     <div class="modal-body">
                         <div class="row">
                             <div class="col">
                                 <label for="start-dt" class="mb-1">Start Date</label>
-                                <input type="date" id="start-dt" name="start-dt" value="2023-01-25">                        
+                                <input required type="date" id="start-dt" name="start-dt" value="2023-01-25">                        
                             </div>
                             <div class="col">
                                 <label for="end-dt" class="mb-1">End Date</label>
-                                <input type="date" id="end-dt" name="end-dt" value="2023-05-11">                        
+                                <input required type="date" id="end-dt" name="end-dt" value="2023-05-11">                        
                             </div>
                         </div>
                         <div class="row">
@@ -213,6 +213,9 @@
                 showEles[1].style.display = "none"
                 showEles[2].style.display = "none"                
             }
+            let todayy  = new Date()
+            document.getElementById("start-dt").value = todayy.getDate
+            document.getElementById("end-dt").value = todayy.getDate
             if (window.location.href.includes("show-datas")){
                 let mgs;
                 console.log("test")
@@ -229,8 +232,16 @@
                 if(formExist){
                     document.getElementsByClassName("add-btn")[0].addEventListener('click',function(){
                         if (formExist.classList.contains("d-none")){
+                            document.getElementsByClassName("add-btn")[0].textContent = "Discard"
                             formExist.classList.remove("d-none")
                         }else{
+                            var inputElements = formExist.getElementsByTagName("input");
+                            // Loop through the input elements and reset their values
+                            for (var i = 0; i < inputElements.length; i++) {
+                                inputElements[i].value = ""; // Set the value to an empty string
+                            }
+
+                            document.getElementsByClassName("add-btn")[0].textContent = "Add+"
                             formExist.classList.add("d-none")                       
                         }
                     })

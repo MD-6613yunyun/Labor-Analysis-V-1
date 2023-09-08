@@ -93,6 +93,7 @@ def excel_import():
                                     SELECT id FROM ownership WHERE unique_owner = %s 
                                     LIMIT 1;""",(vehicle_id,cus_id,f"{vehicle_id}-{cus_id}",f"{vehicle_id}-{cus_id}"))
                     ownership_id = cur.fetchall()[0][0]
+                    cur.execute("INSERT INTO psfu (job_no,job_date,shop_id,psfu_concatenated) VALUES (%s,%s,%s,%s) ON CONFLICT (psfu_concatenated) DO NOTHING;",(row[3].value,row[2].value.strftime("%Y/%m/%d"),unit_shop_ids[1],row[3].value+row[2].value.strftime("%Y/%m/%d")+unit_shop_ids[1]))
                     if row[10].value.strip().lower() not in job_types:
                         return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid Job Type at row -  {row_counter}"))                    
                     fst_tech,sec_tech,thrd_tech,frth_tech,lst_tech = row[12].value.strip().lower(),row[13].value.strip().lower(),row[14].value.strip().lower(),row[15].value.strip().lower(),row[16].value.strip().lower()
@@ -174,6 +175,7 @@ def show_create_form(typ,mgs=None):
 @imports.route("/keep-in-import/<typ>",methods=['POST'])
 def keep_in_import(typ):
     if request.method == 'POST':
+        mgs = None
         conn = db_connect()
         cur = conn.cursor()
         if typ == 'service-datas':
@@ -234,7 +236,6 @@ def keep_in_import(typ):
             else:
                 cur.execute("SELECT id FROM ownership WHERE customer_id = %s and vehicle_id = %s;",(customer_id,vehicle_id))                
             ownership_id = cur.fetchall()[0][0]
-            print("INSERT INTO psfu (job_no,job_date,shop_id) VALUES (%s,%s,%s) ON CONFLICT (job_no) DO NOTHING;",(job_no,job_date,shop_id))
             cur.execute("INSERT INTO psfu (job_no,job_date,shop_id,psfu_concatenated) VALUES (%s,%s,%s,%s) ON CONFLICT (psfu_concatenated) DO NOTHING;",(job_no,job_date,shop_id,job_no+job_date+shop_id))
             # print(descriptions)
             # print(job_types)
@@ -272,9 +273,15 @@ def keep_in_import(typ):
             cur.execute("SELECT business_unit_id,id FROM shop WHERE name = %s;",(shop_name,))
             data = cur.fetchall()
             if idd:
-                cur.execute(f""" UPDATE technicians SET name = '{tech_name[1]}',business_unit_id = '{data[0][0]}',shop_id = '{data[0][1]}' WHERE id = '{idd}' and NOT EXISTS ( SELECT 1 FROM technicians WHERE name = '{tech_name[1]}' and business_unit_id = '{data[0][0]}' and shop_id = '{data[0][1]}') ;""")
+                if len(data) == 0:
+                    mgs = 'Invalid Shop / Business Unit'
+                else:
+                    cur.execute(f""" UPDATE technicians SET name = '{tech_name[1]}',business_unit_id = '{data[0][0]}',shop_id = '{data[0][1]}' WHERE id = '{idd}' and NOT EXISTS ( SELECT 1 FROM technicians WHERE name = '{tech_name[1]}' and business_unit_id = '{data[0][0]}' and shop_id = '{data[0][1]}') ;""")
             else:
-                cur.execute(f""" INSERT INTO technicians (name,business_unit_id,shop_id) VALUES ('{tech_name[0]}','{data[0][0]}','{data[0][1]}') ON CONFLICT (name) DO NOTHING;""")
+                if len(data) == 0:
+                    mgs = 'Invalid Shop / Business Unit'
+                else:
+                    cur.execute(f""" INSERT INTO technicians (name,business_unit_id,shop_id) VALUES ('{tech_name[0]}','{data[0][0]}','{data[0][1]}') ON CONFLICT (name) DO NOTHING;""")
         elif typ == 'jobType':
             idd = request.form.get("idd")
             job_type = request.form.getlist("jobType")
@@ -290,12 +297,20 @@ def keep_in_import(typ):
             phone = request.form.get("phone")
             vehicle_ids = request.form.getlist("vehicleIds")
             customer_id = request.form.get("customerId")
+            unique_phone_query = f"AND id <> '{customer_id}'" if customer_id else ""
+            cur.execute(f"SELECT id FROM customer WHERE phone = '{phone}' {unique_phone_query};")     
             if customer_id:
-                cur.execute("UPDATE customer SET name = %s,state_id = %s,address = %s,phone = %s,registered_date = %s WHERE id = %s AND NOT EXISTS (SELECT 1 FROM customer WHERE name = %s and id <> %s);",(name,state,address,phone,reg_date,customer_id,name,customer_id))
+                if len(cur.fetchall()) == 0:
+                    cur.execute("UPDATE customer SET name = %s,state_id = %s,address = %s,phone = %s,registered_date = %s WHERE id = %s;",(name,state,address,phone,reg_date,customer_id))
+                else:
+                    mgs = f"Phone - {phone} is already existed.."                    
                 for vehicle_id in vehicle_ids:
                     cur.execute("INSERT INTO customer (vehicle_id,customer_id,unique_owner) VALUES (%s,%s,%s) ON CONFLICT (unique_owner) DO NOTHING;",(vehicle_id,customer_id,vehicle_id + '-' +customer_id))     
             else:
-                cur.execute("INSERT INTO customer (name,address,phone,state_id,registered_date) VALUES (%s,%s,%s,%s,%s) ON CONFLICT (name) DO NOTHING;",(name,address,phone,state,reg_date))
+                if len(cur.fetchall()) == 0:
+                    cur.execute("INSERT INTO customer (name,address,phone,state_id,registered_date) VALUES (%s,%s,%s,%s,%s);",(name,address,phone,state,reg_date))
+                else:
+                    mgs = f"Phone - {phone} is already existed.."
         elif typ == 'vehicles':
             vehicle_id = request.form.get("vehicle-id")
             reg_date = request.form.get("register-date")
@@ -303,10 +318,18 @@ def keep_in_import(typ):
             brand_id = request.form.get("brand_id")
             model_id = request.form.get("model_id")
             year = request.form.get("year")
+            unique_plate_query = f"AND id <> '{vehicle_id}'" if vehicle_id else ""
+            cur.execute(f"SELECT id FROM vehicle WHERE plate = '{plate}' {unique_plate_query};")  
             if vehicle_id:
-                cur.execute("UPDATE vehicle SET register_date = %s,plate = %s,brand_id = %s,model_id = %s,year = %s WHERE id = %s AND  NOT EXISTS (SELECT 1 FROM vehicle WHERE plate = %s and id <> %s);",(reg_date,plate,brand_id,model_id,year,vehicle_id,plate,vehicle_id))
+                if len(cur.fetchall()) == 0:
+                    cur.execute("UPDATE vehicle SET register_date = %s,plate = %s,brand_id = %s,model_id = %s,year = %s WHERE id = %s;",(reg_date,plate,brand_id,model_id,year,vehicle_id))
+                else:
+                    mgs = f"Plate - {plate} is already registered in our system.."
             else:
-                cur.execute("INSERT INTO vehicle (plate,brand_id,model_id,year,register_date) VALUES (%s,%s,%s,%s,%s) ON CONFLICT (plate) DO NOTHING;",(plate,brand_id,model_id,year,reg_date))
+                if len(cur.fetchall()) == 0:
+                    cur.execute("INSERT INTO vehicle (plate,brand_id,model_id,year,register_date) VALUES (%s,%s,%s,%s,%s);",(plate,brand_id,model_id,year,reg_date))
+                else:
+                    mgs = f"Plate - {plate} is already registered in our system.."
         elif typ == 'brand':
             brand_name = request.form.get("brand")
             model_name = request.form.get("model")
@@ -316,4 +339,4 @@ def keep_in_import(typ):
             if len(cur.fetchall()) == 0:
                 cur.execute("INSERT INTO vehicle_model(brand_id,name) VALUES (%s,%s);",(brand_id,model_name))
         conn.commit()
-    return redirect(url_for('views.show_service_datas',typ=typ))
+    return redirect(url_for('views.show_service_datas',typ=typ,mgs=mgs))

@@ -533,7 +533,7 @@ function deleteLineDataFromViewForm(idd,db){
 
 function showBtnAndRemoveDisabled(btn){
     btn.nextElementSibling.classList.remove("d-none")
-    document.querySelectorAll("#service-data-input-form .let-edit-user").forEach(inp => {
+    document.querySelectorAll(".let-edit-user").forEach(inp => {
         inp.disabled = false
     })
     for (let delBtn of  document.querySelectorAll(".disabled-for-delete")){
@@ -623,21 +623,24 @@ function checkRegNumber(val,maxlength){
 }
 
 function generateVehicleModel(inp){
-    console.log(inp.value)
-    fetch(`/get-data/vehicle_model/${inp.value}`)
-    .then(response => response.json())
-    .then(result => {
-        modelList = document.getElementById("modelListOptions")
-        modelList.innerHTML = ""
-        if(result.length != 0){
-            result.forEach(data => {
-                modelList.innerHTML += `<option value="${data[0]}"></option>`
-            })
-        }else{
-            modelList.innerHTML = `<option value="No Model Was Found"></option>`
-        }
-    })
-    .catch(err => consoley.log(err))
+    if (inp.value.trim() != ""){
+        fetch(`/get-data/vehicle_model/${inp.value}`)
+        .then(response => response.json())
+        .then(result => {
+            modelList = document.getElementById("modelListOptions")
+            modelList.innerHTML = ""
+            if(result.length != 0){
+                result.forEach(data => {
+                    modelList.innerHTML += `<option value="${data[0]}"></option>`
+                })
+            }else{
+                modelList.innerHTML = `<option value="No Model Was Found"></option>`
+            }
+        })
+        .catch(err => consoley.log(err))
+    }else{
+        inp.setAttribute('style', 'border: 2px solid red;');
+    }
 }
 
 function showModelDropDownFromBrand(divv){
@@ -694,6 +697,8 @@ function customerVehicleSubmit(){
                 }
             })
             .catch(err => {console.log(err);})
+        }else{
+            model_name.setAttribute('style', 'border: 2px solid red;');
         }
     }else{
     document.getElementById("service-data-input-form").submit()
@@ -763,7 +768,8 @@ function submitInsideForm(){
         .then(response => response.json())
         .then(result => {
             if (result.length == 0){
-                errMgsHolder.innerHTML = `Vehicle ${plate} is not registered..`
+                errMgsHolder.classList.remove("d-none")
+                errMgsHolder.innerHTML = `Vehicle ${plate} is not registered in our system..`
             }else{
                 fetch(`/get-data/ownership/${result[0][0]}||${customer_id.value}`)
                 .then(response => {
@@ -804,10 +810,13 @@ function insertDataDb(inp,data){
 }
 
 function showHiddenInputBrand(){
+    btnText = document.getElementsByClassName("showHiddenInputBrandClicker")[0]
     let hiddenInp = document.getElementById("hidden-maker-box")
     if (hiddenInp.classList.contains("d-none")){
         hiddenInp.classList.remove("d-none")
+        btnText.textContent = 'Discard'
     }else{
+        btnText.textContent = 'Create'
         hiddenInp.classList.add("d-none")
     }
 }

@@ -224,7 +224,7 @@ Datas Tree View
     <h1 class="vehicle-header">Vehicle Model</h1>
     <div class="vehicle-top mb-3">
         <div class="w-50 ms-2 pt-3">
-            <button class="btn btn-success" onclick="showHiddenInputBrand()">Create</button>
+            <button class="btn btn-success showHiddenInputBrandClicker" onclick="showHiddenInputBrand()">Create</button>
         </div>
         <div class="w-50 pt-3 ms-2">
             <form action="{{url_for('imports.excel_import')}}" method="post" enctype="multipart/form-data">
@@ -232,7 +232,7 @@ Datas Tree View
                     <input class="form-control choose-file-box" name="upload_serivce_datas" type="file" id="formFile" required>
                     <input value="brand-model" name="selectExcelFile" type="text" hidden>
                     <input value="brand" name="selectView" type="text" hidden>
-                    <button class="btn btn-outline-dark" type="submit" id="button-addon2">Import</button>
+                    <button class="btn btn-outline-dark" type="submit" id="button-addon2">Save</button>
                 </div>
             </form>
         </div>

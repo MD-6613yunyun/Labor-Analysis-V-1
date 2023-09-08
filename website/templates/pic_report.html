@@ -22,7 +22,7 @@
       <tr class="sub-head">
         {% for i in range(6) %}
             {% for job_type in job_types %}
-                <th>{{job_type[1]}}</th>
+                <th class="text-nowrap">{{job_type[1]}}</th>
             {% endfor %}
             {% if i == 0 %}
                 <th>TOTAL</th>

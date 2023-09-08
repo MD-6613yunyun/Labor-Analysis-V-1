@@ -36,7 +36,7 @@ Create Form
             </div>
             <div class="each-input">
                 <label for="">Name</label>
-                <input name="customerName" onchange="autoFillByCustomer(this)" list="customerListOptions" autocomplete="off" class="autoFillByVehicle" required type="text">
+                <input name="customerName" onchange="autoFillByCustomer(this)" list="customerListOptions" autocomplete="off" class="autoFillByVehicle" onkeyup="changeToUpperCaseInput(this)" required type="text">
                 <datalist id="customerListOptions">
                     {% for dt in result[9]%}
                         <option value="{{dt[0]}}">
@@ -45,7 +45,7 @@ Create Form
             </div>
             <div class="each-input">
                 <label for="">Invoice No</label>
-                <input autocomplete="off" name="invoiceNo"  required type="text">
+                <input autocomplete="off" name="invoiceNo"  onkeyup="changeToUpperCaseInput(this)" required type="text">
             </div>
             <div class="each-input">
                 <label for="">Address</label>
@@ -58,7 +58,7 @@ Create Form
             </div>
             <div class="each-input">
                 <label for="brand">Vehicle Make</label>
-                <input type="text" onchange="generateVehicleModel(this)"  class="autoFillByVehicle autoFillNewOwner" list="brandListOptions" value="" name="brand" id="brand"/>
+                <input type="text" onchange="generateVehicleModel(this)"  class="autoFillByVehicle autoFillNewOwner"  list="brandListOptions" value="" name="brand" id="brand"/>
                 <datalist id="brandListOptions">
                     {% for dt in result[7]%}
                         <option value="{{dt[1]}}">
@@ -74,14 +74,13 @@ Create Form
             <div class="each-input">
                 <label for="model">Vehicle Model</label>
                 <input type="text" list="modelListOptions" class="autoFillByVehicle autoFillNewOwner" required autocomplete="off" value="" name="model" id="model"/>
-
                 <datalist id="modelListOptions">
                     <option value="No model was found">
                 </datalist>
             </div>
             <div class="each-input">
                 <label for="jobNo">Job no</label>
-                <input type="text"  autocomplete="off" name="jobNo" required id="jobNo">
+                <input type="text"  autocomplete="off" name="jobNo" onkeyup="changeToUpperCaseInput(this)" required id="jobNo">
             </div>
             <div class="each-input">
                 <label for="year">Vehicle Model Year</label>
@@ -92,20 +91,22 @@ Create Form
                     {% endfor %}
                 </select>
             </div>
+            {% set user_roles = request.cookies.get('user_roles') %}
             <div class="each-input">
                 <label for="unit">Business Unit</label>
                 <select name="unit" class="vehicle-box" id="unit">
-                    <option value="1">PIT & GO</option>
-                    <option value="2">TOYOTA</option>
+                    {% if '1' in user_roles or '2' in user_roles or '3' in user_roles%}<option value="1">PIT & GO</option>{% endif %}
+                    {% if '4' in user_roles %}<option value="2">TOYOTA</option>{% endif %}
                 </select>
             </div>
             <div class="each-input">
+                <span id="temp_shop_id" class="d-none">3</span>
                 <label for="shop">Shop</label>
-                <select name="shop" class="vehicle-box" id="shop">
-                    <option value="1">PIT & GO BGO</option>
-                    <option value="2">PIT & GO SKP</option>
-                    <option value="3">PIT & GO BAWGA</option>
-                    <option value="4">TOYOTA BAWGA</option>
+                <select name="shop" onchange="showAssociatedShopAndTechnician(this)" class="vehicle-box" id="shop">
+                    {% if '3' in user_roles %}<option value="3">PIT & GO BAWGA</option>{% endif %}
+                    {% if '1' in user_roles %}<option value="1">PIT & GO BGO</option>{% endif %}
+                    {% if '2' in user_roles %}<option value="2">PIT & GO SKP</option>{% endif %}
+                    {% if '4' in user_roles %}<option value="4">TOYOTA BAWGA</option>{% endif %}
                 </select>
             </div>
         </div>
@@ -130,18 +131,17 @@ Create Form
                         {% for dt in result[3]%}
                             <option value="{{dt[1]}}">
                         {% endfor %}
-                    </datalist>
-                    <datalist id="piclistOptions">
-                        {% for dt in result[5]%}
-                            <option value="{{dt[1]}} | {{dt[0]}}">
-                        {% endfor %}
-                    </datalist>                    
+                    </datalist>                 
                     <tr id="willBeCloned" class="d-none">
                         <td onclick="deleteJobRow(this,true)"><i class="fa-solid fa-trash-can"></i></td>
-                        <td><input type="text" name="description" class="inp" autocomplete="off"></td>
+                        <td><input type="text" name="description" onkeyup="changeToUpperCaseInput(this)" class="inp" autocomplete="off"></td>
                         <td>
-                            <input type="text" onchange="storeValueFromListToHiddenInput(this)" list="piclistOptions" class="inp" autocomplete="off">
-                            <input type="text" name="pic-rate" value="" hidden>
+                            <select name="pic-rate" class="inp" onchange="storeValueFromListToHiddenInput(this)">
+                                <option value="0" disabled selected>Select Rate</option>
+                                {% for dt in result[5]%}
+                                    <option value="{{dt[0]}}">{{dt[0]}}</option>
+                                {% endfor %}
+                            </select>
                         </td>
                         <td>
                             <select name="jobType" class="inp">
@@ -150,20 +150,24 @@ Create Form
                                 {% endfor %}
                             </select>
                         </td>
-                        <td><input type="text" value="" name="picOne" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
-                        <td><input type="text" value="" name="picTwo" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
-                        <td><input type="text" value="" name="picThree" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
-                        <td><input type="text" value="" name="picFour" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
-                        <td><input type="text" value="" name="picFive" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
-                        <td><input type="number" name="jobCost" value="0" step=".01" class="inp amts" autocomplete="off" onkeyup="sumUpTotals(this)"></td>
+                        <td><input type="text" value="" name="picOne" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picTwo" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picThree" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picFour" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picFive" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="number" name="jobCost" value="0" step=".01" class="inp amts text-end" autocomplete="off" onkeyup="sumUpTotals(this)"></td>
                         <td class="d-none"><input type="text" name="picrow"></td>
                     </tr>
                     <tr>
                         <td onclick="deleteJobRow(this,false)"><i class="fa-solid fa-trash-can"></i></td>
-                        <td><input type="text" required  name="description" class="inp" autocomplete="off"></td>
+                        <td><input type="text" required  name="description" onkeyup="changeToUpperCaseInput(this)" class="inp" autocomplete="off"></td>
                         <td>
-                            <input type="text" onchange="storeValueFromListToHiddenInput(this)" list="piclistOptions" class="inp" autocomplete="off">
-                            <input type="text" name="pic-rate" value="" hidden>
+                            <select name="pic-rate" class="inp" onchange="storeValueFromListToHiddenInput(this)">
+                                <option value="0" disabled selected>Select Rate</option>
+                                {% for dt in result[5]%}
+                                    <option value="{{dt[0]}}">{{dt[0]}}</option>
+                                {% endfor %}
+                            </select>
                         </td>
                         <td>
                             <select name="jobType" required class="inp">
@@ -172,19 +176,19 @@ Create Form
                                 {% endfor %}
                             </select>
                         </td>
-                        <td><input type="text" value="" name="picOne" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
-                        <td><input type="text" value="" name="picTwo" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
-                        <td><input type="text" value="" name="picThree" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
-                        <td><input type="text" value="" name="picFour" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
-                        <td><input type="text" value="" name="picFive" class="pic d-none" list="datalistOptions" autocomplete="off" ></td>
-                        <td><input type="number" required name="jobCost" step=".01" class="inp amts" autocomplete="off" onkeyup="sumUpTotals()"></td>
+                        <td><input type="text" value="" name="picOne" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picTwo" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picThree" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picFour" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="text" value="" name="picFive" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td><input type="number" min="0" required name="jobCost" step=".01" class="inp amts text-end" autocomplete="off" onkeyup="sumUpTotals(this)"></td>
                         <td class="d-none"><input type="text" name="picrow"></td>
                     </tr>
                     <tr>
                         <td colspan="8" class="add-job-row" onclick="addAnotherRow(this)"><button type="button" class="btn btn-outline-dark btn-sm">Add Job +</button></td>
                         <td class="d-none"><input type="number" value="0.0" step=".01" class="total-amount" name="totalCost"></td>
                         <td class="total-label"><b>Total</b></td>
-                        <td class="total-amount">0.0</td>
+                        <td class="total-amount"><input class="text-end" type="number" value="0.00" disabled></td>
                     </tr>
                 </tbody>
             </table>

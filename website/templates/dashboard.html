@@ -5,8 +5,95 @@ Dashboard
 {% endblock %}
 
 {% block styles %}
+<link type="text/css" rel="stylesheet" href="{{url_for('static',filename='styles/dashboard.css')}}">
 {% endblock %}
 
 {% block innertemplate %}
-<div class="dashboard-holder"></div>
+<div class="dash-nav-list">
+    <ul>
+        <li onclick="changeTab(this)" class="tab-list psfu-call-tab active">PSFU Call</li>
+        <li onclick="changeTab(this)" class="tab-list remainder-call-tab">Remainder Call</li> 
+    </ul>
+</div>
+<form action="{{url_for('views.show_service_datas',typ='service-datas')}}" method="POST">
+    <div class="search-bar d-none">
+        <input type="text" hidden value="" name="column" id="column"/>
+        <input type="text" placeholder="Search" class="rounded" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)">
+        <input type="text" hidden value="eachJob" name="database">
+        <input hidden type="text" value="False" id="editOrSubmit" name="editOrSubmit"/>
+    </div>
+</form>
+<div class="dashboard-holder psfu-call" id="psfuCall">
+    {% for shop_name,shop_data in data_dct.items() %}
+        <div class="dashboard-table">
+            <table>
+                <thead>
+                    <tr class="main-header">
+                        <th colspan="6">{{shop_name}}</th>
+                    </tr>
+                    <tr class="sub-header">
+                        <th>Date</th>
+                        <th>JOB No.</th>
+                        <th>License No.</th>
+                        <th>Cusomter Name</th>
+                        <th>Phone No.</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in shop_data %}
+                    <tr onclick="redirectToFormEdit('{{data[0]}}','eachJob')">
+                        <td>{{data[1]}}</td>
+                        <td>{{data[0]}}</td>
+                        <td>{{data[2]}}</td>
+                        <td>{{data[3]}}</td>
+                        <td>{{data[4]}}</td>
+                        <td><input type="checkbox" value="{{data[0]}}" onclick="stopPropagation(event)" onchange="tickThePsfuCall(this)" class="line-through-check"></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endfor %}
+</div>
+<div class="dashboard-holder remainder-call" id="remainderCall">
+    <h1>Remainder Call Coming Soon. . .</h1>
+</div>
+<script type="text/javascript">
+const checkBoxs = document.querySelectorAll("tr");
+checkBoxs.forEach((checkBox) => {
+    checkBox.addEventListener("change", function(e){
+        const tableData = checkBox.children;
+        for(let i = 0; i < tableData.length; i++){
+            tableData[i].classList.toggle("line-through");
+        };
+    })
+})
+function changeTab(btn){
+    const allTabs = document.querySelectorAll(".dashboard-holder");
+    const tabLists = document.querySelectorAll(".tab-list");
+    const psfuCall = document.getElementById("psfuCall");
+    const remainderCall = document.getElementById("remainderCall");
+    if(btn.classList.contains("psfu-call-tab")){
+        allTabs.forEach((allTab) => {
+            allTab.style.display = "none";
+        })
+        tabLists.forEach((tabList) => {
+            tabList.classList.remove("active");
+        })
+       psfuCall.style.display = "block";
+       btn.classList.add("active");
+    }
+    if(btn.classList.contains("remainder-call-tab")){
+        allTabs.forEach((allTab) => {
+            allTab.style.display = "none";
+        })
+        tabLists.forEach((tabList) => {
+            tabList.classList.remove("active");
+        })
+        remainderCall.style.display = "grid";
+        btn.classList.add("active");
+    }
+}
+</script>
 {% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'nav.html' %}
+
+{% block title %}
+Datas Tree View
+{% endblock %}
+
+{% block styles %}
+<link type="text/css" rel="stylesheet" href="{{url_for('static',filename='styles/admin_panel.css')}}">
+{% endblock %}
+
+{% block innertemplate %}
+<div class="account-nav-list">
+    <ul>
+        <li onclick="changeTab(this)" class="tab-list pending active">Pending Accounts</li>
+        <li onclick="changeTab(this)" class="tab-list edit">Edit Accounts</li> 
+    </ul>
+</div>
+<div class="account-holder" id="pendingAccount">
+    <h3 class="pending-header">Pending Accounts</h3>
+    {% for pending_user in pending_users %}
+        <div class="pending-accounts-container">
+            <div class="pending-acc">
+                <div class="text-div">
+                    <label>Username</label>
+                    <p>{{pending_user[1]}}</p>
+                </div>
+                <div class="text-div">
+                    <label>Email</label>
+                    <p>{{pending_user[2]}}</p>
+                </div>
+                <div class="icon-div">
+                    <i class="fa-solid fa-circle-check" onclick="checkRegisteredUser('{{pending_user[0]}}','t')"></i>
+                    <i class="fa-solid fa-circle-xmark" onclick="checkRegisteredUser('{{pending_user[0]}}','del')"></i>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<div class="account-holder" id="editAccount">
+    <datalist id="shopsDataList">
+        {% for data in edit_account[0].values() %}
+        <option value="{{data}}">
+        {% endfor %}
+    </datalist>
+    <h3 class="pending-header">Edit Accounts</h3>
+    {% for user_data,role_data in edit_account[1].items() %}
+    <div class="pending-accounts-container">
+        <div class="edit-box">
+            <div class="edit-acc">
+                <div class="text-div">
+                    <label>Username</label>
+                    <p>{{user_data[0]}}</p>
+                </div>
+                <div class="text-div">
+                    <label>Email</label>
+                    <p>{{user_data[1]}}</p>
+                </div>
+                <div class="icon-div">
+                    <i class="fa-solid fa-trash edit-icon fs-5 p-1 text-danger" onclick="checkRegisteredUser('{{user_data[2]}}','f')"></i>
+                    <i class="fa-solid fa-pen-to-square edit-icon fs-5 p-1 text-secondary" onclick="editKey(this)"></i>
+                </div>
+            </div>
+            <div class="shop-list" id="shopList">
+                <input type="text" placeholder="Type Shop Name" id="shopInput" list="shopsDataList" onchange="inputShop(this,'{{user_data[1]}}')">
+                <div>
+                    {% for role_name in role_data %}
+                    <span>{{role_name}}<i class="fa-solid fa-xmark" onclick="deleteShop(this,'{{user_data[1]}}')"></i></span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<script type="text/javascript">
+function changeTab(btn){
+    const allTabs = document.querySelectorAll(".account-holder");
+    const tabLists = document.querySelectorAll(".tab-list");
+    const pendingAccount = document.getElementById("pendingAccount");
+    if(btn.classList.contains("pending")){
+        allTabs.forEach((allTab) => {
+            allTab.style.display = "none";
+        })
+        tabLists.forEach((tabList) => {
+            tabList.classList.remove("active");
+        })
+        pendingAccount.style.display = "block";
+        btn.classList.add("active");
+    }
+    if(btn.classList.contains("edit")){
+        allTabs.forEach((allTab) => {
+            allTab.style.display = "none";
+        })
+        tabLists.forEach((tabList) => {
+            tabList.classList.remove("active");
+        })
+        editAccount.style.display = "block";
+        btn.classList.add("active");
+    }
+}
+
+function editKey(btn){
+   if(btn.parentElement.parentElement.nextElementSibling.style.display != "flex"){
+    btn.parentElement.parentElement.nextElementSibling.style.display = "flex";
+   }else{
+    btn.parentElement.parentElement.nextElementSibling.style.display = "none";
+   }
+}
+
+function inputShop(inp,mail){
+    if(inp.value != ""){
+        let value = inp.value;
+        fetch(`/get-data/add-access/${value}|${mail}`)
+        .then(response => response.json())
+        .then(result => {
+            if(result>0){
+                let spanTag = document.createElement("span");
+                spanTag.innerHTML = `${value}<i class="fa-solid fa-xmark" onclick="deleteShop(this)"></i>`;
+                inp.nextElementSibling.appendChild(spanTag);
+                inp.value = "";                
+            }
+        })
+        .catch(err => console.log(err))
+
+    }
+}
+
+function deleteShop(icon,mail){
+    fetch(`/get-data/remove-access/${icon.parentElement.textContent}|${mail}`)
+    .then(response => response.text())
+    .then(result => {
+        if(result == 'Finished'){
+            icon.parentElement.remove();
+        }
+    })
+    .catch(err => console.log(err))
+
+}
+</script>
+{% endblock %}

@@ -10,7 +10,12 @@ views = Blueprint('views',__name__)
 @views.route("/")
 def home():
     if request.cookies.get('username'): 
-        return render_template('home.html')
+        conn = db_connect()
+        cur = conn.cursor()
+        cur.execute("SELECT count(id) FROM user_auth WHERE pending = 'f';")
+        noti_counts = cur.fetchall()[0][0]
+        print(noti_counts)
+        return render_template('home.html',noti_counts=noti_counts)
     return redirect(url_for('auth.authenticate',typ='log'))
 
 
@@ -84,8 +89,10 @@ def get_report(start_dt=None,end_dt=None,bi=None,shop=None):
                 for data in datas:
                     lst_data[idx] += data[1]
                     total_result[data[0]].append(data[1])
-            cur.execute("SELECT name FROM shop WHERE id = %s;",(shop,))
-            shop_name = cur.fetchall()[0][0]
+            shop_name = "All Shops"
+            if shop != "0":
+                cur.execute("SELECT name FROM shop WHERE id = %s;",(shop,))
+                shop_name = cur.fetchall()[0][0]
         if '/get-graph-report' in request.path:
             return jsonify(total_result)
         else:
@@ -172,11 +179,13 @@ def pic_report():
     return render_template('pic_report.html',total_result=total_result,job_types=job_types,extra_datas = [start_dt,end_dt,shop_name])
 
 
-@views.route("/show-datas/<typ>/<mgs>")
+@views.route("/show-datas/<typ>/<mgs>",methods=['GET'])
 @views.route("/show-datas/<typ>",methods=['GET','POST'])
 def show_service_datas(typ,mgs=None):
+    mgs = request.args.get("mgs")
     conn = db_connect()
     cur = conn.cursor()
+    user_roles_lst = request.cookies.get('user_roles')
     extra_datas = []
     if request.method == 'POST':
         filt = True
@@ -184,6 +193,7 @@ def show_service_datas(typ,mgs=None):
         db = request.form.get('database')
         val = request.form.get('filter')
         bol = request.form.get('editOrSubmit')
+        print(column,'this is filter',bol)
         if typ == 'service-datas':
             if db == 'eachJob':
                 with_id_query =f""" SELECT 
@@ -256,25 +266,24 @@ def show_service_datas(typ,mgs=None):
                     ON t_five.id = jb.lst_pic_id 
                     LEFT JOIN vehicle_model model
                     ON model.id = vehicle.model_id
-                    WHERE {column} iLIKE '%{val}%'
+                    WHERE {column} iLIKE '%{val}%' AND shop.id IN ({user_roles_lst})
                     ORDER BY jb.job_date DESC,job_no DESC;"""
                 if eval(bol):
-                    print("nani")
                     cur.execute(with_id_query)
                     result = []
                     result.append(cur.fetchall())
-                    cur.execute("SELECT id,name FROM technicians;")
+                    cur.execute("SELECT id,name FROM technicians WHERE shop_id = %s;",(result[0][0][18],))
                     result.append(cur.fetchall())
                     cur.execute("SELECT id,name FROM jobType;")
                     result.append(cur.fetchall())
-                    cur.execute("SELECT id,unique_rate FROM pic;")
+                    cur.execute("SELECT unique_rate FROM pic;")
                     result.append(cur.fetchall())
                     result.append(datetime.now().year)
                     result.append(sum(data[21] for data in result[0]))
                     return render_template('edit_form.html',result = result)
                 cur.execute(query)
                 result = cur.fetchall()
-                cur.execute(f"SELECT count(jb.id) FROM eachJob jb LEFT JOIN vehicle ON vehicle.id = jb.vehicle_id  LEFT JOIN res_partner AS unit ON unit.id = jb.business_unit_id LEFT JOIN shop ON shop.id = jb.shop_id WHERE {column} iLIKE '%{val}%';")
+                cur.execute(f"SELECT count(jb.id) FROM eachJob jb LEFT JOIN vehicle ON vehicle.id = jb.vehicle_id  LEFT JOIN res_partner AS unit ON unit.id = jb.business_unit_id LEFT JOIN shop ON shop.id = jb.shop_id LEFT JOIN customer ON customer.id = jb.customer_id WHERE {column} iLIKE '%{val}%';")
                 length = cur.fetchall()
         elif typ == 'technician':
             query = f""" SELECT tech.id,tech.name,bi.name,shop.name FROM technicians tech
@@ -292,11 +301,69 @@ def show_service_datas(typ,mgs=None):
             cur.execute("SELECT name  FROM shop;")
             extra_datas.append(cur.fetchall())
             length = [(len(result),)]
+        elif typ == 'customers':
+            if eval(bol):
+                result = []
+                cur.execute(""" SELECT id,code,registered_date,name,state_id,address,phone FROM customer WHERE customer.id = %s; """,(val,))
+                result.append(cur.fetchall())
+                cur.execute(""" SELECT ownership.vehicle_id,car.plate,brand.name,model.name,car.year,ownership.start_date,ownership.end_date
+                    FROM ownership 
+                    INNER JOIN customer 
+                    ON customer.id = ownership.customer_id
+                    INNER JOIN vehicle AS car
+                    ON car.id = ownership.vehicle_id
+                    INNER JOIN vehicle_model AS model
+                    ON model.id = car.model_id
+                    INNER JOIN vehicle_brand AS brand
+                    ON brand.id = car.brand_id
+                    WHERE customer_id = %s
+                    ORDER BY ownership.start_date DESC;""",(val,))
+                result.extend([[],[]])
+                for data in cur.fetchall():
+                    if data[6]:
+                        result[2].append(data)
+                    else:
+                        result[1].append(data)
+                cur.execute("SELECT id,name,short_name FROM state;")
+                result.append(cur.fetchall())
+                return render_template("registration_form.html",result=result,typ=typ)
+            else:
+                cur.execute(f"SELECT customer.id,code,customer.name,COALESCE(address,'Undefined'),COALESCE(state.name,'Undefined'),COALESCE(phone,'undefined') FROM customer LEFT JOIN state ON customer.state_id = state.id WHERE {column} iLIKE '%{val}%';")
+                result = cur.fetchall()
+                cur.execute(f"SELECT count(id) FROM customer WHERE {column} iLIKE '%{val}%';")
+                length = cur.fetchall()
+        elif typ == 'vehicles':
+            if eval(bol):
+                result = []
+                cur.execute("SELECT car.id,LEFT(car.plate,3),SUBSTRING(car.plate,4,LENGTH(car.plate)-7),RIGHT(car.plate,4),car.register_date,brand.name,model.name,car.year,car.brand_id FROM vehicle AS car LEFT JOIN vehicle_brand AS brand ON brand.id = car.brand_id LEFT JOIN vehicle_model AS model ON model.id = car.model_id WHERE car.id = %s;",(val,))
+                result.append(cur.fetchall())
+                cur.execute("SELECT short_name FROM state;")
+                result.append(cur.fetchall())
+                cur.execute("SELECT name FROM vehicle_brand;")
+                result.append(cur.fetchall())
+                cur.execute("SELECT name FROM vehicle_model WHERE brand_id = %s;",(result[0][0][8],))
+                result.append(cur.fetchall())
+                return render_template("registration_form.html",result=result,typ=typ)
+            else:
+                cur.execute(f"SELECT car.id,car.plate,brand.name,model.name,car.year FROM vehicle AS car LEFT JOIN vehicle_brand AS brand ON brand.id = car.brand_id LEFT JOIN vehicle_model AS model ON model.id = car.model_id WHERE {column} iLIKE '%{val}%' ORDER BY plate desc;")
+                result = cur.fetchall()
+                cur.execute(f"SELECT count(car.id) FROM vehicle AS car LEFT JOIN vehicle_brand AS brand ON brand.id = car.brand_id LEFT JOIN vehicle_model AS model ON model.id = car.model_id  WHERE {column} iLIKE '%{val}%';")  
+                length = cur.fetchall() 
+        elif typ == 'brand':
+            cur.execute(f"select brand.name,model.name from vehicle_brand brand inner join vehicle_model model on brand.id = model.brand_id where {column} ilike '%{val}%' order by brand.name;")
+            datas = cur.fetchall()
+            datas_dct = {}
+            for data in datas:
+                if data[0] not in datas_dct:
+                    datas_dct[data[0]] = [data[1]]
+                else:
+                    datas_dct[data[0]].append(data[1])
+            return render_template('view_datas.html',mgs=mgs,datas_dct=datas_dct,typ='brand')
     else:      
         filt = False 
         extra_datas = []
         if typ == 'service-datas':
-            query = """ WITH month_cte AS (
+            query = f""" WITH month_cte AS (
             SELECT
                 month_id,
                 TO_CHAR(DATE_TRUNC('month', TIMESTAMP '2000-01-01'::date + (month_id-1  || ' months')::interval), 'Month') AS month_text
@@ -330,31 +397,49 @@ def show_service_datas(typ,mgs=None):
             ON t_five.id = jb.lst_pic_id 
             LEFT JOIN vehicle_model model
             ON model.id = vehicle.model_id
+            WHERE shop.id IN ({user_roles_lst})
             ORDER BY jb.job_date DESC,job_no DESC
             LIMIT 81;"""
-            db = 'eachJob'
+            length_query = f"SELECT count(eachJob.id) FROM eachJob LEFT JOIN shop ON eachJob.shop_id = shop.id WHERE shop.id in ({user_roles_lst});"
         elif typ == 'pic-rate':
             query = """ SELECT id,fst_rate,sec_rate,thrd_rate,frth_rate,lst_rate FROM pic ORDER BY id DESC;"""
-            db = 'pic'
+            length_query = "SELECT count(id) FROM pic;"
         elif typ == 'technician':
-            query = """ SELECT tech.id,tech.name,bi.name,shop.name FROM technicians tech
+            query = f""" SELECT tech.id,tech.name,bi.name,shop.name FROM technicians tech
                         INNER JOIN res_partner bi
                         ON bi.id = tech.business_unit_id
                         INNER JOIN shop
                         ON shop.id = tech.shop_id
-                        WHERE tech.id != 0 ORDER BY tech.name; """
-            db = 'technicians'
+                        WHERE tech.id != 0  ORDER BY tech.name; """
             cur.execute("SELECT name  FROM res_partner;")
             extra_datas.append(cur.fetchall())
             cur.execute("SELECT name  FROM shop;")
             extra_datas.append(cur.fetchall())
+            length_query = f"SELECT count(technicians.id) FROM technicians;"
+        elif typ == 'brand':
+            cur.execute("select brand.name,model.name from vehicle_brand brand inner join vehicle_model model on brand.id = model.brand_id order by brand.name;")
+            datas = cur.fetchall()
+            datas_dct = {}
+            for data in datas:
+                if data[0] not in datas_dct:
+                    datas_dct[data[0]] = [data[1]]
+                else:
+                    datas_dct[data[0]].append(data[1])
+            return render_template('view_datas.html',mgs=mgs,datas_dct=datas_dct,typ='brand')
+        elif typ == 'customers':
+            query = "SELECT customer.id,code,customer.name,COALESCE(address,'Undefined'),COALESCE(state.name,'Undefined'),COALESCE(phone,'undefined') FROM customer LEFT JOIN state ON customer.state_id = state.id LIMIT 81;"
+            length_query = "SELECT count(id) FROM customer;"
+        elif typ == 'vehicles':
+            query = "SELECT car.id,car.plate,brand.name,model.name,car.year FROM vehicle AS car LEFT JOIN vehicle_brand AS brand ON brand.id = car.brand_id LEFT JOIN vehicle_model AS model ON model.id = car.model_id ORDER BY plate desc LIMIT 81;"
+            length_query = "SELECT count(id) FROM vehicle;"
         else:
-            db = 'jobType'
             query = """  SELECT id,name FROM jobType ORDER BY name;  """
+            length_query = "SELECT count(id) FROM jobType;"
         cur.execute(query)
         result = cur.fetchall()
-        cur.execute("SELECT count(id) FROM %s;" % db)
+        cur.execute(length_query)
         length = cur.fetchall()
+    print(mgs,"test")
     return render_template('view_datas.html',mgs=mgs,extra_datas=extra_datas,result=result,length=length,filt = filt,typ=typ)
 
 @views.route("/get-data/<db>/<idd>")
@@ -383,6 +468,7 @@ def get_data(db,idd:str):
         cur.execute("SELECT brand_id,id FROM vehicle_model WHERE name = %s;",(idd,))
     elif db == 'eachJobDelForm':
         cur.execute("DELETE FROM eachJob WHERE job_no = %s;",(idd,))
+        cur.execute("DELETE FROM psfu WHERE job_no = %s;",(idd,))
         conn.commit()
         return "Finished"
     elif db in ('pic','technicians','jobType'):
@@ -392,7 +478,11 @@ def get_data(db,idd:str):
     elif db == 'vehicle_model':
         cur.execute("SELECT name FROM vehicle_model WHERE brand_id = (SELECT id FROM vehicle_brand WHERE name = %s);",(idd,))
     elif db == 'check-technician':
-        cur.execute("SELECT id FROM technicians WHERE name = %s",(idd,))
+        name , shop_id = idd.split("|")
+        print(name,shop_id)
+        cur.execute("SELECT id FROM technicians WHERE name = %s AND shop_id = %s;",(name,shop_id))
+    elif db == 'check-vehicle':
+        cur.execute("SELECT id FROM vehicle WHERE plate = %s;",(idd,))
     elif db == 'change-owner':
         cur.execute(""" UPDATE ownership AS o
                             SET end_date = CURRENT_DATE
@@ -407,9 +497,77 @@ def get_data(db,idd:str):
                         """,(idd,))
         conn.commit()
         return "Finished"
+    elif db == 'show-technician-shop':
+        cur.execute("SELECT name FROM technicians WHERE shop_id = %s;",(idd,))
+    elif db == 'ownership':
+        vehicle_id,customer_id = idd.split("||")
+        print(vehicle_id,customer_id)
+        cur.execute("""INSERT INTO ownership(vehicle_id,customer_id,start_date,unique_owner)
+                VALUES(%s,%s,%s,%s) ON CONFLICT (unique_owner) DO UPDATE set end_date = NULL""",(vehicle_id,customer_id,datetime.now().strftime("%Y-%m-%d"),vehicle_id+'-'+customer_id))
+        cur.execute("UPDATE ownership SET end_date = %s WHERE vehicle_id = %s AND customer_id <> %s AND end_date IS  NULL;",(datetime.now().strftime("%Y-%m-%d"),vehicle_id,customer_id))
+        conn.commit()
+        return "Finished"
+    elif db == 'deleteCustomersData':
+        cur.execute("DELETE FROM eachJob WHERE customer_id = %s;",(idd,))
+        cur.execute("DELETE FROM psfu WHERE job_no = %s;",(idd,))
+        cur.execute("DELETE FROM ownership WHERE customer_id = %s RETURNING vehicle_id;",(idd,))
+        vehicle_id = cur.fetchall()[0][0]
+        cur.execute("DELETE FROM customer WHERE id = %s;",(idd,))
+        cur.execute("DELETE FROM vehicle WHERE id = %s;",(vehicle_id,))
+        conn.commit()
+        return "Finished"
+    elif db == 'deleteVehiclesData':
+        cur.execute("DELETE FROM eachJob WHERE vehicle_id = %s;",(idd,))
+        cur.execute("DELETE FROM psfu WHERE job_no = %s;",(idd,))
+        cur.execute("DELETE FROM ownership WHERE vehicle_id = %s;",(idd,))
+        cur.execute("DELETE FROM vehicle WHERE id = %s;",(idd,))
+        conn.commit()
+        return "Finished"
+    elif db in ('brand','model'):
+        update_brand , brand = idd.split("~")
+        cur.execute(f"UPDATE vehicle_{db} SET name = '{update_brand}' WHERE TRIM(name) = '{brand}' AND NOT EXISTS (SELECT 1 FROM vehicle_{db} WHERE name = '{update_brand}');")
+        conn.commit()
+        return "Finished"
+    elif db == 'removeCall':
+        cur.execute("DELETE FROM psfu WHERE job_no = %s;",(idd,))
+        conn.commit()
+        return "Finished"
+    elif db == 'remove-access':
+        user_role_name , mail = idd.split("|") 
+        cur.execute("SELECT id FROM user_role WHERE name = %s;",(user_role_name,)) 
+        user_role_id = str(cur.fetchall()[0][0])
+        cur.execute("SELECT user_roles FROM user_auth WHERE mail = %s;",(mail,))
+        user_role_ids = cur.fetchall()[0][0].split(",")
+        print(len(user_role_ids))
+        if len(user_role_ids) > 1:           
+            user_role_ids.remove(user_role_id) 
+            cur.execute("UPDATE user_auth SET user_roles = %s WHERE mail = %s;",(",".join(map(str,user_role_ids)),mail))             
+            conn.commit()
+            return "Finished"
+        else:
+            return "Not"
+    elif db == 'add-access':
+        user_role_name , mail = idd.split("|")
+        cur.execute("SELECT id FROM user_role WHERE name = %s;",(user_role_name,))
+        user_role_id = cur.fetchall()
+        if len(user_role_id) != 0:
+            print(user_role_id)
+            cur.execute("SELECT user_roles FROM user_auth WHERE mail = %s;",(mail,))
+            user_role_ids = cur.fetchall()[0][0].split(",")
+            if str(user_role_id[0][0]) not in user_role_ids:
+                user_role_ids.append(user_role_id[0][0])
+            cur.execute("UPDATE user_auth SET user_roles = %s WHERE mail = %s;",(",".join(map(str,user_role_ids)),mail))
+            conn.commit()
+        return f"{len(user_role_id)}"
+    elif db == 'checkRegisteredUsers':
+        registered_id , what = idd.split("|")
+        if what == 't' or what == 'f':
+            cur.execute("UPDATE user_auth SET pending = %s WHERE id = %s;",(what,registered_id))
+        else:
+            cur.execute("DELETE FROM user_auth WHERE id = %s;",(registered_id,))
+        conn.commit()
+        return "Finished"
     datas = cur.fetchall()
-    print(datas)
-    # print(datas)
     return jsonify(datas)
 
 
@@ -423,7 +581,7 @@ def offset_display(for_what,ofset):
                         FROM generate_series(1, 12) AS month_id
                         )
                         SELECT 
-                            month_cte.month_text,jb.job_date,unit.name,shop.name,jb.job_no,customer.name,vehicle.plate,vehicle.model,
+                            month_cte.month_text,jb.job_date,unit.name,shop.name,jb.job_no,customer.name,vehicle.plate,model.name,
                             vehicle.year,jb.invoice_no,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,t_three.name,t_four.name,t_five.name
                         FROM eachJob jb 
                         LEFT JOIN month_cte
@@ -448,34 +606,12 @@ def offset_display(for_what,ofset):
                         ON t_four.id = jb.frth_pic_id 
                         LEFT JOIN technicians AS t_five
                         ON t_five.id = jb.lst_pic_id 
+                        LEFT JOIN vehicle_model model
+                        ON model.id = jb.vehicle_id
                         ORDER BY jb.job_date DESC,job_no DESC
                         LIMIT 81 OFFSET {ofset};""",
-        "dty": f""" SELECT 
-                    dty.duty_date,pj.code,pj.name,fv.machine_name,dty.operator_name,dty.morg_start,dty.morg_end,
-                    dty.aftn_start,dty.aftn_end,dty.evn_start,dty.evn_end,dty.total_hr,dty.hrper_rate,
-                    dty.totaluse_fuel,dty.fuel_price,dty.duty_amt,dty.fuel_amt,dty.total_amt,dty.way,
-                    dty.complete_feet, dty.complete_sud 
-                    FROM duty_odoo_report dty
-                    LEFT JOIN fleet_vehicle fv ON fv.id = dty.machine_id
-                    LEFT JOIN analytic_project_code pj ON pj.id = dty.project_id ORDER BY dty.duty_date ASC 
-                    LIMIT 81 OFFSET {ofset}""",
-        "machine" : f"""SELECT fv.machine_name,mt.name,mc.name,rc.name,mcf.name,vb.name,vo.name 
-                        FROM fleet_vehicle fv
-                        LEFT JOIN machine_type mt ON mt.id = fv.machine_type_id 
-                        LEFT JOIN machine_class mc ON mc.id = fv.machine_class_id
-                        LEFT JOIN res_company rc ON rc.id = fv.business_unit_id
-                        LEFT JOIN fleet_vehicle_model_brand vb ON vb.id = fv.brand_id
-                        LEFT JOIN vehicle_owner vo ON vo.id = fv.owner_name_id
-                        LEFT JOIN vehicle_machine_config mcf ON mcf.id = fv.machine_config_id 
-                        LIMIT 81 OFFSET {ofset}""",
-        "expense" : f"""  SELECT
-                            exp.duty_date,pj.code,pj.name,bi.name,exp.expense_amt
-                            FROM expense_prepaid AS exp
-                            INNER JOIN analytic_project_code AS pj
-                            ON pj.id = exp.project_id
-                            INNER JOIN res_company bi
-                            ON bi.id = exp.res_company_id
-                            LIMIT 81 OFFSET {ofset};"""
+            "customers":f"SELECT customer.id,code,customer.name,COALESCE(address,'Undefined'),COALESCE(state.name,'Undefined'),COALESCE(phone,'undefined') FROM customer LEFT JOIN state ON customer.state_id = state.id LIMIT 81 OFFSET {ofset};",
+            "vehicles":f"SELECT car.id,car.plate,brand.name,model.name,car.year FROM vehicle AS car LEFT JOIN vehicle_brand AS brand ON brand.id = car.brand_id LEFT JOIN vehicle_model AS model ON model.id = car.model_id ORDER BY plate desc LIMIT 81 OFFSET {ofset};"
     }
     conn = db_connect()
     cur = conn.cursor()
@@ -486,8 +622,3 @@ def offset_display(for_what,ofset):
 @views.route('dashboard')
 def show_dashboard():
     return render_template('dashboard.html')
-
-@views.route('registartions/<typ>',)
-def show_registartions(typ):
-    print(typ)
-    return render_template('registrations.html')

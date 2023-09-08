@@ -20,7 +20,10 @@
             <nav class="head-class">
                 <div class="logo-img">
                     <a href="{{url_for('views.home')}}"><img src="{{url_for('static',filename='images/web_logo.png')}}"/></a>
+                    {% set user_roles = request.cookies.get('user_roles') %}
+                    {% if user_roles != 'None' %}
                     <i class="fa-solid fa-angle-right open-btn logo-arrow" onclick="openNav()"></i>
+                    {% endif %}
                     <i class="fa-solid fa-angle-left close-btn logo-arrow" style="display: none;" onclick="closeNav()"></i>
                 </div>
                 <h1 class="job-data-header">{% block pageHeader %} {% endblock %}</h1>
@@ -38,7 +41,7 @@
         </div>
 
         <div id="mySidenav" class="sidenav">
-            <a href="{{url_for('views.show_dashboard')}}">Dashboard<i class="fa-solid fa-angle-down"></i></a>
+            <a href="{{url_for('dash.home')}}">Dashboard</a>
             <a href="#"  onclick="showDropdown(this)">Reporting<i class="fa-solid fa-angle-down"></i></a>
             <div class="dropdown-container">
                 <a href="#" class="sub-head" onclick="callModalForDateRange('get_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">JOB Ability</a>
@@ -48,20 +51,21 @@
             <div class="dropdown-container">
                 <a href="{{url_for('views.show_service_datas',typ='service-datas')}}" class="sub-head">Service Data</a>
             </div>
-            <a href="#"  onclick="showDropdown(this)">Registartions<i class="fa-solid fa-angle-down"></i></a>
+            <a href="#"  onclick="showDropdown(this)">Registrations<i class="fa-solid fa-angle-down"></i></a>
             <div class="dropdown-container">
-                <a href="{{url_for('views.show_registartions',typ='pic-rate')}}" class="sub-head">Customers</a>
-                <a href="{{url_for('views.show_registartions',typ='job-type')}}" class="sub-head">Vehicles</a>                
+                <a href="{{url_for('views.show_service_datas',typ='customers')}}" class="sub-head">Customers</a>
+                <a href="{{url_for('views.show_service_datas',typ='vehicles')}}" class="sub-head">Vehicles</a>                
             </div>
             <a href="#"  onclick="showDropdown(this)">Configuration<i class="fa-solid fa-angle-down"></i></a>
             <div class="dropdown-container">
                 <a href="{{url_for('views.show_service_datas',typ='pic-rate')}}" class="sub-head">PIC</a>
                 <a href="{{url_for('views.show_service_datas',typ='job-type')}}" class="sub-head">Types</a>
-                <a href="{{url_for('views.show_service_datas',typ='technician')}}" class="sub-head">Technicians</a>                
+                <a href="{{url_for('views.show_service_datas',typ='technician')}}" class="sub-head">Technicians</a>     
+                <a href="{{url_for('views.show_service_datas',typ='brand')}}" class="sub-head">Brand & Model</a>           
             </div>
+            {% if '5' in user_roles %}<a href="{{url_for('dash.admin_dashboard')}}">Admin Panel{% if request.path == '/'%}<span class="noti">{%block pendingCount %}{% endblock %}</span>{% endif %}</a>{% endif %}
         </div>
           
-  
     <!-- Modal -->
     <div class="modal fade" id="staticBackdrop" style="z-index: 10010;" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -86,19 +90,25 @@
                             <div class="col">
                                 <label for="bi" class="mb-1">Business Unit</label>
                                 <select name="bi" id="bi" class="form-select form-select-sm" aria-label="Small select example">
-                                    <option selected value="1">PIT & GO</option>
-                                    <option value="2">TOYOTA</option>                                    
-                                    <option selected value="0">All Units</option>
+                                    {% if '1' in user_roles or '2' in user_roles or '3' in user_roles %}
+                                        <option value="1">PIT & GO</option>
+                                    {% endif %}
+                                    {% if '4' in user_roles %}
+                                        <option value="2">TOYOTA</option> 
+                                    {% endif %} 
+                                    {% if '1' in user_roles and '2' in user_roles and '3' in user_roles and '4' in user_roles %}                                  
+                                        <option value="0">All Units</option>
+                                    {% endif %}
                                 </select>                        
                             </div>
                             <div class="col">
                                 <label for="shop"  class="mb-1">Shop</label>
                                 <select name="shop" id="shop" class="form-select form-select-sm" aria-label="Small select example">
-                                    <option selected value="3">PIT & GO BAWGA</option>
-                                    <option value="1">PIT & GO BGO</option>
-                                    <option value="2">PIT & GO SKP</option>
-                                    <option value="4">TOYOTA BAWGA</option>
-                                    <option value="0">All Shops</option>
+                                    {% if '3' in user_roles %}<option value="3">PIT & GO BAWGA</option>{% endif %}
+                                    {% if '1' in user_roles %}<option value="1">PIT & GO BGO</option>{% endif %}
+                                    {% if '2' in user_roles %}<option value="2">PIT & GO SKP</option>{% endif %}
+                                    {% if '4' in user_roles %}<option value="4">TOYOTA BAWGA</option>{% endif %}
+                                    {% if '1' in user_roles and '2' in user_roles and '3' in user_roles and '4' in user_roles %}<option value="0">All Shops</option>{% endif %}
                                 </select>                      
                             </div>
                         </div>
@@ -128,7 +138,7 @@
             <h1 class="modal-title fs-5" id="staticBackdropLabel">User Error</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="errorMessageDisplayer"></div>
+            <div class="modal-body" id="errorMessageDisplayer">{% block errorMessageDisplayer %}{% endblock %}</div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary">Understood</button>
@@ -205,25 +215,26 @@
             }
             if (window.location.href.includes("show-datas")){
                 let mgs;
+                console.log("test")
                 try{
-                    mgs = document.getElementById('errorMessage').textContent.trim()
+                    mgs = document.getElementById('errorMessageDisplayer').textContent.trim()
                 }catch{
                     mgs = "None"
                 }
-                if (mgs != 'None'){
+                if (mgs != 'None' && mgs != ""){
                     let modalClicker = document.getElementsByClassName("errorModal")
-                    document.getElementById("errorMessageDisplayer").textContent = mgs
                     modalClicker[0].click()
                 }
                 formExist = document.getElementById("hidden-rate-form-input")
-                document.getElementsByClassName("add-btn")[0].addEventListener('click',function(){
-                    console.log(formExist.children)
-                    if (formExist.classList.contains("d-none")){
-                        formExist.classList.remove("d-none")
-                    }else{
-                        formExist.classList.add("d-none")                       
-                    }
-                })
+                if(formExist){
+                    document.getElementsByClassName("add-btn")[0].addEventListener('click',function(){
+                        if (formExist.classList.contains("d-none")){
+                            formExist.classList.remove("d-none")
+                        }else{
+                            formExist.classList.add("d-none")                       
+                        }
+                    })
+                }
             }else if (window.location.href.includes("create-form")){
                 const inputList = document.querySelectorAll('.service-data-input-form input');
 

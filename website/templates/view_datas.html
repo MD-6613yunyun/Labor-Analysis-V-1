@@ -8,9 +8,7 @@ Datas Tree View
 <link type="text/css" rel="stylesheet" href="{{url_for('static',filename='styles/input_form.css')}}">
 {% endblock %}
 
-
 {% block innertemplate %}
-
 {% if typ == 'service-datas' %}
     <div class="sticky-top service-job-table showeles">
         <!-- Sticky top content here -->
@@ -33,20 +31,25 @@ Datas Tree View
                     <div class="search-bar">
                         <input type="text" hidden value="" name="column" id="column"/>
                         {% if filt %}
-                            <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ='service-datas')}}">X</a>                        
+                            <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ=typ)}}">X</a>                        
                         {% endif %}
                         <input type="text" placeholder="Search" class="rounded" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)">
                         <input type="text" hidden value="eachJob" name="database">
                         <div class="drop-box d-none">
                             <p onclick="addValForTable('job_no')">Job. No. - <span class="dropdownFormClicker"></span></p>
                             <p onclick="addValForTable('plate')">Reg.  No. - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('customer.name')">Customer. - <span class="dropdownFormClicker"></span></p>
+                            {% if '4' in user_roles  and ('1' in user_roles or '2' in user_roles or '3' in user_roles) %}
                             <p onclick="addValForTable('unit.name')">Unit      - <span class="dropdownFormClicker"></span></p>
+                            {% endif %}
+                            {% if user_roles | length  > 1 %}
                             <p onclick="addValForTable('shop.name')">Shop      - <span class="dropdownFormClicker"></span></p>
+                            {% endif %}
                         </div>
                         <input hidden type="text" value="False" id="editOrSubmit" name="editOrSubmit"/>
                     </div>
                 </form>
-                <span id="paginate-amount"> 1 - 81 / {{length[0][0]}}</span>
+                <span id="paginate-amount"> 1 - {% if length[0][0] >= 81 %} 81 {% else %} {{length[0][0]}} {% endif %} / {{length[0][0]}}</span>
                 <i class="fa-solid fa-circle-chevron-left" onclick="clickPagination('job','prev')"></i>
                 <i class="fa-solid fa-circle-chevron-right" onclick="clickPagination('job','next')"></i></div>
         </div>
@@ -148,7 +151,7 @@ Datas Tree View
         <div class="paginate">
             <form action="{{url_for('views.show_service_datas',typ='technician')}}" method="POST">
                 <div class="search-bar">
-                    <input type="text" hidden value="" name="column" id="column"/>
+                    <input type="text" hidden value=""  name="column" id="column"/>
                     {% if filt %}
                         <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ='technician')}}">X</a>                        
                     {% endif %}
@@ -182,9 +185,9 @@ Datas Tree View
                 <tbody>
                     <tr id="hidden-rate-form-input" class="d-none">
                         <td></td>
-                        <td><input type="text" autocomplete="off" required name="tech"></td>
+                        <td><input type="text" onkeyup="changeToUpperCaseInput(this)" autocomplete="off" required name="tech"></td>
                         <td>
-                            <input type="text"  list="unitListOptions" required name="unit">
+                            <input type="text"  onkeyup="changeToUpperCaseInput(this)" list="unitListOptions" required name="unit">
                             <datalist id="unitListOptions">
                                 {% for dt in extra_datas[0] %}
                                     <option value="{{dt[0]}}">
@@ -192,7 +195,7 @@ Datas Tree View
                             </datalist>
                         </td>
                         <td>
-                            <input type="text" list="shopListOptions" required name="shop">
+                            <input type="text" onkeyup="changeToUpperCaseInput(this)" list="shopListOptions" required name="shop">
                             <datalist id="shopListOptions">
                                 {% for dt in extra_datas[1] %}
                                     <option value="{{dt[0]}}">
@@ -214,6 +217,170 @@ Datas Tree View
             </table>
         </form>
     </div>
+
+{% elif typ == 'brand' %}
+
+<div class="brand-holder">
+    <h1 class="vehicle-header">Vehicle Model</h1>
+    <div class="vehicle-top mb-3">
+        <div class="w-50 ms-2 pt-3">
+            <button class="btn btn-success" onclick="showHiddenInputBrand()">Create</button>
+        </div>
+        <div class="w-50 pt-3 ms-2">
+            <form action="{{url_for('imports.excel_import')}}" method="post" enctype="multipart/form-data">
+                <div class="input-group">
+                    <input class="form-control choose-file-box" name="upload_serivce_datas" type="file" id="formFile" required>
+                    <input value="brand-model" name="selectExcelFile" type="text" hidden>
+                    <input value="brand" name="selectView" type="text" hidden>
+                    <button class="btn btn-outline-dark" type="submit" id="button-addon2">Import</button>
+                </div>
+            </form>
+        </div>
+        <div class="input-group search-container">
+            <form action="{{url_for('views.show_service_datas',typ=typ)}}" method="POST">
+                <div class="search-bar">
+                    <input type="text" hidden value=""  name="column" id="column"/>
+                    {% if filt %}
+                        <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ=typ)}}">X</a>                        
+                    {% endif %}
+                    <input type="text" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)">
+                    <input type="text" hidden value="technicians" name="database">
+                    <div class="drop-box d-none">
+                        <p onclick="addValForTable('brand.name')">Brand - <span class="dropdownFormClicker"></span></p>
+                        <p onclick="addValForTable('model.name')">Model - <span class="dropdownFormClicker"></span></p>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>  
+    <datalist id="brandListOptions">
+        {% for dt in datas_dct.keys()%}
+            <option value="{{dt}}">
+        {% endfor %}
+    </datalist>
+    <datalist id="modelListOptions">  
+    </datalist>
+    <div class="vehicle-box-container">
+        <div class="maker-box d-none" id="hidden-maker-box">
+            <div class="maker-name">
+                <form action="{{url_for('imports.keep_in_import',typ='brand')}}" method="post">
+                    <div class="input-group p-3">
+                        <span class="input-group-text bg-secondary text-light">Make Name</span>
+                        <input autocomplete="off" onchange="generateVehicleModel(this)" name="brand"  list="brandListOptions" type="text" aria-label="First name" class="form-control">
+                        <span class="input-group-text bg-secondary text-light">Model Name</span>
+                        <input autocomplete="off" list="modelListOptions" type="text" name="model" aria-label="Last name" class="form-control">
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon1">Import</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% for brand,model_lst in datas_dct.items() %}
+        <div class="maker-box">
+            <div class="maker-name d-flex justify-content-between" >
+                <div class="w-100" onclick="showModelDropDownFromBrand(this)">
+                    <i class="fa-solid fa-square-caret-right arrow"></i>
+                    <span>{{brand}}({{model_lst|length}})</span>
+                </div>
+                <i class="fa-solid fa-square-pen arrow" onclick="showInputBrand(this,'brand')"></i>               
+            </div>
+            <div class="list-model">
+                <ul>
+                    {% for model in model_lst %}
+                    <li ondblclick="showInputBrand(this,'model')">
+                            {{model}}  
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% elif typ == 'customers' or typ == 'vehicles' %}
+
+<h3 class="text-center mt-2">{{typ.capitalize()}} Table</h3>
+<div>
+    <div class="customer-top-section mt-2 mb-3">
+        <div class="button-search">
+            <a href="{{url_for('imports.show_create_form',typ=typ~'-create')}}" class="nav-link"><button type="button" class="createServiceDataButton"><b>Create</b></button></a>
+        </div>
+        <div class="paginate">
+            <form action="{{url_for('views.show_service_datas',typ=typ )}}" method="POST">
+                <div class="search-bar">
+                    <input type="text" hidden value="" name="column" id="column"/>
+                    {% if filt %}
+                        <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ=typ)}}">X</a>                        
+                    {% endif %}
+                    <input type="text" autocomplete="off" name='filter' class="rounded" onkeyup="typeSthInDropdown(this)"  placeholder="Search">
+                    <input type="text" hidden value="" name="database">
+                    <div class="drop-box d-none">
+                        {% if typ == 'customers' %}
+                            <p onclick="addValForTable('customer.name')">Name - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('code')">Code - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('phone')">Ph.. &nbsp; - <span class="dropdownFormClicker"></span></p>
+                        {% elif typ == 'vehicles' %}
+                            <p onclick="addValForTable('car.plate')">License - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('brand.name')">Brand   - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('model.name')">Model&nbsp; - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('car.year')">Year&nbsp; - <span class="dropdownFormClicker"></span></p>
+                        {% endif %}
+                    </div>
+                    <input hidden type="text" value="False" id="editOrSubmit" name="editOrSubmit"/>
+                </div>
+            </form>
+            <span id="paginate-amount">1 - {% if length[0][0] >= 81 %} 81 {% else %} {{length[0][0]}} {% endif %} / {{length[0][0]}}</span>
+            <i class="fa-solid fa-circle-chevron-left" onclick="clickPagination('{{typ}}','prev')"></i>
+            <i class="fa-solid fa-circle-chevron-right" onclick="clickPagination('{{typ}}','next')"></i></div>
+        </div>
+    </div>
+    {% if typ == 'customers' %}
+    <div class="table-container customer-table">
+        <table>
+            <thead class="text-center">
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>State</th>
+                    <th>Phone</th>                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in result %}
+                    <tr class="customer-data-changeable text-start" onclick="redirectToFormEdit('{{data[0]}}','customer')">
+                        {% for each_data in data[1:] %}
+                            <td class="ps-1">{{each_data}}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% elif typ == 'vehicles' %}
+    <div class="table-container customer-table">
+        <table>
+            <thead class="text-center">
+                <tr>
+                    <th>License No</th>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Year</th>                 
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in result %}
+                <tr class="vehicle-data-changeable text-start" onclick="redirectToFormEdit('{{data[0]}}','vehicle')">
+                    {% for each_data in data[1:] %}
+                        <td class="ps-1">{{each_data}}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif  %}
+</div>
 
 {% else %}
 
@@ -246,10 +413,9 @@ Datas Tree View
             </table>
         </form>
     </div>
-
-
-    <div id="errorMessage" class="d-none">
-        {{mgs}}
-    </div>
 {% endif %}
+{% endblock %}
+
+{% block errorMessageDisplayer %}
+{{mgs}}
 {% endblock %}

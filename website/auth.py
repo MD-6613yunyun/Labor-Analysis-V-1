@@ -1,5 +1,5 @@
 from flask import Blueprint,render_template,request,redirect,url_for,after_this_request
-from website import db_connect
+from website import db_connect,password_hash
 from psycopg2 import IntegrityError
 from datetime import datetime,timedelta
 auth = Blueprint('auth',__name__)
@@ -14,19 +14,22 @@ def authenticate(typ='log'):
         if typ == 'log':
             mail = request.form.get("email")
             pwd = request.form.get("password")
-            print(mail,pwd)
-            cur.execute("SELECT pwd,name FROM user_auth WHERE mail = %s",(mail,))
+            cur.execute("SELECT pwd,name,user_roles FROM user_auth WHERE mail = %s AND pending = '1';",(mail,))
             db_data = cur.fetchall()
             db_pwd = db_data[0][0] if db_data != [] else None
-            print(pwd,db_pwd)
-            if db_pwd == pwd:
-                @after_this_request
-                def after_index(response):
-                    response.set_cookie("username",db_data[0][1],expires=datetime.now() + timedelta(seconds=10))
-                    return response
-                return redirect(url_for('views.home'))
+            if db_pwd:
+                decrypted_pwd = password_hash.A3Decryption().startDecryption(db_pwd)
+                if decrypted_pwd == pwd:
+                    @after_this_request
+                    def after_index(response):
+                        response.set_cookie("username",db_data[0][1],expires=datetime.now() + timedelta(days=1))
+                        response.set_cookie("user_roles",str(db_data[0][2]),expires=datetime.now() + timedelta(days=1))
+                        return response
+                    return redirect(url_for('views.home'))
+                else:
+                    return render_template('auth.html',mgs='Wrong Credentials..',typ='log')
             else:
-                return render_template('auth.html',mgs='Wrong Credentials',typ='log')
+                return render_template('auth.html',mgs='User Not Found.',typ='log')
         else:
             name = request.form.get("username")
             mail = request.form.get("email")
@@ -36,7 +39,8 @@ def authenticate(typ='log'):
             if typ == 'reg':
                 if pwd == confirmPwd:
                     try:
-                        cur.execute("INSERT INTO user_auth (name,mail,pwd) VALUES (%s,%s,%s)",(name,mail,pwd))
+                        encrypted_pwd = password_hash.A3Encryption().start_encryption(pwd,mail)
+                        cur.execute("INSERT INTO user_auth (name,mail,pwd) VALUES (%s,%s,%s)",(name,mail,encrypted_pwd))
                         conn.commit()
                         return redirect(url_for('auth.authenticate',typ='log'))
                     except IntegrityError as err:

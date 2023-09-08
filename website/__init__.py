@@ -42,12 +42,11 @@ def create_app():
     from .views import views
     from .auth import auth
     from .imports import imports
-    # from .imports import imports
-
+    from .dashboard import dash
+    
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth,url_prefix='/auth')
     app.register_blueprint(imports,url_prefix='/import')
-    # app.register_blueprint(exports,url_prefix='/export')
-    # app.register_blueprint(imports,url_prefix='/import')
+    app.register_blueprint(dash,url_prefix='/dashboard')
 
     return app

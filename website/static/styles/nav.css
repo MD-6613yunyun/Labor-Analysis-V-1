@@ -209,22 +209,22 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator:hover { opacity:0.15
 
 .home-holder{
     background-image: url('../images/pitngo-home.jpg'); 
-    height: 91vh;
+    height: 88vh;
     padding: 0;
     margin: 0;
     background-repeat: no-repeat;
     background-size: cover;   
 } 
-.dashboard-holder{
-    background-image: url('../images/coming-soon.png');
-    height: 91vh;
-    padding: 0;
-    margin: 0;
-    background-repeat: no-repeat;
-    background-size: 300px 250px;
-    background-position: center;
-}
 
 .logo-arrow{
     font-size: 30px;
+}
+
+.noti{
+    background-color: red;
+    border-radius: 50%;
+    padding: 0 3px;
+    margin-left: 5px;
+    color: white;
+    font-size: 10px;
 }

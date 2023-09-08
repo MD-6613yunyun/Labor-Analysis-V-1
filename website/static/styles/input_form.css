@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500&display=swap');
 body{
     margin: 0;
     padding: 0;
@@ -402,11 +403,6 @@ table td input:focus{
     box-shadow: inset 5px 5px 5px rgba(0, 0, 0, 0.5);
 }
 
-/* td{
-    padding: 5px;
-    border: 1px solid black;
-    font-size: 15px;
-} */
 
 
 .drop-box{
@@ -467,40 +463,23 @@ table td input:focus{
     padding: 10px 5px;
     text-align: center;
     cursor: pointer;
-    border: 1px solid #7570d4;
+    border: 1px solid #000000;
 }
 
 .table-table th{
-    padding: 10px;
-    border-bottom: 1px solid #7570d4;
+    font-size: 20px;
+    background: linear-gradient(to bottom, #ffffff, #bbbbbb);
     position: sticky;
     top: 0;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 1);
 }
 
-.table-table thead{
-    background-color: #8f8bd3;
-}
-
-.table-table thead tr th:first-child{
-    border-top-left-radius: 10px;
-}
-
-.table-table thead tr th:last-child{
-    border-top-right-radius: 10px;
-}
-
-.table-table tbody tr:nth-child(even){
-    background-color: rgb(175, 175, 175);
-    transition: background-color .5s ease;
-}
-
-.table-table tbody tr:nth-child(odd){
-    background-color: rgb(200, 200, 200);
-    transition: background-color .5s ease;
+.table-table tbody tr{
+    background-color: #e5e5e5;
 }
 
 .table-table tbody tr:hover{
-    background-color: #b1b1d1;
+    background-color: #A8A8E0;
 }
 
 .table-table tbody tr td:first-child input{
@@ -601,10 +580,10 @@ table td input:focus{
 }
 
 .technician-table table td{
-    padding: 10px 5px;
+    padding-left: 20px;
     text-align: start;
     cursor: pointer;
-    border: 1px solid #7570d4;
+    border: 1px solid #000000;
 }
 
 .technician-table tbody td:last-child{
@@ -614,13 +593,17 @@ table td input:focus{
 .technician-table table th{
     position: sticky;
     top: 0;
-    padding: 10px;
-    border-bottom: 1px solid #7570d4;
-    background-color: #8f8bd3;
+    font-size: 20px;
+    background: linear-gradient(to bottom, #ffffff, #888888);
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 1);
+}
+
+.technician-table tbody tr{
+    background-color: #e5e5e5;
 }
 
 .technician-table tbody tr:hover{
-    background-color: #b1b1d1;
+    background-color: #a8a8e0;
 }
 
 
@@ -766,8 +749,6 @@ table td input:focus{
 }
 
 .each-input input[type="date"]{
-    /* border-top-right-radius: 10px; */
-    /* border-bottom-right-radius: 10px; */
     padding: 2px;
 }
 
@@ -836,4 +817,123 @@ table td input:focus{
     .input-sec .each-input .vehicle-box{
         height: 19px;
     }
+}
+
+.table-gradient{
+    background: linear-gradient(to bottom, #ffffff, #bbbbbb);
+}
+
+.customer-table table{
+    width: 100%;
+    background-color: red;
+}
+
+/* model and brand */
+
+.brand-holder{
+    font-family: 'Roboto Slab', serif;
+}
+
+.brand-holder .search-container{
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: end;
+}
+
+
+
+.brand-holder .search-container h3{
+    padding: 0 50px;
+}
+
+.maker-box{
+    width: 99%;
+    margin: 0 auto;
+}
+
+.vehicle-header{
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.maker-name{
+    background: linear-gradient(to bottom, #ffffff, #bbbbbb);
+    padding: 5px 2%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 1);
+}
+
+.maker-name span{
+    font-size: 18px;
+}
+
+.maker-box i{
+    margin-right: 5px;
+}
+
+.list-model{
+    background-color: #9e9e9e;
+    display: none;
+    box-shadow: inset 0px 2px 5px rgb(0, 0, 0, 0.5);
+}
+
+.list-model ul{
+    padding: 5px 0;
+}
+
+.list-model ul:last-child{
+    margin:3px 0 5px 0;
+}
+
+.list-model ul li{
+    cursor: pointer;
+    list-style: none;
+    padding: 0 0 0 2%;
+    transition: font-size 0.2s ease-in-out;
+}
+
+.list-model ul li:hover{
+    font-size: 20px;
+    background-color: #747474;
+    color: white;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, .8);
+}
+
+.toggle-box{
+    display: block;
+}
+
+.active-maker{
+    background: linear-gradient(to bottom, #ffffff, #7A82AB);
+}
+
+.brand-holder .vehicle-box-container{
+    height: 65vh;
+    overflow: auto;
+}
+
+.customer-table table{
+    width: 99%;
+}
+
+.customer-top-section{
+    display: flex;
+    justify-content: space-between;
+} 
+
+.customer-top-section .button-search{
+    align-items: center;
+}
+
+.vehicle-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vehicle-top .search-container{
+    margin-top: 18px;
 }

@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500&display=swap');
+
+body{
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Nunito', sans-serif;
+}
+
+.account-holder{
+    display: block;
+}
+
+.pending-header{
+    text-align: center;
+    margin: 15px 0;
+}
+
+.pending-acc, .edit-acc{
+    background-color: #DADDD8;
+    width: 80%;
+    display: grid;
+    grid-template-columns: 33% 33% 34%;
+    /* justify-content: space-between; */
+    align-items: center;
+    margin: 10px auto;
+    padding: 0 20px;
+    border-radius: 10px;
+    box-shadow: -2px 2px 2px rgba(0, 0, 0, 0.5);
+}
+
+.pending-acc .text-div, .edit-acc .text-div{
+    padding-top: 10px;
+    cursor: pointer;
+    padding-left: 30px;
+}
+
+.pending-acc label, .edit-acc label{
+    font-size: 10px;
+    color: #008148;
+}
+
+.pending-acc span, .edit-acc span{
+    font-size: 20px;
+}
+
+.icon-div{
+    text-align: end;
+}
+
+.pending-acc i, .edit-acc i{
+    font-size: 30px;
+    cursor: pointer;
+    padding-top: 5px;
+}
+
+.pending-acc .fa-circle-check{
+    color: #2ad76a;
+}
+
+.pending-acc .fa-circle-xmark{
+    color: #E03616;
+}
+
+.pending-acc .fa-circle-check:hover{
+    color: #00ea56;
+}
+
+.pending-acc .fa-circle-xmark:hover{
+    color: #ff2a00;
+}
+
+.account-nav-list{
+    width: 80%;
+    margin: 0 auto;
+    border-bottom: 1px solid #D72638;
+    padding-top: 30px;
+}
+
+.account-nav-list ul{
+    list-style: none;
+    display: flex;
+    padding: 0;
+    margin: 0;
+}
+
+.account-nav-list li{
+    margin-right: 10px;
+    margin-bottom: -1px;
+    padding: 0 20px;
+    background-color: #e9e9e9;
+    color: #D72638;
+    border: 1px solid #D72638;
+    cursor: pointer;
+}
+
+.active{
+    display: block !important;
+    color: #e9e9e9 !important;
+    background-color: #D72638 !important;
+}
+
+#editAccount{
+    display: none;
+}
+
+.edit-acc{
+    margin: 0 auto;
+}
+
+.edit-box{
+    margin-bottom: 10px;
+}
+
+.shop-list{
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 2px auto;
+    padding: 5px 10px;
+    border: 1px solid #56638A;
+    border-top: none;
+    width: 77%;
+}
+
+.shop-list input{
+    border-radius: 20px;
+    border: 1px solid #56638A;
+    padding: 0 10px;
+}
+
+.shop-list input:focus{
+    outline: none;
+}
+
+.shop-list span{
+    background-color: #56638A;
+    color: white;
+    border-radius: 10px;
+    padding: 0 10px;
+    cursor: pointer;
+    margin: 0 2px;
+}
+
+.shop-list i{
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.shop-list div{
+    display: flex;
+    justify-content: space-around;
+}
+
+.edit-box .fa-square-pen{
+    color: #56638A;
+}
+
+@media screen and (max-width: 850px){
+    .account-holder{
+        font-size: 15px;
+    }
+
+    .account-nav-list li{
+        padding: 0 10px;
+    }
+}

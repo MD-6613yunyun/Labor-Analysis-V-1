@@ -4,8 +4,8 @@ import psycopg2
 def db_connect():
     # Database connection details
     host = 'localhost'
-    port = '9876'  # Default PostgreSQL port
-    database = 'mmm_test'
+    port = '5432'  # Default PostgreSQL port
+    database = 'mmm_pandg'
     user = 'postgres'
     password = 'md-6613'
 

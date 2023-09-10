@@ -1,6 +1,7 @@
 from flask import Blueprint,render_template,request,jsonify,url_for,redirect
 from website import db_connect
-from decimal import Decimal 
+from decimal import Decimal
+from psycopg2.errors import ForeignKeyViolation 
 from datetime import datetime
 
 views = Blueprint('views',__name__)
@@ -472,7 +473,10 @@ def get_data(db,idd:str):
         conn.commit()
         return "Finished"
     elif db in ('pic','technicians','jobType'):
-        cur.execute("DELETE FROM {} WHERE id = %s;".format(db), (idd,))
+        try:
+            cur.execute("DELETE FROM {} WHERE id = %s;".format(db), (idd,))
+        except ForeignKeyViolation as err:
+            return "failed"
         conn.commit()
         return "finished"
     elif db == 'vehicle_model':
@@ -508,19 +512,20 @@ def get_data(db,idd:str):
         conn.commit()
         return "Finished"
     elif db == 'deleteCustomersData':
-        cur.execute("DELETE FROM eachJob WHERE customer_id = %s;",(idd,))
-        cur.execute("DELETE FROM psfu WHERE job_no = %s;",(idd,))
-        cur.execute("DELETE FROM ownership WHERE customer_id = %s RETURNING vehicle_id;",(idd,))
-        vehicle_id = cur.fetchall()[0][0]
-        cur.execute("DELETE FROM customer WHERE id = %s;",(idd,))
-        cur.execute("DELETE FROM vehicle WHERE id = %s;",(vehicle_id,))
+        try:
+            cur.execute("DELETE FROM customer WHERE id = %s;",(idd,))
+            cur.execute("DELETE FROM ownership WHERE customer_id = %s RETURNING vehicle_id;",(idd,))
+            vehicle_id = cur.fetchall()[0][0]
+            cur.execute("DELETE FROM vehicle WHERE id = %s;",(vehicle_id,))
+        except ForeignKeyViolation:
+            return "failed"
         conn.commit()
         return "Finished"
     elif db == 'deleteVehiclesData':
-        cur.execute("DELETE FROM eachJob WHERE vehicle_id = %s;",(idd,))
-        cur.execute("DELETE FROM psfu WHERE job_no = %s;",(idd,))
-        cur.execute("DELETE FROM ownership WHERE vehicle_id = %s;",(idd,))
-        cur.execute("DELETE FROM vehicle WHERE id = %s;",(idd,))
+        try:
+            cur.execute("DELETE FROM vehicle WHERE id = %s;",(idd,))
+        except ForeignKeyViolation:
+            return 'failed'
         conn.commit()
         return "Finished"
     elif db in ('brand','model'):
@@ -538,7 +543,6 @@ def get_data(db,idd:str):
         user_role_id = str(cur.fetchall()[0][0])
         cur.execute("SELECT user_roles FROM user_auth WHERE mail = %s;",(mail,))
         user_role_ids = cur.fetchall()[0][0].split(",")
-        print(len(user_role_ids))
         if len(user_role_ids) > 1:           
             user_role_ids.remove(user_role_id) 
             cur.execute("UPDATE user_auth SET user_roles = %s WHERE mail = %s;",(",".join(map(str,user_role_ids)),mail))             

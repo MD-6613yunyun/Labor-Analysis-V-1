@@ -136,6 +136,7 @@ def excel_import():
 
 @imports.route("/create-form/<typ>")
 def show_create_form(typ,mgs=None):
+    mgs = request.args.get("mgs")
     conn = db_connect()
     cur = conn.cursor()
     result = ["","",""]
@@ -173,9 +174,9 @@ def show_create_form(typ,mgs=None):
     return render_template('input_form.html',result=result,mgs=mgs)
 
 @imports.route("/keep-in-import/<typ>",methods=['POST'])
-def keep_in_import(typ):
+def keep_in_import(typ):        
+    mgs = None
     if request.method == 'POST':
-        mgs = None
         conn = db_connect()
         cur = conn.cursor()
         if typ == 'service-datas':
@@ -187,73 +188,77 @@ def keep_in_import(typ):
             #
             job_no = request.form.get("jobNo")
             invoice_no = request.form.get("invoiceNo")
-            job_date = request.form.get("jobDate")
-            shop_id = request.form.get("shop")
-            cur.execute("SELECT business_unit_id FROM shop WHERE id = %s;",(shop_id,))
-            unit_id = cur.fetchall()[0][0]
-            #
-            descriptions = request.form.getlist("description")[1:]
-            job_types = [data.strip() for data in request.form.getlist('jobType')[1:]]
-            cur.execute("SELECT fst_rate,sec_rate,thrd_rate,frth_rate,lst_rate,unique_rate,id FROM pic;")
-            all_rates = {data[5]:[data[:5],data[6]] for data in cur.fetchall()}
-            cur.execute("SELECT id,name FROM technicians;")
-            all_technicians = {data[1]:data[0] for data in cur.fetchall()}
-            #
-            pic_ones = [data for data in request.form.getlist("picOne")[1:] ]
-            pic_twos = [data for data in request.form.getlist("picTwo")[1:] ]
-            pic_threes = [data for data in request.form.getlist("picThree")[1:] ]
-            pic_fours = [data for data in request.form.getlist("picFour")[1:] ]
-            pic_fives = [data for data in request.form.getlist("picFive")[1:] ]
-            pic_rates = [data.split(",") for data in request.form.getlist("pic-rate")]
-            #
-            job_costs = request.form.getlist("jobCost")[1:]
-            #
-            if edit:
-                old_job_no = request.form.get("oldJobNo")
-                print(get_data('eachJobDelForm',old_job_no))
-
-            vehicle_id = request.form.get("vehicleInformation")
-            new_onwership = False
-            if request.form.get("vehicleInformation") == "None":
-                plate = request.form.get("regState") + request.form.get("regPrefix") + request.form.get("regDigits")
-                model = request.form.get("model_id")
-                brand = request.form.get("brand_id")
-                year = request.form.get("year")
-                cur.execute("INSERT INTO vehicle (plate,model_id,brand_id,year) VALUES (%s,%s,%s,%s) RETURNING id;",(plate,model,brand,year)) 
-                vehicle_id = cur.fetchall()[0][0]     
-                new_onwership = True    
-            customer_id = request.form.get("customerInformation")
-            if request.form.get("customerInformation") == "None":
-                cus_name = request.form.get("customerName")
-                address = request.form.get("fullAddress")
-                state_id = request.form.get("state")
-                phone = request.form.get("phone")
-                cur.execute("INSERT INTO customer (name,address,phone,state_id) VALUES (%s,%s,%s,%s) RETURNING id;",(cus_name,address,phone,state_id))
-                customer_id = cur.fetchall()[0][0]
-                new_onwership = True
-            if new_onwership:
-                cur.execute("INSERT INTO ownership (customer_id,vehicle_id,start_date,unique_owner) VALUES (%s,%s,%s,%s) RETURNING id;",(customer_id,vehicle_id,datetime.now().strftime("%Y-%m-%d"),str(vehicle_id)+'-'+str(customer_id)))
+            cur.execute("SELECT id FROM eachJob WHERE job_no = %s or invoice_no = %s;",(job_no,invoice_no))
+            if len(cur.fetchall()) != 0:
+                mgs = 'Job No. / Invoice No. is already existed in our system...'
             else:
-                cur.execute("SELECT id FROM ownership WHERE customer_id = %s and vehicle_id = %s;",(customer_id,vehicle_id))                
-            ownership_id = cur.fetchall()[0][0]
-            cur.execute("INSERT INTO psfu (job_no,job_date,shop_id,psfu_concatenated) VALUES (%s,%s,%s,%s) ON CONFLICT (psfu_concatenated) DO NOTHING;",(job_no,job_date,shop_id,job_no+job_date+shop_id))
-            # print(descriptions)
-            # print(job_types)
-            # print(pic_ones)
-            # print(pic_twos)
-            # print(pic_threes)
-            # print(pic_fours)
-            # print(pic_fives)
-            # print(pic_rates)            
-            #
-            for data in zip(descriptions,job_types,pic_ones,pic_twos,pic_threes,pic_fours,pic_fives,job_costs,pic_rates):
-                print(data)
-                eachJob_concatenated = job_date.replace("-","/") + job_no + data[0]
-                eachJob_insert_query += f"""('{job_date}','{job_no}','{unit_id}','{shop_id}','{invoice_no}','{customer_id}','{vehicle_id}','{data[0]}',
-                '{data[1]}','{data[7]}','{all_technicians.get(data[2],0)}','{get_partial_amount(data[8][0],data[7])}','{all_technicians.get(data[3],0)}','{get_partial_amount(data[8][1],data[7])}','{all_technicians.get(data[4],0)}','{get_partial_amount(data[8][2],data[7])}','{all_technicians.get(data[5],0)}','{get_partial_amount(data[8][3],data[7])}','{all_technicians.get(data[6],0)}','{get_partial_amount(data[8][4],data[7])}','{eachJob_concatenated}','{all_rates[",".join(data[8])][1]}','{ownership_id}'),"""
-            cur.execute(eachJob_insert_query[:-1] + f" ON CONFLICT ({conflict_unique_column}) DO NOTHING;")
-            conn.commit()
-            return redirect(url_for('imports.show_create_form',typ='service-datas'))
+                job_date = request.form.get("jobDate")
+                shop_id = request.form.get("shop")
+                cur.execute("SELECT business_unit_id FROM shop WHERE id = %s;",(shop_id,))
+                unit_id = cur.fetchall()[0][0]
+                #
+                descriptions = request.form.getlist("description")[1:]
+                job_types = [data.strip() for data in request.form.getlist('jobType')[1:]]
+                cur.execute("SELECT fst_rate,sec_rate,thrd_rate,frth_rate,lst_rate,unique_rate,id FROM pic;")
+                all_rates = {data[5]:[data[:5],data[6]] for data in cur.fetchall()}
+                cur.execute("SELECT id,name FROM technicians;")
+                all_technicians = {data[1]:data[0] for data in cur.fetchall()}
+                #
+                pic_ones = [data for data in request.form.getlist("picOne")[1:] ]
+                pic_twos = [data for data in request.form.getlist("picTwo")[1:] ]
+                pic_threes = [data for data in request.form.getlist("picThree")[1:] ]
+                pic_fours = [data for data in request.form.getlist("picFour")[1:] ]
+                pic_fives = [data for data in request.form.getlist("picFive")[1:] ]
+                pic_rates = [data.split(",") for data in request.form.getlist("pic-rate")]
+                #
+                job_costs = request.form.getlist("jobCost")[1:]
+                #
+                if edit:
+                    old_job_no = request.form.get("oldJobNo")
+                    print(get_data('eachJobDelForm',old_job_no))
+
+                vehicle_id = request.form.get("vehicleInformation")
+                new_onwership = False
+                if request.form.get("vehicleInformation") == "None":
+                    plate = request.form.get("regState") + request.form.get("regPrefix") + request.form.get("regDigits")
+                    model = request.form.get("model_id")
+                    brand = request.form.get("brand_id")
+                    year = request.form.get("year")
+                    cur.execute("INSERT INTO vehicle (plate,model_id,brand_id,year) VALUES (%s,%s,%s,%s) RETURNING id;",(plate,model,brand,year)) 
+                    vehicle_id = cur.fetchall()[0][0]     
+                    new_onwership = True    
+                customer_id = request.form.get("customerInformation")
+                if request.form.get("customerInformation") == "None":
+                    cus_name = request.form.get("customerName")
+                    address = request.form.get("fullAddress")
+                    state_id = request.form.get("state")
+                    phone = request.form.get("phone")
+                    cur.execute("INSERT INTO customer (name,address,phone,state_id) VALUES (%s,%s,%s,%s) RETURNING id;",(cus_name,address,phone,state_id))
+                    customer_id = cur.fetchall()[0][0]
+                    new_onwership = True
+                if new_onwership:
+                    cur.execute("INSERT INTO ownership (customer_id,vehicle_id,start_date,unique_owner) VALUES (%s,%s,%s,%s) RETURNING id;",(customer_id,vehicle_id,datetime.now().strftime("%Y-%m-%d"),str(vehicle_id)+'-'+str(customer_id)))
+                else:
+                    cur.execute("SELECT id FROM ownership WHERE customer_id = %s and vehicle_id = %s;",(customer_id,vehicle_id))                
+                ownership_id = cur.fetchall()[0][0]
+                cur.execute("INSERT INTO psfu (job_no,job_date,shop_id,psfu_concatenated) VALUES (%s,%s,%s,%s) ON CONFLICT (psfu_concatenated) DO NOTHING;",(job_no,job_date,shop_id,job_no+job_date+shop_id))
+                # print(descriptions)
+                # print(job_types)
+                # print(pic_ones)
+                # print(pic_twos)
+                # print(pic_threes)
+                # print(pic_fours)
+                # print(pic_fives)
+                # print(pic_rates)            
+                #
+                for data in zip(descriptions,job_types,pic_ones,pic_twos,pic_threes,pic_fours,pic_fives,job_costs,pic_rates):
+                    print(data)
+                    eachJob_concatenated = job_date.replace("-","/") + job_no + data[0]
+                    eachJob_insert_query += f"""('{job_date}','{job_no}','{unit_id}','{shop_id}','{invoice_no}','{customer_id}','{vehicle_id}','{data[0]}',
+                    '{data[1]}','{data[7]}','{all_technicians.get(data[2],0)}','{get_partial_amount(data[8][0],data[7])}','{all_technicians.get(data[3],0)}','{get_partial_amount(data[8][1],data[7])}','{all_technicians.get(data[4],0)}','{get_partial_amount(data[8][2],data[7])}','{all_technicians.get(data[5],0)}','{get_partial_amount(data[8][3],data[7])}','{all_technicians.get(data[6],0)}','{get_partial_amount(data[8][4],data[7])}','{eachJob_concatenated}','{all_rates[",".join(data[8])][1]}','{ownership_id}'),"""
+                cur.execute(eachJob_insert_query[:-1] + f" ON CONFLICT ({conflict_unique_column}) DO NOTHING;")
+                conn.commit()
+            return redirect(url_for('imports.show_create_form',typ='service-datas',mgs=mgs))
         elif typ == 'pic-rate':
             idd = request.form.get("idd")
             rates = request.form.getlist('rate')

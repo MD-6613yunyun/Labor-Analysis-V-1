@@ -216,7 +216,7 @@
             let todayy  = new Date()
             document.getElementById("start-dt").value = todayy.getDate
             document.getElementById("end-dt").value = todayy.getDate
-            if (window.location.href.includes("show-datas")){
+            if (window.location.href.includes("show-datas") || window.location.href.includes("create-form")){
                 let mgs;
                 console.log("test")
                 try{

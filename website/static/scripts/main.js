@@ -173,7 +173,9 @@ function addAnotherRow(td) {
 }
 
 function sumUpTotals(inp){
-    inp.value = inp.value.toString().replace(/\.?0+$/, '')
+    console.log(inp.value)
+    inp.value = inp.value.replace(/^0+/, '');
+    console.log(inp.value)
     let all_amts = document.getElementsByClassName("amts")
     let total_txt = document.getElementsByClassName("total-amount")
     let total = 0.0
@@ -481,9 +483,13 @@ function deleteAllServiceDatas(idd,db){
     let confirmAction = confirm("Are you sure want to delete the data?\nDeleting this form will remove all associated datas !!!");
     if (confirmAction){
         fetch(`/get-data/${db}/${idd}`)
+        .then(response => response.text())
         .then(result => {
-            if (result.status == 200){
-                window.location.href = window.location.href
+            if(result == 'failed'){
+                document.getElementById('errorMessageDisplayer').textContent = "You can't delete this data as some data depends on this.."
+                document.getElementsByClassName("errorModal")[0].click()
+            }else{
+                window.location.reload()
             }
         })
         .catch(err => console.log(err))
@@ -525,7 +531,15 @@ function deleteLineDataFromViewForm(idd,db){
     let confirmAction = confirm("Are you sure want to delete the data?");
     if (confirmAction) {
         fetch(`/get-data/${db}/${idd}`)
-        .then(response => {window.location.href = window.location.href})
+        .then(response => response.text())
+        .then(result => {
+            if(result == 'failed'){
+                document.getElementById('errorMessageDisplayer').textContent = "You can't delete this data as some data depends on this.."
+                document.getElementsByClassName("errorModal")[0].click()
+            }else{
+                window.location.reload()
+            }
+        })
         .catch(err => console.log(err))
     }
 

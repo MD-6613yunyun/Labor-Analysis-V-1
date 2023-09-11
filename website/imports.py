@@ -162,7 +162,10 @@ def show_create_form(typ,mgs=None):
     elif typ == 'customers-create':
         result = [datetime.now().strftime("%Y-%m-%d")]
         cur.execute("SELECT 'CUS'||LPAD((id+1)::text,7,'0') FROM customer ORDER BY id DESC LIMIT 1;")
-        result.append(cur.fetchall()[0][0])
+        try:
+            result.append(cur.fetchall()[0][0])
+        except IndexError:
+            result.append('CUS0000001')
         cur.execute("SELECT id,name FROM state;")
         result.append(cur.fetchall())
         return render_template('registration_form.html',result=result,typ=typ)
@@ -195,7 +198,8 @@ def keep_in_import(typ):
             job_no = request.form.get("jobNo")
             invoice_no = request.form.get("invoiceNo")
             cur.execute("SELECT id FROM eachJob WHERE job_no = %s or invoice_no = %s;",(job_no,invoice_no))
-            if len(cur.fetchall()) != 0:
+            print(edit)
+            if len(cur.fetchall()) != 0 and not edit:
                 mgs = 'Job No. / Invoice No. is already existed in our system...'
             else:
                 job_date = request.form.get("jobDate")
@@ -219,7 +223,10 @@ def keep_in_import(typ):
                 #
                 job_costs = request.form.getlist("jobCost")[1:]
                 #
+                print("nani")
+                print(edit)
                 if edit:
+                    print("nani")
                     old_job_no = request.form.get("oldJobNo")
                     print(get_data('eachJobDelForm',old_job_no))
 
@@ -239,9 +246,15 @@ def keep_in_import(typ):
                     address = request.form.get("fullAddress")
                     state_id = request.form.get("state")
                     phone = request.form.get("phone")
-                    cur.execute("INSERT INTO customer (name,address,phone,state_id) VALUES (%s,%s,%s,%s) RETURNING id;",(cus_name,address,phone,state_id))
-                    customer_id = cur.fetchall()[0][0]
-                    new_onwership = True
+                    print(address)
+                    print("nani")
+                    cur.execute("INSERT INTO customer (name,address,phone,state_id) VALUES (%s,%s,%s,%s) ON CONFLICT (phone) DO NOTHING RETURNING id;",(cus_name,address,phone,state_id))
+                    customer_datas = cur.fetchall()
+                    if customer_datas:
+                        customer_id = customer_datas[0][0]
+                        new_onwership = True
+                    else:
+                        return redirect(url_for('imports.show_create_form',typ='service-datas',mgs='Customer with same phone number is existed..'))
                 if new_onwership:
                     cur.execute("INSERT INTO ownership (customer_id,vehicle_id,start_date,unique_owner) VALUES (%s,%s,%s,%s) RETURNING id;",(customer_id,vehicle_id,datetime.now().strftime("%Y-%m-%d"),str(vehicle_id)+'-'+str(customer_id)))
                 else:
@@ -258,7 +271,6 @@ def keep_in_import(typ):
                 # print(pic_rates)            
                 #
                 for data in zip(descriptions,job_types,pic_ones,pic_twos,pic_threes,pic_fours,pic_fives,job_costs,pic_rates):
-                    print(data)
                     eachJob_concatenated = job_date.replace("-","/") + job_no + data[0]
                     eachJob_insert_query += f"""('{job_date}','{job_no}','{unit_id}','{shop_id}','{invoice_no}','{customer_id}','{vehicle_id}','{data[0]}',
                     '{data[1]}','{data[7]}','{all_technicians.get(data[2],0)}','{get_partial_amount(data[8][0],data[7])}','{all_technicians.get(data[3],0)}','{get_partial_amount(data[8][1],data[7])}','{all_technicians.get(data[4],0)}','{get_partial_amount(data[8][2],data[7])}','{all_technicians.get(data[5],0)}','{get_partial_amount(data[8][3],data[7])}','{all_technicians.get(data[6],0)}','{get_partial_amount(data[8][4],data[7])}','{eachJob_concatenated}','{all_rates[",".join(data[8])][1]}','{ownership_id}'),"""

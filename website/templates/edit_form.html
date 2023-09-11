@@ -139,12 +139,12 @@ Edit Datas
                                 {% endfor %}
                             </select>
                         </td>
-                        <td><input type="text" name="picOne" class="pic"  onkeyup="changeToUpperCaseInput(this)" list="datalistOptions" autocomplete="off"></td>
-                        <td><input type="text" name="picTwo" class="pic"  onkeyup="changeToUpperCaseInput(this)" list="datalistOptions" autocomplete="off"></td>
-                        <td><input type="text" name="picThree" class="pic"  onkeyup="changeToUpperCaseInput(this)" list="datalistOptions" autocomplete="off"></td>
-                        <td><input type="text" name="picFour" class="pic"  onkeyup="changeToUpperCaseInput(this)" list="datalistOptions" autocomplete="off"></td>
-                        <td><input type="text" name="picFive" class="pic"  onkeyup="changeToUpperCaseInput(this)" list="datalistOptions" autocomplete="off"></td>
-                        <td><input type="number" name="jobCost" value="0" step=".01" class="inp amts" autocomplete="off" onkeyup="sumUpTotals(this)"></td>
+                        <td><input type="text" name="picOne" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)" list="datalistOptions" autocomplete="off"></td>
+                        <td><input type="text" name="picTwo" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)" list="datalistOptions" autocomplete="off"></td>
+                        <td><input type="text" name="picThree" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)" list="datalistOptions" autocomplete="off"></td>
+                        <td><input type="text" name="picFour" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)" list="datalistOptions" autocomplete="off"></td>
+                        <td><input type="text" name="picFive" class="pic d-none"  onkeyup="changeToUpperCaseInput(this)" list="datalistOptions" autocomplete="off"></td>
+                        <td><input type="number" name="jobCost" value="0" step=".01" class="inp amts text-end" autocomplete="off" onkeyup="sumUpTotals(this)"></td>
                     </tr>
                     {% for data in result[0] %}
                         <tr>

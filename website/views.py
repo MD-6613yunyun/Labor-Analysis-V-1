@@ -268,6 +268,7 @@ def show_service_datas(typ,mgs=None):
                     ON model.id = vehicle.model_id
                     WHERE {column} iLIKE '%{val}%' AND shop.id IN ({user_roles_lst})
                     ORDER BY jb.job_date DESC,job_no DESC;"""
+                print(bol)
                 if eval(bol):
                     cur.execute(with_id_query)
                     result = []

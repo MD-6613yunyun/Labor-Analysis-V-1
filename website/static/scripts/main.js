@@ -491,7 +491,7 @@ function deleteAllServiceDatas(idd,db){
                 document.getElementById('errorMessageDisplayer').textContent = "You can't delete this data as some data depends on this.."
                 document.getElementsByClassName("errorModal")[0].click()
             }else{
-                window.location.reload()
+                window.location.href = window.location.href
             }
         })
         .catch(err => console.log(err))
@@ -808,7 +808,7 @@ function showInputBrand(div,typ){
         div.previousElementSibling.children[0].focus()
         div.classList.remove("fa-square-pen")
     }else if (typ == 'model'){
-        value = div.textContent
+        value = div.textContent.trim()
         div.innerHTML = `<input type="text" id="model" onkeyup="insertDataDb(this,'${value}')" required value="${value}">`
     }
 }

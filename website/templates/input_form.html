@@ -49,7 +49,7 @@ Create Form
             </div>
             <div class="each-input">
                 <label for="">Address</label>
-                <input autocomplete="off" resname="fullAddress" required type="text" style="width: 30%" class="text-three autoFillByVehicle">
+                <input autocomplete="off" name="fullAddress" required type="text" style="width: 30%" class="text-three autoFillByVehicle">
                 <select name="state" id="address-state" class="state-register-box autoFillByVehicle">
                     {% for data in result[6] %}
                         <option value="{{data[0]}}">{{data[2]}}</option>

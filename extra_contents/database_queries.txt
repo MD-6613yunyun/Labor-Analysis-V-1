@@ -104,6 +104,10 @@ create table user_auth (
     user_roles varchar(100) default 1
 )
 
+create table user_role(
+    id serial prim
+)
+
 CREATE TABLE psfu (
     id serial primary key,
     job_no varchar(100) not null unique,

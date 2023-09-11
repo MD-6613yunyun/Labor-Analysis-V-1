@@ -6,11 +6,9 @@ from datetime import datetime
 
 views = Blueprint('views',__name__)
 
-# views.add_url_rule('/favicon.ico',redirect_to=url_for('static', filename='images/MDMM.ico'))
-
 @views.route("/")
 def home():
-    if request.cookies.get('username'): 
+    if request.cookies.get('pg-username'): 
         conn = db_connect()
         cur = conn.cursor()
         cur.execute("SELECT count(id) FROM user_auth WHERE pending = 'f';")
@@ -18,7 +16,6 @@ def home():
         print(noti_counts)
         return render_template('home.html',noti_counts=noti_counts)
     return redirect(url_for('auth.authenticate',typ='log'))
-
 
 @views.route("/get-graph-report/<start_dt>/<end_dt>/<bi>/<shop>")
 @views.route("/get-report",methods=['GET','POST'])
@@ -30,7 +27,7 @@ def get_report(start_dt=None,end_dt=None,bi=None,shop=None):
             bi = request.form.get('bi')
             shop = request.form.get('shop') 
         else:
-            if not request.cookies.get('username'): 
+            if not request.cookies.get('pg-username'): 
                 return redirect(url_for('views.home'))
         where_clause = ""
         where_clause += f"AND ej.business_unit_id = '{bi}' " if bi != '0' else ""
@@ -104,7 +101,7 @@ def get_report(start_dt=None,end_dt=None,bi=None,shop=None):
 
 @views.route("pic-report",methods=['GET','POST'])
 def pic_report():
-    if not request.cookies.get('username'): 
+    if not request.cookies.get('pg-username'): 
         return redirect(url_for('views.home'))
     if request.method == 'POST':
         conn = db_connect()
@@ -183,6 +180,8 @@ def pic_report():
 @views.route("/show-datas/<typ>/<mgs>",methods=['GET'])
 @views.route("/show-datas/<typ>",methods=['GET','POST'])
 def show_service_datas(typ,mgs=None):
+    if not request.cookies.get('user_roles') or not request.cookies.get('pg-username'):
+        return redirect(url_for('views.home'))
     mgs = request.args.get("mgs")
     conn = db_connect()
     cur = conn.cursor()
@@ -622,7 +621,3 @@ def offset_display(for_what,ofset):
     cur.execute(queries_dct[for_what])
     result_datas = cur.fetchall()
     return jsonify(result_datas)
-
-@views.route('dashboard')
-def show_dashboard():
-    return render_template('dashboard.html')

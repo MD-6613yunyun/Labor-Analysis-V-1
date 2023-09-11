@@ -20,8 +20,8 @@ body{
 
 .main-container{
     display: flex;
-    min-width: 800px;
-    min-height: 500px;
+    width: 800px;
+    height: 500px;
 }
 
 .main-container .left-side{
@@ -116,7 +116,41 @@ body{
     font-size: 15px;
 }
 
+@media(max-width: 830px){
+    .main-container{
+        width: 600px;
+        height: 400px;
+    }
 
+    .main-container .left-side img{
+        width: 300px;
+        position: absolute;
+        top: 50%;
+        transform: translate(0,-50%);
+    }
 
+    .inputContainer div input{
+        height: 2em;
+        width: 15em;
+    }
+    
+    .inputContainer button{
+        font-family: 'Roboto Slab', serif;
+        margin-top: unset;
+        padding: 5px 20px;
+        font-size: 10px;
+    }
 
-/* end of login logout page */
+    .inputContainer div {
+        margin-bottom: 10px;
+    }
+
+    .main-container .right-side .signup-forget{
+        bottom: 2px;
+        font-size: 10px;
+    }
+
+    .main-container .right-side .signup-forget a{
+        font-size: 12px;
+    }
+}

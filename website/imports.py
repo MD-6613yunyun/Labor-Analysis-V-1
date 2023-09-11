@@ -11,6 +11,8 @@ def get_partial_amount(percent,total):
 
 @imports.route("/excel",methods=['GET','POST'])
 def excel_import():
+    if not request.cookies.get('user_roles') or not request.cookies.get('pg-username'):
+        return redirect(url_for('views.home'))
     if request.method == 'POST':
         upload_file = request.files['upload_serivce_datas']
         excel_file_type = request.form.get('selectExcelFile')
@@ -136,6 +138,8 @@ def excel_import():
 
 @imports.route("/create-form/<typ>")
 def show_create_form(typ,mgs=None):
+    if not request.cookies.get('user_roles') or not request.cookies.get('pg-username'):
+        return redirect(url_for('views.home'))
     mgs = request.args.get("mgs")
     conn = db_connect()
     cur = conn.cursor()
@@ -174,7 +178,9 @@ def show_create_form(typ,mgs=None):
     return render_template('input_form.html',result=result,mgs=mgs)
 
 @imports.route("/keep-in-import/<typ>",methods=['POST'])
-def keep_in_import(typ):        
+def keep_in_import(typ): 
+    if not request.cookies.get('user_roles') or not request.cookies.get('pg-username'):
+        return redirect(url_for('views.home'))       
     mgs = None
     if request.method == 'POST':
         conn = db_connect()

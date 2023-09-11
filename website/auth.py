@@ -20,9 +20,12 @@ def authenticate(typ='log'):
             if db_pwd:
                 decrypted_pwd = password_hash.A3Decryption().startDecryption(db_pwd)
                 if decrypted_pwd == pwd:
+                    print(pwd)
+                    print(decrypted_pwd)
+                    print(mail)
                     @after_this_request
                     def after_index(response):
-                        response.set_cookie("username",db_data[0][1],expires=datetime.now() + timedelta(days=1))
+                        response.set_cookie("pg-username",db_data[0][1],expires=datetime.now() + timedelta(days=1))
                         response.set_cookie("user_roles",str(db_data[0][2]),expires=datetime.now() + timedelta(days=1))
                         return response
                     return redirect(url_for('views.home'))

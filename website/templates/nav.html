@@ -31,8 +31,8 @@
                     {% if request.path == '/get-report' or request.path == '/pic-report' %}
                         <i class="fa-solid fa-download" onclick="exportTableToExcel()"></i>
                     {% endif %}
-                    {% if request.cookies.get('username') %}
-                        <h4>Welcome, {{ request.cookies.get('username') }}!</h4>
+                    {% if request.cookies.get('pg-username') %}
+                        <h4>Welcome, {{ request.cookies.get('pg-username') }}!</h4>
                     {% endif %}
                         <i class="fa-solid fa-circle-user"></i>
                     <button onclick="signOut()">Sign Out</button>

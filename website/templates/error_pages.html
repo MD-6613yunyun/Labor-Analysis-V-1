@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} {% endblock%}</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css?family=Fira+Code&display=swap");
+        * {
+        margin: 0;
+        padding: 0;
+        font-family: "Fira Code", monospace;
+        }
+
+        .container {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #ecf0f1;
+        }
+        img {
+            width: 256px;
+            height: 225px;
+        }
+
+        h1 {
+            margin-top: 1rem;
+            font-size: 35px;
+            text-align: center;
+        }
+
+        span {
+        font-size: 60px;
+        }
+        p {
+            margin-top: 1rem;
+        }
+
+        p.info {
+            margin-top: 4em;
+            font-size: 12px;
+        }
+
+        a {
+        text-decoration: none;
+        color: rgb(84, 84, 206);
+        }
+
+        #not-found-container {
+        width: 550px;
+        margin-left: 100px;
+        height: 100vh;
+        }
+
+        #not-found-container * {
+        margin-bottom: 50px;
+        color: #383737;
+        }
+
+        #not-found-container h1 {
+        width: auto;
+        display: inline-block;
+        font-size: 7em;
+        line-height: 100%;
+        letter-spacing: 0.2em;
+        text-shadow: 8px -3px 0 rgba(240, 85, 85, 0.6), -10px 5px 0 rgba(72, 104, 244, 0.6), 9px 7px 0 rgba(255, 219, 89, 0.6);
+        transition: all 0.2s ease;
+        }
+        #not-found-container h1:hover {
+        text-shadow: 4px -1px 0 rgba(240, 85, 85, 0.6), -5px 2px 0 rgba(72, 104, 244, 0.6), 6px 3px 0 rgba(255, 219, 89, 0.6);
+        transition: all 0.2s ease;
+        }
+
+        #not-found-container h3 {
+        font-size: 2.5em;
+        }
+
+        #not-found-container a {
+        padding: 15px 15px;
+        color: white;
+        font-weight: bold;
+        font-size: 0.9em;
+        text-align: center;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        background-color: rgba(240, 85, 85, 0.9);
+        box-shadow: -7px 7px 0 rgba(72, 104, 244, 0.7), -12px 12px 0 rgba(255, 219, 89, 0.8);
+        transition: all 0.2s ease;
+        }
+        #not-found-container a:hover {
+        box-shadow: -3px 3px 0 rgba(72, 104, 244, 0.7), -6px 6px 0 rgba(255, 219, 89, 0.8);
+        transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+
+    {% if error.code == 500 %}
+    <div class="container">
+        <img src="../static/images/safety_cone.png" />
+  
+        <h1>
+          <span>500</span> <br />
+          Internal server error
+        </h1>
+        <p>We are currently trying to fix the problem.</p>
+        <p class="info">
+          Please contact <a href="mailto:devops@thihaminswe.com" target="_blank"> MMM IT Team </a>
+        </p>
+    </div>
+    {% elif error.code == 404 %}
+    <div id="not-found-container">
+
+        <h1>{{error.code}}</h1>
+      
+        <h3>Looks like the page you're looking for doesn't exist.</h3>
+      
+        <a href="#">Take me back home</a>
+    </div>
+    {% endif %}
+</body>
+</html>

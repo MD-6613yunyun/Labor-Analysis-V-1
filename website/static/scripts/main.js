@@ -23,11 +23,13 @@ function checkUsernameForget(btn){
 }
 
 function signOut(){
-    document.cookie = 'username' + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = 'pg-username' + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = 'user_roles' + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location = '/auth/log'
 }
 if (window.location.href.includes("/auth")){
-    document.cookie = 'username' + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = 'pg-username' + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = 'user_roles' + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
 function showDropdown(btn){              
     dropdownContent = btn.nextElementSibling

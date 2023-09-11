@@ -7,6 +7,8 @@ dash = Blueprint('dash',__name__)
 
 @dash.route("/")
 def home():
+    if not request.cookies.get('user_roles') or not request.cookies.get('pg-username'):
+        return redirect(url_for('views.home'))
     conn = db_connect()
     cur = conn.cursor()
     user_roles_lst = tuple(request.cookies.get('user_roles').split(","))
@@ -33,6 +35,8 @@ def home():
 
 @dash.route("/admin")
 def admin_dashboard():
+    if not request.cookies.get('user_roles') or not request.cookies.get('pg-username'):
+        return redirect(url_for('views.home'))
     conn = db_connect()
     cur = conn.cursor()
     cur.execute("SELECT id,name FROM user_role;")

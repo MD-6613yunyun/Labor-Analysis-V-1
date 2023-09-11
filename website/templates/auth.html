@@ -1,11 +1,15 @@
-{% extends 'base.html' %}
-{% block styles %} 
-<link rel="stylesheet" href="{{url_for('static',filename='styles/auth.css')}}">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
-{% endblock %}
-{% block title%} Authentication {% endblock %}
-{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication</title>    
+    <link rel="icon" type="image/x-icon" href="../static/images/MDMM.ico">
+    <link rel="stylesheet" href="{{url_for('static',filename='styles/auth.css')}}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+</head>
+<body>
     <div class="main-container">
         <div class="left-side">
             <img src="{{url_for('static',filename='images/logo_opacity_3.png')}}"/>
@@ -88,4 +92,6 @@
             {% endif %}
         </div>
     </div>
-{% endblock %}
+    <script type="text/javascript" src="{{url_for('static',filename='scripts/main.js')}}"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask,render_template,abort
 import psycopg2
     
 def db_connect():
@@ -48,5 +48,11 @@ def create_app():
     app.register_blueprint(auth,url_prefix='/auth')
     app.register_blueprint(imports,url_prefix='/import')
     app.register_blueprint(dash,url_prefix='/dashboard')
+
+    #Handling error 404 and displaying relevant web page
+    @app.errorhandler(404)
+    @app.errorhandler(500)
+    def handle_error(error):
+        return render_template('error_pages.html',error=error),error.code
 
     return app

@@ -359,7 +359,7 @@ def show_service_datas(typ,mgs=None):
                     datas_dct[data[0]] = [data[1]]
                 else:
                     datas_dct[data[0]].append(data[1])
-            return render_template('view_datas.html',mgs=mgs,datas_dct=datas_dct,typ='brand')
+            return render_template('view_datas.html',mgs=mgs,datas_dct=datas_dct,typ='brand',filt=True)
     else:      
         filt = False 
         extra_datas = []
@@ -505,29 +505,27 @@ def get_data(db,idd:str):
         cur.execute("SELECT name FROM technicians WHERE shop_id = %s;",(idd,))
     elif db == 'ownership':
         vehicle_id,customer_id = idd.split("||")
-        print(vehicle_id,customer_id)
         cur.execute("""INSERT INTO ownership(vehicle_id,customer_id,start_date,unique_owner)
                 VALUES(%s,%s,%s,%s) ON CONFLICT (unique_owner) DO UPDATE set end_date = NULL""",(vehicle_id,customer_id,datetime.now().strftime("%Y-%m-%d"),vehicle_id+'-'+customer_id))
         cur.execute("UPDATE ownership SET end_date = %s WHERE vehicle_id = %s AND customer_id <> %s AND end_date IS  NULL;",(datetime.now().strftime("%Y-%m-%d"),vehicle_id,customer_id))
         conn.commit()
         return "Finished"
     elif db == 'deleteCustomersData':
-        try:
+        cur.execute("SELECT id FROM eachJob WHERE ownership_id = (SELECT id FROM ownership WHERE customer_id = %s);",(idd,))
+        if cur.fetchall() == []:
+            cur.execute("DELETE FROM ownership WHERE customer_id = %s;",(idd,))
             cur.execute("DELETE FROM customer WHERE id = %s;",(idd,))
-            cur.execute("DELETE FROM ownership WHERE customer_id = %s RETURNING vehicle_id;",(idd,))
-            vehicle_id = cur.fetchall()[0][0]
-            cur.execute("DELETE FROM vehicle WHERE id = %s;",(vehicle_id,))
-        except ForeignKeyViolation:
-            return "failed"
-        conn.commit()
-        return "Finished"
+            conn.commit()
+            return "Finished"
+        return 'failed'
     elif db == 'deleteVehiclesData':
-        try:
+        cur.execute("SELECT id FROM eachJob WHERE ownership_id = (SELECT id FROM ownership WHERE vehicle_id = %s);",(idd,))
+        if cur.fetchall() == []:
+            cur.execute("DELETE FROM ownership WHERE vehicle_id = %s;",(idd,))
             cur.execute("DELETE FROM vehicle WHERE id = %s;",(idd,))
-        except ForeignKeyViolation:
-            return 'failed'
-        conn.commit()
-        return "Finished"
+            conn.commit()
+            return "Finished"
+        return 'failed'
     elif db in ('brand','model'):
         update_brand , brand = idd.split("~")
         cur.execute(f"UPDATE vehicle_{db} SET name = '{update_brand}' WHERE TRIM(name) = '{brand}' AND NOT EXISTS (SELECT 1 FROM vehicle_{db} WHERE name = '{update_brand}');")

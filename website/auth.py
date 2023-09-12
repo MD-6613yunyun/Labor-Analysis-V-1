@@ -17,6 +17,7 @@ def authenticate(typ='log'):
             cur.execute("SELECT pwd,name,user_roles FROM user_auth WHERE mail = %s AND pending = '1';",(mail,))
             db_data = cur.fetchall()
             db_pwd = db_data[0][0] if db_data != [] else None
+            print(db_data)
             if db_pwd:
                 decrypted_pwd = password_hash.A3Decryption().startDecryption(db_pwd)
                 if decrypted_pwd == pwd:
@@ -26,7 +27,7 @@ def authenticate(typ='log'):
                     @after_this_request
                     def after_index(response):
                         response.set_cookie("pg-username",db_data[0][1],expires=datetime.now() + timedelta(days=1))
-                        response.set_cookie("user_roles",str(db_data[0][2]),expires=datetime.now() + timedelta(days=1))
+                        response.set_cookie("user_roles",db_data[0][2],expires=datetime.now() + timedelta(days=1))
                         return response
                     return redirect(url_for('views.home'))
                 else:

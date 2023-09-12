@@ -42,7 +42,7 @@ function showDropdown(btn){
 
 
 
-
+var imgCharData;
 if (window.location.href.endsWith("/get-report")){
     dates = JSON.parse(localStorage.getItem('date'))
     fetch(`/get-graph-report/${dates[0]}/${dates[1]}/${dates[2]}/${dates[3]}`)
@@ -56,7 +56,7 @@ if (window.location.href.endsWith("/get-report")){
                 );
             }
             if (result.length > 20){
-            document.getElementById("chartContainer").children[0].style.width = `${(result.length - 1)*40}px`
+            document.getElementById("chartContainer").children[0].style.width = `${(result.length - 1)*30}px`
             }
             var data = google.visualization.arrayToDataTable(result);
             var the_last_total = (result[0].length)-3
@@ -101,6 +101,7 @@ if (window.location.href.endsWith("/get-report")){
             },
             // Hover text (tooltip)
             tooltip: {
+                highcontrast:true,
                 textStyle: {
                     fontSize: 12 // Adjust the tooltip font size
                 }
@@ -114,7 +115,25 @@ if (window.location.href.endsWith("/get-report")){
             console.log(options.series)
             // Instantiate and draw the chart.
             var chart = new google.visualization.ComboChart(document.getElementById('container'));
+            // SET ROTATE TEXT
+            google.visualization.events.addListener(chart, 'ready', function () {
+                var observer = new MutationObserver(function () {
+                  var labels = container.getElementsByTagName('text');
+                  Array.prototype.forEach.call(labels, function(label) {
+                    if (label.getAttribute('text-anchor') === 'middle') {
+                      label.setAttribute('transform', 'rotate(-60, ' + label.getAttribute('x') + ' ' + label.getAttribute('y') + ')');
+                    }
+                  });
+                });
+                observer.observe(container, {
+                  childList: true,
+                  subtree: true
+                });
+            });
+            // DRAW
             chart.draw(data, options);
+            document.getElementById('graph-image-container').innerHTML = '<img id="chart" src=' + chart.getImageURI() + '>';
+            document.getElementById("download_link").setAttribute("href", chart.getImageURI())
         }
         google.charts.setOnLoadCallback(drawChart);        
     })
@@ -126,6 +145,8 @@ function exportTableToExcel() {
     let table = document.getElementById("report-table")
     if (!table){
         table = document.getElementById("pic-table");        
+    }else{
+        document.getElementById("download_link").click()
     }
 
     headerRows = table.querySelectorAll('tr.d-none')

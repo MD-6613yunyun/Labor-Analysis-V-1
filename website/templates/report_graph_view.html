@@ -11,12 +11,14 @@
 
 {% block innertemplate %}
 
-<h1 class="text-center mt-5">Technicians Activities Report <span id="start-dt" class="extra-datas">( {{extra_datas[2]}} &lt; = &gt; </span><span id="end-dt" class="extra-datas">{{extra_datas[3]}}  - {{extra_datas[4]}})</span></h1>
-
+<h1 class="text-center mt-5 graph-header">Technicians Activities Report <span id="start-dt" class="extra-datas">( {{extra_datas[2]}} &lt; = &gt; </span><span id="end-dt" class="extra-datas">{{extra_datas[3]}}  - {{extra_datas[4]}})</span></h1>
+<a id="download_link" class="d-none" href="/" download="">download</a>
 <div id="chartContainer" class="m-5 mt-2" style="overflow:auto;">
     <div id="container" style="height: 500px;"></div>
 </div>
+<div id="graph-image-container" class="d-none">
 
+</div>
 <div class="table-responsive m-5" style="width: 90%;table-layout: auto;width: auto;white-space: nowrap;">
     <table class="table table-bordered table-container" id="report-table">
         <thead class="text-center table-header">

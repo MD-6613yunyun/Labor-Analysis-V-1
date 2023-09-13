@@ -451,7 +451,7 @@ function replaceTableData(result,target) {
     let i = 0;
     for (i = 0; i < result.length; i++) {
         if (target == 'job'){
-            all_tr[i].setAttribute('onclick',`redirectToFormEdit('${result[i][4]}','eachJob')`)
+            all_tr[i].setAttribute('onclick',`redirectToFormEdit('${result[i][4]},${result[i][result[i].length - 1]}','eachJob')`)
             tds = all_tr[i].getElementsByTagName('td');
             Array.from(tds).forEach((td, index) => {
             td.innerText = index === 1
@@ -481,6 +481,7 @@ function typeSthInDropdown(inp){
 
 
 function addValForTable(col){
+    document.getElementById("editOrSubmit").value = 'False'
     document.getElementById("column").value = col
     document.getElementsByClassName("search-bar")[0].parentElement.submit()
 }

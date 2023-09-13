@@ -13,7 +13,6 @@ def home():
         cur = conn.cursor()
         cur.execute("SELECT count(id) FROM user_auth WHERE pending = 'f';")
         noti_counts = cur.fetchall()[0][0]
-        print(noti_counts)
         return render_template('home.html',noti_counts=noti_counts)
     return redirect(url_for('auth.authenticate',typ='log'))
 
@@ -196,7 +195,48 @@ def show_service_datas(typ,mgs=None):
         print(column,'this is filter',bol)
         if typ == 'service-datas':
             if db == 'eachJob':
-                with_id_query =f""" SELECT 
+                query = f""" WITH month_cte AS (
+                    SELECT
+                        month_id,
+                        TO_CHAR(DATE_TRUNC('month', TIMESTAMP '2000-01-01'::date + (month_id-1  || ' months')::interval), 'Month') AS month_text
+                    FROM generate_series(1, 12) AS month_id
+                    )
+                    SELECT 
+                        month_cte.month_text,jb.job_date,unit.name,shop.name,jb.job_no,customer.name,vehicle.plate,model.name,
+                        vehicle.year,jb.invoice_no,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,t_three.name,t_four.name,t_five.name,jb.shop_id
+                    FROM eachJob jb 
+                    LEFT JOIN month_cte
+                    ON month_cte.month_id = jb.month_extracted
+                    LEFT JOIN res_partner AS unit
+                    ON unit.id = jb.business_unit_id
+                    LEFT JOIN shop
+                    ON shop.id = jb.shop_id
+                    LEFT JOIN customer
+                    ON customer.id = jb.customer_id
+                    LEFT JOIN vehicle
+                    ON vehicle.id = jb.vehicle_id
+                    LEFT JOIN jobType
+                    ON jobType.id = jb.job_type_id
+                    LEFT JOIN technicians AS t_one
+                    ON t_one.id = jb.fst_pic_id 
+                    LEFT JOIN technicians AS t_two
+                    ON t_two.id = jb.sec_pic_id 
+                    LEFT JOIN technicians AS t_three
+                    ON t_three.id = jb.thrd_pic_id 
+                    LEFT JOIN technicians AS t_four
+                    ON t_four.id = jb.frth_pic_id 
+                    LEFT JOIN technicians AS t_five
+                    ON t_five.id = jb.lst_pic_id 
+                    LEFT JOIN vehicle_model model
+                    ON model.id = vehicle.model_id
+                    WHERE {column} iLIKE '%{val}%' AND shop.id IN ({user_roles_lst})
+                    ORDER BY jb.job_date DESC,job_no DESC;"""
+                if eval(bol):
+                    if len(val.split(",")) > 1:
+                        place_insert_query = f"job_no = '{val.split(',')[0]}' AND jb.shop_id = '{val.split(',')[1]}'"
+                    else:
+                        place_insert_query = f"job_no = '{val}' "
+                    with_id_query =f""" SELECT 
                                         jb.job_date,unit.id,shop.id,jb.job_no,customer.name,vehicle.plate,jb.customer_id,jb.vehicle_id,customer.address,
                                         customer.phone,state.name,model.name,brand.name,model.brand_id,model.id,vehicle.year,jb.invoice_no,jb.business_unit_id,
                                         jb.shop_id,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,
@@ -230,46 +270,8 @@ def show_service_datas(typ,mgs=None):
                                     ON brand.id = model.brand_id
                                     LEFT JOIN state
                                     ON state.id = customer.state_id
-                                    WHERE job_no = '{val}'
+                                    WHERE {place_insert_query}
                                     ORDER BY jb.job_date DESC,job_no DESC;""" 
-                query = f""" WITH month_cte AS (
-                    SELECT
-                        month_id,
-                        TO_CHAR(DATE_TRUNC('month', TIMESTAMP '2000-01-01'::date + (month_id-1  || ' months')::interval), 'Month') AS month_text
-                    FROM generate_series(1, 12) AS month_id
-                    )
-                    SELECT 
-                        month_cte.month_text,jb.job_date,unit.name,shop.name,jb.job_no,customer.name,vehicle.plate,model.name,
-                        vehicle.year,jb.invoice_no,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,t_three.name,t_four.name,t_five.name
-                    FROM eachJob jb 
-                    LEFT JOIN month_cte
-                    ON month_cte.month_id = jb.month_extracted
-                    LEFT JOIN res_partner AS unit
-                    ON unit.id = jb.business_unit_id
-                    LEFT JOIN shop
-                    ON shop.id = jb.shop_id
-                    LEFT JOIN customer
-                    ON customer.id = jb.customer_id
-                    LEFT JOIN vehicle
-                    ON vehicle.id = jb.vehicle_id
-                    LEFT JOIN jobType
-                    ON jobType.id = jb.job_type_id
-                    LEFT JOIN technicians AS t_one
-                    ON t_one.id = jb.fst_pic_id 
-                    LEFT JOIN technicians AS t_two
-                    ON t_two.id = jb.sec_pic_id 
-                    LEFT JOIN technicians AS t_three
-                    ON t_three.id = jb.thrd_pic_id 
-                    LEFT JOIN technicians AS t_four
-                    ON t_four.id = jb.frth_pic_id 
-                    LEFT JOIN technicians AS t_five
-                    ON t_five.id = jb.lst_pic_id 
-                    LEFT JOIN vehicle_model model
-                    ON model.id = vehicle.model_id
-                    WHERE {column} iLIKE '%{val}%' AND shop.id IN ({user_roles_lst})
-                    ORDER BY jb.job_date DESC,job_no DESC;"""
-                print(bol)
-                if eval(bol):
                     cur.execute(with_id_query)
                     result = []
                     result.append(cur.fetchall())
@@ -293,7 +295,6 @@ def show_service_datas(typ,mgs=None):
             INNER JOIN shop
             ON shop.id = tech.shop_id
             WHERE tech.id != 0 and {column}.name iLike '%{val}%'  ORDER BY tech.name; """
-            print(query)
             cur.execute(query)
             result = cur.fetchall()
             db = 'technicians'
@@ -372,7 +373,7 @@ def show_service_datas(typ,mgs=None):
             )
             SELECT 
                 month_cte.month_text,jb.job_date,unit.name,shop.name,jb.job_no,customer.name,vehicle.plate,model.name,
-                vehicle.year,jb.invoice_no,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,t_three.name,t_four.name,t_five.name
+                vehicle.year,jb.invoice_no,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,t_three.name,t_four.name,t_five.name,jb.shop_id
             FROM eachJob jb 
             LEFT JOIN month_cte
             ON month_cte.month_id = jb.month_extracted
@@ -440,7 +441,6 @@ def show_service_datas(typ,mgs=None):
         result = cur.fetchall()
         cur.execute(length_query)
         length = cur.fetchall()
-    print(mgs,"test")
     return render_template('view_datas.html',mgs=mgs,extra_datas=extra_datas,result=result,length=length,filt = filt,typ=typ)
 
 @views.route("/get-data/<db>/<idd>")
@@ -484,7 +484,6 @@ def get_data(db,idd:str):
         cur.execute("SELECT name FROM vehicle_model WHERE brand_id = (SELECT id FROM vehicle_brand WHERE name = %s);",(idd,))
     elif db == 'check-technician':
         name , shop_id = idd.split("|")
-        print(name,shop_id)
         cur.execute("SELECT id FROM technicians WHERE name = %s AND shop_id = %s;",(name,shop_id))
     elif db == 'check-vehicle':
         cur.execute("SELECT id FROM vehicle WHERE plate = %s;",(idd,))
@@ -554,7 +553,6 @@ def get_data(db,idd:str):
         cur.execute("SELECT id FROM user_role WHERE name = %s;",(user_role_name,))
         user_role_id = cur.fetchall()
         if len(user_role_id) != 0:
-            print(user_role_id)
             cur.execute("SELECT user_roles FROM user_auth WHERE mail = %s;",(mail,))
             user_role_ids = cur.fetchall()[0][0].split(",")
             if str(user_role_id[0][0]) not in user_role_ids:
@@ -585,7 +583,7 @@ def offset_display(for_what,ofset):
                         )
                         SELECT 
                             month_cte.month_text,jb.job_date,unit.name,shop.name,jb.job_no,customer.name,vehicle.plate,model.name,
-                            vehicle.year,jb.invoice_no,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,t_three.name,t_four.name,t_five.name
+                            vehicle.year,jb.invoice_no,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,t_three.name,t_four.name,t_five.name,jb.shop_id
                         FROM eachJob jb 
                         LEFT JOIN month_cte
                         ON month_cte.month_id = jb.month_extracted

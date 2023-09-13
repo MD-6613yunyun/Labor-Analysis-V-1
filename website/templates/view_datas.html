@@ -80,8 +80,8 @@ Datas Tree View
             </thead>
             <tbody>
                 {% for data in result %}
-                    <tr class="job-data-changeable text-start" onclick="redirectToFormEdit('{{data[4]}}','eachJob')">
-                        {% for each_data in data %}
+                    <tr class="job-data-changeable text-start" onclick="redirectToFormEdit('{{data[4]}},{{data[-1]}}','eachJob')">
+                        {% for each_data in data[:-1] %}
                             <td class="ps-1">{{each_data}}</td>
                         {% endfor %}
                     </tr>

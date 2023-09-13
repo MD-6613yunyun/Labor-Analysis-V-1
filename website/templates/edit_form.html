@@ -17,7 +17,7 @@ Edit Datas
             <button class="discard-btn"><a class="nav-link" onclick="goBackToPreviousLocation()">Discard</a></button>
         </div>
         <div>
-            <button class="delete-btn" type="button" onclick="deleteAllServiceDatas('{{result[0][0][3]}}','eachJobDelForm')">Delete the Whole Form</button>
+            <button class="delete-btn" type="button" onclick="deleteAllServiceDatas('{{result[0][0][3]}},{{result[0][0][2]}}','eachJobDelForm')">Delete the Whole Form</button>
         </div>
     </div>
     <form  id="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='service-datas')}}" method="post">

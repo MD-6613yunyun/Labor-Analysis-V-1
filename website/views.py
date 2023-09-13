@@ -468,8 +468,9 @@ def get_data(db,idd:str):
     elif db == 'get-brand-model':
         cur.execute("SELECT brand_id,id FROM vehicle_model WHERE name = %s;",(idd,))
     elif db == 'eachJobDelForm':
-        cur.execute("DELETE FROM eachJob WHERE job_no = %s;",(idd,))
-        cur.execute("DELETE FROM psfu WHERE job_no = %s;",(idd,))
+        job_id,shop_id = idd.split(",")
+        cur.execute("DELETE FROM eachJob WHERE job_no = %s AND shop_id = %s;",(job_id,shop_id))
+        cur.execute("DELETE FROM psfu WHERE job_no = %s AND shop_id = %s;",(job_id,shop_id))
         conn.commit()
         return "Finished"
     elif db in ('pic','technicians','jobType'):

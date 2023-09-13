@@ -95,15 +95,22 @@ if (window.location.href.endsWith("/get-report")){
                 }
             },
             annotations: {
+                highcontrast:true,
                 textStyle: {
-                    fontSize: 10 // Adjust the data label font size
+                    fontSize: 10, // Adjust the data label font size
+                    bold: true,
+                    italic: true,
+                    // The color of the text.
+                    color: '#a30b0b',
+                    // The color of the text outline.
+                    auraColor: '#fff',
                 }
             },
             // Hover text (tooltip)
             tooltip: {
                 highcontrast:true,
                 textStyle: {
-                    fontSize: 12 // Adjust the tooltip font size
+                    fontSize: 12, // Adjust the tooltip font size
                 }
             },
             bar: {
@@ -118,7 +125,7 @@ if (window.location.href.endsWith("/get-report")){
             // SET ROTATE TEXT
             google.visualization.events.addListener(chart, 'ready', function () {
                 var observer = new MutationObserver(function () {
-                  var labels = container.getElementsByTagName('text');
+                  var labels = container.querySelectorAll('text[font-size="10"]');
                   Array.prototype.forEach.call(labels, function(label) {
                     if (label.getAttribute('text-anchor') === 'middle') {
                       label.setAttribute('transform', 'rotate(-60, ' + label.getAttribute('x') + ' ' + label.getAttribute('y') + ')');

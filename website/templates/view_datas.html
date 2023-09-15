@@ -249,6 +249,7 @@ Datas Tree View
                         <p onclick="addValForTable('brand.name')">Brand - <span class="dropdownFormClicker"></span></p>
                         <p onclick="addValForTable('model.name')">Model - <span class="dropdownFormClicker"></span></p>
                     </div>
+                    <input hidden type="text" value="False" id="editOrSubmit" name="editOrSubmit"/>
                 </div>
             </form>
         </div>
@@ -266,9 +267,9 @@ Datas Tree View
                 <form action="{{url_for('imports.keep_in_import',typ='brand')}}" method="post">
                     <div class="input-group p-3">
                         <span class="input-group-text bg-secondary text-light">Make Name</span>
-                        <input autocomplete="off" onchange="generateVehicleModel(this)" name="brand"  list="brandListOptions" type="text" aria-label="First name" class="form-control">
+                        <input required autocomplete="off" onchange="generateVehicleModel(this)" name="brand"  list="brandListOptions" type="text" aria-label="First name" class="form-control">
                         <span class="input-group-text bg-secondary text-light">Model Name</span>
-                        <input autocomplete="off" list="modelListOptions" type="text" name="model" aria-label="Last name" class="form-control">
+                        <input  required autocomplete="off" list="modelListOptions" type="text" name="model" aria-label="Last name" class="form-control">
                         <button class="btn btn-outline-secondary" type="submit" id="button-addon1">Import</button>
                     </div>
                 </form>
@@ -280,6 +281,7 @@ Datas Tree View
                 <div class="w-100" onclick="showModelDropDownFromBrand(this)">
                     <i class="fa-solid fa-square-caret-right arrow"></i>
                     <span>{{brand}}({{model_lst|length}})</span>
+                    <input type="text" class="d-none" id="brand" onkeyup="insertDataDb(this,'{{brand}}')" required value='{{brand}}'>
                 </div>
                 <i class="fa-solid fa-square-pen arrow" onclick="showInputBrand(this,'brand')"></i>               
             </div>

@@ -3,6 +3,7 @@ from openpyxl import load_workbook
 from website import db_connect
 from .views import get_data
 from datetime import datetime
+import re
 
 imports = Blueprint('imports',__name__)
 
@@ -20,6 +21,8 @@ def vehicle_plate_check(plate):
         state_codes = {data[1]:data[0] for data in cur.fetchall()}
         if state_code not in state_codes:
             return f"Invald State Code at Row "
+        elif 'UN' in plate:
+            return 1
         elif not plate[-4:].isdigit():
             return f"Invalid Last Digits Plate at Row "
         return 1
@@ -63,7 +66,7 @@ def excel_import():
                     if row[19].value is None or row[19].value.strip() == "" or row[19].value.strip() not in all_rates:
                         return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid or Unregistered PIC Rate at row {row_counter}"))
                     # check all invalid fields
-                    if None in (row[0].value,row[1].value,row[2].value,row[3].value,row[4].value,row[5].value,row[6].value,row[7].value,
+                    if None in (row[0].value,row[1].value,row[2].value,row[3].value,row[4].value,row[5].value,row[6].value,
                                 row[8].value,row[9].value,row[10].value,row[11].value,row[17].value,row[18].value,row[19].value) or "" in (row[0].value,row[1].value,row[2].value,row[3].value,row[4].value,row[5].value,row[6].value,row[7].value,
                                 row[8].value,row[9].value,row[10].value,row[11].value,row[17].value,row[18].value,row[19].value):
                         return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid or Blank field at row {row_counter}"))
@@ -82,11 +85,13 @@ def excel_import():
                             if row[cell_counter].value is None or row[cell_counter].value.strip() == "":
                                 return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Blank technician name at row {row_counter} and column {cell_counter+1}, must be matched with pic_rate..."))
                             if (row[cell_counter].value.strip().lower(),unit_shop_ids[1]) not in technicians:
-                                return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid PIC Name at row - {row_counter} and column {cell_counter+1}.. \nPlease check or add names in Configurations -> Technicinans.."))
+                                return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid Technician Name at row - {row_counter} and column {cell_counter+1}.. \nPlease check or add names in Configurations -> Technicinans.."))
                             tech_names.append((row[cell_counter].value.strip().lower(),unit_shop_ids[1]))
                         else:
                             tech_names.append(('bot',None))
-                        cell_counter += 1    
+                        cell_counter += 1 
+                    # 
+                    phone = re.sub(r'\D', '', str(row[4].value).strip().split(",")[0])
                     # create customer                    
                     cur.execute(""" WITH inserted AS (
                                         INSERT INTO customer (name,phone)
@@ -97,10 +102,10 @@ def excel_import():
                                     SELECT id FROM inserted
                                     UNION ALL
                                     SELECT id FROM customer WHERE phone = %s
-                                    LIMIT 1;""",(row[3].value.strip().upper(),str(row[4].value).strip(),str(row[4].value).strip()))
+                                    LIMIT 1;""",(row[3].value.strip().upper(),phone,phone))
                     cus_id = cur.fetchall()[0][0]
                     # get brand / model id
-                    cur.execute("SELECT id,brand_id FROM vehicle_model WHERE name = %s;",(row[6].value.strip(),))
+                    cur.execute("SELECT id,brand_id FROM vehicle_model WHERE LOWER(name) = %s;",(row[6].value.strip().lower(),))
                     idds = cur.fetchone()
                     if not idds:
                         return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid or Unregistered Vehicle Model at row {row_counter}"))                        
@@ -109,6 +114,9 @@ def excel_import():
                     if returned_mgs != 1:
                         return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"{returned_mgs} {row_counter}."))
                     # create vehicle
+                    vehicle_year = row[7].value
+                    if not row[7].value or row[7].value.strip() == "":
+                        vehicle_year = '2015'
                     cur.execute(""" WITH inserted AS (
                                         INSERT INTO vehicle (plate,model_id,brand_id,year)
                                         VALUES (%s,%s,%s,%s)
@@ -118,7 +126,7 @@ def excel_import():
                                     SELECT id FROM inserted
                                     UNION ALL
                                     SELECT id FROM vehicle WHERE LOWER(plate) = %s 
-                                    LIMIT 1;""",(row[5].value.strip().upper(),idds[0],idds[1],row[7].value,row[5].value.strip().lower()))
+                                    LIMIT 1;""",(row[5].value.strip().upper(),idds[0],idds[1],vehicle_year,row[5].value.strip().lower()))
                     vehicle_id = cur.fetchall()[0][0]
                     # create ownership
                     cur.execute(""" WITH inserted AS (
@@ -159,7 +167,7 @@ def excel_import():
                     shop_name = row[2].value.strip()
                     if None in (row[0].value,row[1].value,row[2].value) or row[0].value.strip() == "" or row[1].value.strip() == "" or shop_name == "" or shop_name not in shops_dct:
                         return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid or Blank field at row {row_counter}"))                           
-                    eachJob_insert_query += f"('{row[0].value.upper()}','{shops_dct[shop_name][0]}','{shops_dct[shop_name][1]}'),"
+                    eachJob_insert_query += f"('{row[0].value.strip().upper()}','{shops_dct[shop_name][0]}','{shops_dct[shop_name][1]}'),"
             elif excel_file_type == 'brand-model':
                 eachJob_insert_query = "INSERT INTO vehicle_model(brand_id,name) VALUES"
                 for row_counter,row in enumerate(worksheet.iter_rows(min_row=2),start=2):
@@ -376,8 +384,8 @@ def keep_in_import(typ):
                 else:
                     mgs = f"Plate - {plate} is already registered in our system.."
         elif typ == 'brand':
-            brand_name = request.form.get("brand")
-            model_name = request.form.get("model")
+            brand_name = request.form.get("brand").strip()
+            model_name = request.form.get("model").strip()
             cur.execute("INSERT INTO vehicle_brand(name) VALUES(%s) ON CONFLICT (name) DO UPDATE SET name = %s RETURNING id;",(brand_name,brand_name))
             brand_id = cur.fetchall()[0][0]
             cur.execute("SELECT id FROM vehicle_model WHERE brand_id = %s AND name = %s;",(brand_id,model_name))

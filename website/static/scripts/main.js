@@ -55,14 +55,20 @@ if (window.location.href.endsWith("/get-report")){
                     (index === 0 || index === result[idx].length - 1) ? value : parseFloat(value)
                 );
             }
+            let haxisFontSize = 12
             if (result.length > 20){
             document.getElementById("chartContainer").children[0].style.width = `${(result.length - 1)*30}px`
-            }
+                haxisFontSize = 8
+        }
+            
             var data = google.visualization.arrayToDataTable(result);
             var the_last_total = (result[0].length)-3
             // Set chart options
             var options = {
             title : 'Service Job Activites',
+            bar : {
+                columnWidth: '100%',
+            },
             chartArea : {
                 left : 100,
                 right : 150
@@ -84,7 +90,7 @@ if (window.location.href.endsWith("/get-report")){
                     fontSize: 13 // Adjust the x-axis label font size
                 },
                 textStyle: {
-                    fontSize: 12 // Adjust the x-axis tick labels font size
+                    fontSize: haxisFontSize // Adjust the x-axis tick labels font size
                 }
             },
             legend: {
@@ -112,9 +118,6 @@ if (window.location.href.endsWith("/get-report")){
                 textStyle: {
                     fontSize: 12, // Adjust the tooltip font size
                 }
-            },
-            bar: {
-                groupWidth: '100%' // Adjust the value to set the desired bar width
             },
             seriesType: 'bars',
             series: {[the_last_total]: {type: 'line'}}
@@ -226,13 +229,20 @@ function deleteJobRow(btn,bool){
 
 function checkVehiclePlate(inp,what){
     let state = prefix = digit = plate = ''
-    state = inp.previousElementSibling.value
-    prefix = inp.value
-    digit = inp.nextElementSibling.value
+
     if (what == 'digit'){
         state = inp.previousElementSibling.previousElementSibling.value
         prefix = inp.previousElementSibling.value
         digit = inp.value
+    }else{
+    state = inp.previousElementSibling.value
+    prefix = inp.value
+    digit = inp.nextElementSibling.value 
+        if (inp.value.trim() == 'UN' ){
+            inp.nextElementSibling.setAttribute("type","text")        
+        }else{
+            inp.nextElementSibling.setAttribute("type","number")
+        }    
     }
     if (prefix.length >=2 && digit.length == 4){
         plate = state.trim() + prefix.trim() + digit.trim()
@@ -832,13 +842,24 @@ function submitInsideForm(){
 
 function showInputBrand(div,typ){
     if (typ == 'brand'){
-        value = div.previousElementSibling.children[1].textContent.split("(")[0]
-        div.previousElementSibling.innerHTML = `<input type="text" id="brand" onkeyup="insertDataDb(this,'${value}')" required value='${value}'>`
-        div.previousElementSibling.children[0].focus()
-        div.classList.remove("fa-square-pen")
+        if (div.classList.contains('fa-square-pen')){
+            div.previousElementSibling.children[0].classList.add("d-none")
+            div.previousElementSibling.children[1].classList.add("d-none")
+            div.previousElementSibling.children[2].classList.remove("d-none")
+            div.classList.replace("fa-square-pen","fa-square-check")
+        }else{
+            div.previousElementSibling.children[0].classList.remove("d-none")
+            div.previousElementSibling.children[1].classList.remove("d-none")
+            div.previousElementSibling.children[2].classList.add("d-none")
+            div.classList.replace("fa-square-check","fa-square-pen")
+        }
     }else if (typ == 'model'){
         value = div.textContent.trim()
-        div.innerHTML = `<input type="text" id="model" onkeyup="insertDataDb(this,'${value}')" required value="${value}">`
+        if(div.innerHTML.startsWith('<input')){
+            div.innerHTML = div.children[0].value
+        }else{
+            div.innerHTML = `<input type="text" id="model" onkeyup="insertDataDb(this,'${value}')" required value="${value}">`
+        }
     }
 }
 

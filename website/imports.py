@@ -90,44 +90,50 @@ def excel_import():
                         else:
                             tech_names.append(('bot',None))
                         cell_counter += 1 
-                    # 
-                    phone = re.sub(r'\D', '', str(row[4].value).strip().split(",")[0])
-                    # create customer                    
-                    cur.execute(""" WITH inserted AS (
-                                        INSERT INTO customer (name,phone)
-                                        VALUES (%s,%s)
-                                        ON CONFLICT (phone) DO NOTHING 
-                                        RETURNING id
-                                    )
-                                    SELECT id FROM inserted
-                                    UNION ALL
-                                    SELECT id FROM customer WHERE phone = %s
-                                    LIMIT 1;""",(row[3].value.strip().upper(),phone,phone))
-                    cus_id = cur.fetchall()[0][0]
                     # get brand / model id
                     cur.execute("SELECT id,brand_id FROM vehicle_model WHERE LOWER(name) = %s;",(row[6].value.strip().lower(),))
                     idds = cur.fetchone()
                     if not idds:
-                        return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid or Unregistered Vehicle Model at row {row_counter}"))                        
+                        return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid or Unregistered Vehicle Model at row {row_counter}"))  
                     # check vehicle plate
                     returned_mgs = vehicle_plate_check(row[5].value.strip())
                     if returned_mgs != 1:
                         return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"{returned_mgs} {row_counter}."))
                     # create vehicle
                     vehicle_year = row[7].value
-                    if not row[7].value or row[7].value.strip() == "":
-                        vehicle_year = '2015'
-                    cur.execute(""" WITH inserted AS (
-                                        INSERT INTO vehicle (plate,model_id,brand_id,year)
+                    # check vehicle
+                    cur.execute("SELECT id FROM vehicle WHERE LOWER(plate) = %s;",(row[5].value.strip().lower(),))
+                    vehicle_datas = cur.fetchone()                       
+                    phone = re.sub(r'\D', '', str(row[4].value).strip().split(",")[0])
+                    cur.execute("SELECT id,name,phone,secondary_phone FROM customer WHERE phone = %s or secondary_phone = %s or name = %s;",(phone,phone,row[3].value.strip().upper()))
+                    cus_datas = cur.fetchone()
+                    if cus_datas:
+                        if cus_datas[2] == phone or cus_datas[3] == phone:
+                            cus_id = cus_datas[0]
+                        else:
+                            if vehicle_datas:
+                                cur.execute("SELECT customer_id FROM ownership WHERE vehicle_id = %s;",(vehicle_datas))
+                                ownership_datas_for_vehicle_data = cur.fetchall()
+                                for ownership_data in ownership_datas_for_vehicle_data:
+                                    if ownership_data[0] == cus_datas[0]:
+                                        cur.execute("UPDATE customer SET secondary_phone = %s WHERE id = %s;",(phone,ownership_data[0]))
+                                        cus_id = ownership_data[0]
+                                        break
+                    else:
+                        # create new customer
+                        cur.execute(""" INSERT INTO customer (name,phone)
+                                        VALUES (%s,%s)
+                                        ON CONFLICT (phone) DO NOTHING 
+                                        RETURNING id """,(row[3].value.strip().upper(),phone))
+                        cus_id = cur.fetchone()[0]
+                    if vehicle_datas:
+                        vehicle_id = vehicle_datas[0]
+                    else:
+                        cur.execute(""" INSERT INTO vehicle (plate,model_id,brand_id,year)
                                         VALUES (%s,%s,%s,%s)
                                         ON CONFLICT (plate) DO NOTHING 
-                                        RETURNING id
-                                    )
-                                    SELECT id FROM inserted
-                                    UNION ALL
-                                    SELECT id FROM vehicle WHERE LOWER(plate) = %s 
-                                    LIMIT 1;""",(row[5].value.strip().upper(),idds[0],idds[1],vehicle_year,row[5].value.strip().lower()))
-                    vehicle_id = cur.fetchall()[0][0]
+                                        RETURNING id""",(row[5].value.strip().upper(),idds[0],idds[1],vehicle_year))
+                        vehicle_id = cur.fetchone()[0]                
                     # create ownership
                     cur.execute(""" WITH inserted AS (
                                         INSERT INTO ownership (vehicle_id,customer_id,unique_owner)

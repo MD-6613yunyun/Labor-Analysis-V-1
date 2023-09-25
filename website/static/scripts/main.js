@@ -48,6 +48,7 @@ if (window.location.href.endsWith("/get-report")){
     fetch(`/get-graph-report/${dates[0]}/${dates[1]}/${dates[2]}/${dates[3]}`)
     .then(response => response.json())
     .then(result => {
+        let caption = document.getElementsByClassName("for-graph-caption")[0].textContent
         function drawChart() {
             // Define the chart to be drawn.
             for (var idx = 1; idx < result.length; idx++) {
@@ -65,7 +66,7 @@ if (window.location.href.endsWith("/get-report")){
             var the_last_total = (result[0].length)-3
             // Set chart options
             var options = {
-            title : 'Service Job Activites',
+            title : 'Service Job Activites' + caption,
             bar : {
                 columnWidth: '100%',
             },
@@ -122,7 +123,6 @@ if (window.location.href.endsWith("/get-report")){
             seriesType: 'bars',
             series: {[the_last_total]: {type: 'line'}}
             };
-            console.log(options.series)
             // Instantiate and draw the chart.
             var chart = new google.visualization.ComboChart(document.getElementById('container'));
             // SET ROTATE TEXT
@@ -481,6 +481,12 @@ function replaceTableData(result,target) {
             Array.from(tds).forEach((td, index) => { td.innerText = result[i][index+1]; });        
         }
     }
+    
+    for (i = i;i < all_tr.length;i++){
+        tds = all_tr[i].getElementsByTagName('td');
+        Array.from(tds).forEach((td, index) => { td.innerText = ""; });        
+    }
+    console.log(all_tr)
 }
 
 function typeSthInDropdown(inp){

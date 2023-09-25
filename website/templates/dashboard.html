@@ -41,16 +41,22 @@ Dashboard
                     </tr>
                 </thead>
                 <tbody>
-                    {% for data in shop_data %}
-                    <tr onclick="redirectToFormEdit('{{data[0]}}','eachJob')">
-                        <td>{{data[1]}}</td>
-                        <td>{{data[0]}}</td>
-                        <td>{{data[2]}}</td>
-                        <td>{{data[3]}}</td>
-                        <td>{{data[4]}}</td>
-                        <td><input type="checkbox" value="{{data[0]}}" onclick="stopPropagation(event)" onchange="tickThePsfuCall(this)" class="line-through-check"></td>
-                    </tr>
-                    {% endfor %}
+                    {% if shop_data | length == 0 %}
+                        <tr class="text-center">
+                            <td rowspan="5" colspan="6">No PSFU CALL Records ... </td>                          
+                        </tr>
+                    {% else %}
+                        {% for data in shop_data %}
+                        <tr onclick="redirectToFormEdit('{{data[0]}}','eachJob')">
+                            <td>{{data[1]}}</td>
+                            <td>{{data[0]}}</td>
+                            <td>{{data[2]}}</td>
+                            <td>{{data[3]}}</td>
+                            <td>{{data[4]}}</td>
+                            <td><input type="checkbox" value="{{data[0]}}" onclick="stopPropagation(event)" onchange="tickThePsfuCall(this)" class="line-through-check"></td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
                 </tbody>
             </table>
         </div>

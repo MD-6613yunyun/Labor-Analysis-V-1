@@ -103,22 +103,22 @@ def excel_import():
                     vehicle_year = row[7].value
                     # check vehicle
                     cur.execute("SELECT id FROM vehicle WHERE LOWER(plate) = %s;",(row[5].value.strip().lower(),))
-                    vehicle_datas = cur.fetchone()                       
+                    vehicle_datas = cur.fetchone()
+                    print(str(row[4].value).strip())                       
                     phone = re.sub(r'\D', '', str(row[4].value).strip().split(",")[0])
                     cur.execute("SELECT id,name,phone,secondary_phone FROM customer WHERE phone = %s or secondary_phone = %s or name = %s;",(phone,phone,row[3].value.strip().upper()))
                     cus_datas = cur.fetchone()
                     if cus_datas:
                         if cus_datas[2] == phone or cus_datas[3] == phone:
                             cus_id = cus_datas[0]
-                        else:
-                            if vehicle_datas:
-                                cur.execute("SELECT customer_id FROM ownership WHERE vehicle_id = %s;",(vehicle_datas))
-                                ownership_datas_for_vehicle_data = cur.fetchall()
-                                for ownership_data in ownership_datas_for_vehicle_data:
-                                    if ownership_data[0] == cus_datas[0]:
-                                        cur.execute("UPDATE customer SET secondary_phone = %s WHERE id = %s;",(phone,ownership_data[0]))
-                                        cus_id = ownership_data[0]
-                                        break
+                        if vehicle_datas:
+                            cur.execute("SELECT customer_id FROM ownership WHERE vehicle_id = %s;",(vehicle_datas))
+                            ownership_datas_for_vehicle_data = cur.fetchall()
+                            for ownership_data in ownership_datas_for_vehicle_data:
+                                if ownership_data[0] == cus_datas[0]:
+                                    cur.execute("UPDATE customer SET secondary_phone = %s WHERE id = %s;",(phone,ownership_data[0]))
+                                    cus_id = ownership_data[0]
+                                    break
                     else:
                         # create new customer
                         cur.execute(""" INSERT INTO customer (name,phone)

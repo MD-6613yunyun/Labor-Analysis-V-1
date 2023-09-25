@@ -96,7 +96,9 @@ def get_report(start_dt=None,end_dt=None,bi=None,shop=None):
             total_result[0] = lst_data
     else:
         return redirect(url_for('views.home'))
-    return render_template('report_graph_view.html',extra_datas=[technicians_names,get_job_types,start_dt,end_dt,shop_name],total_result = total_result,)
+    for k,v in total_result.items():
+        v.insert(0,sum(v))
+    return render_template('report_graph_view.html',extra_datas=[['Type Total'] + technicians_names,get_job_types,start_dt,end_dt,shop_name,total_result[0][0]],total_result = total_result,)
 
 @views.route("pic-report",methods=['GET','POST'])
 def pic_report():
@@ -429,7 +431,7 @@ def show_service_datas(typ,mgs=None):
                     datas_dct[data[0]].append(data[1])
             return render_template('view_datas.html',mgs=mgs,datas_dct=datas_dct,typ='brand')
         elif typ == 'customers':
-            query = "SELECT customer.id,code,customer.name,COALESCE(address,'Undefined'),COALESCE(state.name,'Undefined'),COALESCE(phone,'undefined') FROM customer LEFT JOIN state ON customer.state_id = state.id LIMIT 81;"
+            query = "SELECT customer.id,code,customer.name,COALESCE(address,'Undefined'),COALESCE(state.name,'Undefined'),COALESCE(phone,'undefined') FROM customer LEFT JOIN state ON customer.state_id = state.id ORDER BY code LIMIT 81;"
             length_query = "SELECT count(id) FROM customer;"
         elif typ == 'vehicles':
             query = "SELECT car.id,car.plate,brand.name,model.name,car.year FROM vehicle AS car LEFT JOIN vehicle_brand AS brand ON brand.id = car.brand_id LEFT JOIN vehicle_model AS model ON model.id = car.model_id ORDER BY plate desc LIMIT 81;"
@@ -611,7 +613,7 @@ def offset_display(for_what,ofset):
                         ON model.id = jb.vehicle_id
                         ORDER BY jb.job_date DESC,job_no DESC
                         LIMIT 81 OFFSET {ofset};""",
-            "customers":f"SELECT customer.id,code,customer.name,COALESCE(address,'Undefined'),COALESCE(state.name,'Undefined'),COALESCE(phone,'undefined') FROM customer LEFT JOIN state ON customer.state_id = state.id LIMIT 81 OFFSET {ofset};",
+            "customers":f"SELECT customer.id,code,customer.name,COALESCE(address,'Undefined'),COALESCE(state.name,'Undefined'),COALESCE(phone,'undefined') FROM customer LEFT JOIN state ON customer.state_id = state.id ORDER BY code LIMIT 81 OFFSET {ofset};",
             "vehicles":f"SELECT car.id,car.plate,brand.name,model.name,car.year FROM vehicle AS car LEFT JOIN vehicle_brand AS brand ON brand.id = car.brand_id LEFT JOIN vehicle_model AS model ON model.id = car.model_id ORDER BY plate desc LIMIT 81 OFFSET {ofset};"
     }
     conn = db_connect()

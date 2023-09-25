@@ -98,7 +98,7 @@ def get_report(start_dt=None,end_dt=None,bi=None,shop=None):
         return redirect(url_for('views.home'))
     for k,v in total_result.items():
         v.insert(0,sum(v))
-    return render_template('report_graph_view.html',extra_datas=[['Type Total'] + technicians_names,get_job_types,start_dt,end_dt,shop_name,total_result[0][0]],total_result = total_result,)
+    return render_template('report_graph_view.html',extra_datas=[['TYPE TOTAL'] + technicians_names,get_job_types,start_dt,end_dt,shop_name,'{:,.2f}'.format(total_result[0][0])],total_result = total_result,)
 
 @views.route("pic-report",methods=['GET','POST'])
 def pic_report():
@@ -164,8 +164,10 @@ def pic_report():
             result = [[] for _ in range(len(job_types))]
             for data in datas:
                 for i,dt in enumerate(data[1:]):
-                    result[i].append(dt)
-            result[0].append(sum(result[0]))
+                    result[i].append('{:,.2f}'.format(dt))
+            sum_of_first_column = sum(float(value.replace(',', '')) for value in result[0])
+            formatted_sum = '{:,.2f}'.format(sum_of_first_column)
+            result[0].append(formatted_sum)
             result = [item for subitem in result for item in subitem]
             total_result[technicians_names[idx]] = result
             if shop_id == '0':

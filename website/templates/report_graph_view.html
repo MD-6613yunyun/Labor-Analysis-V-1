@@ -11,7 +11,7 @@
 
 {% block innertemplate %}
 
-<p class="d-none for-graph-caption">( {{extra_datas[2]}} &lt; = &gt; {{extra_datas[3]}} || {{extra_datas[4]}} ||  {{extra_datas[5]}}MMK )</p>
+<p class="d-none for-graph-caption">( {{extra_datas[2]}} &lt; = &gt; {{extra_datas[3]}} || {{extra_datas[4]}} ||  {{extra_datas[5]}} MMK )</p>
 <h1 class="text-center mt-5 graph-header">Technicians Activities Report <span id="start-dt" class="extra-datas">( {{extra_datas[2]}} &lt; = &gt; </span><span id="end-dt" class="extra-datas">{{extra_datas[3]}}  - {{extra_datas[4]}})</span></h1>
 <a id="download_link" class="d-none" href="/" download="">download</a>
 <div id="chartContainer" class="m-5 mt-2" style="overflow:auto;">
@@ -30,12 +30,12 @@
                     {% endfor %}
             </tr>
         </thead>
-        <tbody>
+        <tbody >
             {% for id,result in total_result.items() %}
                 <tr>
                     <th>{{extra_datas[1][id]}}</th>
                     {% for data in result %}
-                        <td class="text-end">{{data}}</td>
+                        <td class="text-end summary-data-in-graph-report-table">{{data}}</td>
                     {% endfor %}                    
                 </tr>
 

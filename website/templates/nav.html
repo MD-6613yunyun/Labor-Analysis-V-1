@@ -256,6 +256,10 @@
                         }
                     });
                 });
+            }else if (window.location.href.includes("get-report")){
+                Array.from(document.getElementsByClassName("summary-data-in-graph-report-table")).forEach(data => {
+                    data.textContent =  parseFloat(data.textContent).toLocaleString('en-US', {minimumFractionDigits: 2,maximumFractionDigits: 2});
+                })
             }
         </script>
     </body>

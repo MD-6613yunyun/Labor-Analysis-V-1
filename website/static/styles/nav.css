@@ -34,18 +34,14 @@ body{
     border: none;
     height: 70px;
     display: flex;
-    justify-content: center;
     align-items: center;
     cursor: pointer;
     position: relative;
-    width: 20%;
+    width: 210px;
 }
 
 .head-class img{
     width: 70px;
-    position: absolute;
-    left: 3%;
-    top: 0;
 }
 
 .logo-img #sms{
@@ -55,6 +51,7 @@ body{
     transform: translateY(-50%);
     display: none;
     color: #D72638;
+    width: max-content;
 }
 
 .slide-left-in{
@@ -118,7 +115,7 @@ body{
     transition: 0.5s;
     padding-top: 60px;
     margin-top: 50px;
-  }
+}
   
 .sidenav a {
     padding: 8px 8px 8px 32px;
@@ -172,7 +169,6 @@ body{
 
 #main {
     transition: margin-left .5s;
-    /* padding: 16px; */
 }
 
 #main .button-container{
@@ -215,11 +211,11 @@ input[type="date"] {
     
     cursor:pointer;
   }
-  input[type="date"]:focus {
+input[type="date"]:focus {
     outline:none;
     border-color:#3acfff;
     box-shadow:0 0 0 0.25rem rgba(0, 120, 250, 0.1);
-  }
+}
   
 ::-webkit-calendar-picker-indicator {
     position:absolute;
@@ -248,12 +244,9 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator:hover { opacity:0.15
     font-size: 30px;
 }
 
-.logo-img .open-btn{
-
-}
-
 .logo-img .close-btn{
-    margin-left: 130px;
+    position: absolute;
+    right: 0;
 }
 
 .noti{
@@ -272,27 +265,18 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator:hover { opacity:0.15
 }
 
 @media(max-width: 1230px){
-    /* #sms{
-        font-size: 12px;
-    } */
     .logo-img .close-btn{
         margin-left: 180px;
     }
 }
 
 @media(max-width: 990px){
-    /* #sms{
-        font-size: 12px;
-    } */
     .logo-img .close-btn{
         margin-left: 200px;
     }
 }
 
 @media(max-width: 990px){
-    /* #sms{
-        font-size: 12px;
-    } */
     .logo-img .close-btn{
         margin-left: 200px;
     }

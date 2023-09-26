@@ -19,7 +19,7 @@
         <div class="top-nav-container">
             <nav class="head-class">
                 <div class="logo-img">
-                    <a href="{{url_for('views.home')}}"><img src="{{url_for('static',filename='images/web_logo.png')}}"/></a>
+                    <a href="{{url_for('views.home')}}" style="text-decoration: none;"><span class="" id="sms"><b>Shop Manangement<br>System</b></span><img src="{{url_for('static',filename='images/web_logo.png')}}" id="logo"/></a>
                     {% set user_roles = request.cookies.get('user_roles') %}
                     {% if user_roles != 'None' %}
                     <i class="fa-solid fa-angle-right open-btn logo-arrow" onclick="openNav()"></i>
@@ -180,12 +180,21 @@
 
             openBtn = document.getElementsByClassName('open-btn')[0]
             closeBtn = document.getElementsByClassName('close-btn')[0]
+            let sms = document.getElementById("sms");
+            let logo = document.getElementById("logo");
+            let rightarwicn = document.getElementById("rightarw");
+
             function openNav() {
                 document.getElementById("mySidenav").style.width = "200px";
                 document.getElementById("main").style.marginLeft = "200px";
 
                 openBtn.style.display = "none"
                 closeBtn.style.display = ""
+                logo.style.display = "none";
+                closeBtn.style.left = "70%"
+                sms.style.display = "block";
+                sms.classList.add("slide-left-in");
+                closeBtn.classList.add("slide-left-in");
             }
 
             function closeNav() {
@@ -193,6 +202,10 @@
                 document.getElementById("main").style.marginLeft= "0";
                 openBtn.style.display = ""
                 closeBtn.style.display = "none"
+
+                logo.style.display = "block";
+                sms.classList.remove("slide-left-in");
+                sms.style.display = "none"
             }
 
             function showForm(){

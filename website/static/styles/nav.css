@@ -38,11 +38,43 @@ body{
     align-items: center;
     cursor: pointer;
     position: relative;
+    width: 20%;
 }
 
 .head-class img{
-    max-width: 170px;
-    padding: 0;
+    width: 50px;
+    position: absolute;
+    left: 3%;
+    top: 20%;
+}
+
+.logo-img #sms{
+    width: max-content;
+    position: relative;
+    left: -30%;
+    /* margin-left: -3px; */
+    display: none;
+    color: #D72638;
+}
+
+.slide-left-in{
+    animation-name: leftin;
+    animation-duration: 1s;
+}
+
+@keyframes leftin{
+    0% {
+        left: -100%;
+    }
+    30%{
+        right: 0%;
+    }
+    60%{
+        right: 40%;
+    }
+    100%{
+        right: 100%;
+    }
 }
 
 .head-class .profile-tab{

@@ -623,6 +623,3 @@ def offset_display(for_what,ofset):
     cur.execute(queries_dct[for_what])
     result_datas = cur.fetchall()
     return jsonify(result_datas)
-
-def testing():
-    return ""

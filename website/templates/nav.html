@@ -19,12 +19,13 @@
         <div class="top-nav-container">
             <nav class="head-class">
                 <div class="logo-img">
-                    <a href="{{url_for('views.home')}}" style="text-decoration: none;"><span class="" id="sms"><b>Shop Manangement<br>System</b></span><img src="{{url_for('static',filename='images/web_logo.png')}}" id="logo"/></a>
+                    <a href="{{url_for('views.home')}}" style="text-decoration: none;"><span class="" id="sms"><b>Shop Manangement<br>System</b></span></a>
                     {% set user_roles = request.cookies.get('user_roles') %}
                     {% if user_roles != 'None' %}
                     <i class="fa-solid fa-angle-right open-btn logo-arrow" onclick="openNav()"></i>
                     {% endif %}
                     <i class="fa-solid fa-angle-left close-btn logo-arrow" style="display: none;" onclick="closeNav()"></i>
+                    <input type="text" class="" name="" id="">
                 </div>
                 <h1 class="job-data-header">{% block pageHeader %} {% endblock %}</h1>
                 <div class="profile-tab">

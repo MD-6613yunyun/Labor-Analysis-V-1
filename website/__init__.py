@@ -5,9 +5,9 @@ def db_connect():
     # Database connection details
     host = 'localhost'
     port = '5432'  # Default PostgreSQL port
-    database = 'mmm_pandg'
+    database = 'mmm_png'
     user = 'postgres'
-    password = 'md-6613'
+    password = 'md-6369'
 
     try:
         conn = psycopg2.connect(

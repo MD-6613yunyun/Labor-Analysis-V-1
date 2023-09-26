@@ -42,17 +42,17 @@ body{
 }
 
 .head-class img{
-    width: 50px;
+    width: 70px;
     position: absolute;
     left: 3%;
-    top: 20%;
+    top: 0;
 }
 
 .logo-img #sms{
-    width: max-content;
-    position: relative;
-    left: -30%;
-    /* margin-left: -3px; */
+    position: absolute;
+    left: 5%;
+    top: 50%;
+    transform: translateY(-50%);
     display: none;
     color: #D72638;
 }
@@ -248,6 +248,14 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator:hover { opacity:0.15
     font-size: 30px;
 }
 
+.logo-img .open-btn{
+
+}
+
+.logo-img .close-btn{
+    margin-left: 130px;
+}
+
 .noti{
     background-color: red;
     border-radius: 50%;
@@ -255,4 +263,75 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator:hover { opacity:0.15
     margin-left: 5px;
     color: white;
     font-size: 10px;
+}
+
+@media(max-width: 1200px){
+    #sms{
+        font-size: 15px;
+    }
+}
+
+@media(max-width: 1230px){
+    /* #sms{
+        font-size: 12px;
+    } */
+    .logo-img .close-btn{
+        margin-left: 180px;
+    }
+}
+
+@media(max-width: 990px){
+    /* #sms{
+        font-size: 12px;
+    } */
+    .logo-img .close-btn{
+        margin-left: 200px;
+    }
+}
+
+@media(max-width: 990px){
+    /* #sms{
+        font-size: 12px;
+    } */
+    .logo-img .close-btn{
+        margin-left: 200px;
+    }
+}
+
+@media(max-width: 780px){
+    #sms{
+        font-size: 14px;
+    }
+    .logo-img .close-btn{
+        margin-left: 230px;
+    }
+
+    .logo-img .open-btn{
+        margin-left: 50px;
+    }
+}
+
+@media(max-width: 710px){
+    #sms{
+        font-size: 13px;
+    }
+    .logo-img .close-btn{
+        margin-left: 230px;
+    }
+
+    .logo-img .open-btn{
+        margin-left: 50px;
+    }
+}
+
+@media(max-width: 655px){
+    #sms{
+        font-size: 12px;
+    }
+}
+
+@media(max-width: 620px){
+    .logo-img .close-btn{
+        margin-left: 260px;
+    }
 }

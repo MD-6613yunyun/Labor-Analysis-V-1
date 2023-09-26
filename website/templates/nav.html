@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/x-icon" href="../static/images/web_l">
+        <link rel="icon" type="image/x-icon" href="../static/images/web_logo.png">
         <title>Pit & Go | {% block title%}{% endblock %}</title>
         <link rel="stylesheet" href="{{url_for('static',filename='styles/nav.css')}}"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -107,7 +107,7 @@
                                     {% if '3' in user_roles %}<option value="3">PIT & GO BAWGA</option>{% endif %}
                                     {% if '1' in user_roles %}<option value="1">PIT & GO BGO</option>{% endif %}
                                     {% if '2' in user_roles %}<option value="2">PIT & GO SKP</option>{% endif %}
-                                    {% if '4' in user_roles %}<option value="4">TOYOTA BAWGA</option>{% endif %}
+                                    {% if '4' in user_roles %}<option value="4">TOYOTA SKP</option>{% endif %}
                                     {% if '1' in user_roles and '2' in user_roles and '3' in user_roles and '4' in user_roles %}<option value="0">All Shops</option>{% endif %}
                                 </select>                      
                             </div>

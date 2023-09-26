@@ -103,8 +103,7 @@ def excel_import():
                     vehicle_year = row[7].value
                     # check vehicle
                     cur.execute("SELECT id FROM vehicle WHERE LOWER(plate) = %s;",(row[5].value.strip().lower(),))
-                    vehicle_datas = cur.fetchone()
-                    print(str(row[4].value).strip())                       
+                    vehicle_datas = cur.fetchone()                    
                     phone = re.sub(r'\D', '', str(row[4].value).strip().split(",")[0])
                     cur.execute("SELECT id,name,phone,secondary_phone FROM customer WHERE phone = %s or secondary_phone = %s or name = %s;",(phone,phone,row[3].value.strip().upper()))
                     cus_datas = cur.fetchone()

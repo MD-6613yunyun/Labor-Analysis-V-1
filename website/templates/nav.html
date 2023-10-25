@@ -17,6 +17,8 @@
     </head>
     <body>
         <div class="top-nav-container">
+            <img src="{{url_for('static',filename='images/fireworks.gif')}}" style="width:150px;height:150px;position: absolute;z-index: 1000;top:-50px;left:20%">
+            <img src="{{url_for('static',filename='images/fireworks.gif')}}" style="width:150px;height:150px;position: absolute;z-index: 1000;top:-50px;right:30%">
             <nav class="head-class">
                 <div class="logo-img">
                     <a href="{{url_for('views.home')}}" style="text-decoration: none;"><span class="" id="sms"><b>Shop Manangement<br>System</b></span><img src="{{url_for('static',filename='images/web_logo.png')}}" id="logo"/></a>
@@ -26,6 +28,7 @@
                     {% endif %}
                     <i class="fa-solid fa-angle-left close-btn logo-arrow" style="display: none;" onclick="closeNav()"></i>
                 </div>
+                <marquee width="40%" style="margin-left: 40px;" behavior="" direction="">Happy ThadinGyut Fastival</marquee>
                 <h1 class="job-data-header">{% block pageHeader %} {% endblock %}</h1>
                 <div class="profile-tab">
                     {% if request.path == '/get-report' or request.path == '/pic-report' %}

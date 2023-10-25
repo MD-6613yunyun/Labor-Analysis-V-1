@@ -102,22 +102,34 @@ def excel_import():
                     # create vehicle
                     vehicle_year = row[7].value
                     # check vehicle
-                    cur.execute("SELECT id FROM vehicle WHERE LOWER(plate) = %s;",(row[5].value.strip().lower(),))
+                    plate = row[5].value.strip() if 'UN' in row[5].value.strip() else row[5].value.strip().replace("-","")
+                    cur.execute("SELECT id FROM vehicle WHERE REPLACE(LOWER(plate),'-','') = %s;",(plate,))
                     vehicle_datas = cur.fetchone()                    
                     phone = re.sub(r'\D', '', str(row[4].value).strip().split(",")[0])
+                    if not phone.startswith("0"):
+                        return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid Phone {phone} at {row_counter}.\n Please Starts  customer phone with 09.."))   
                     cur.execute("SELECT id,name,phone,secondary_phone FROM customer WHERE phone = %s or secondary_phone = %s or name = %s;",(phone,phone,row[3].value.strip().upper()))
-                    cus_datas = cur.fetchone()
+                    cus_datas = cur.fetchall()
                     if cus_datas:
-                        if cus_datas[2] == phone or cus_datas[3] == phone:
-                            cus_id = cus_datas[0]
-                        if vehicle_datas:
-                            cur.execute("SELECT customer_id FROM ownership WHERE vehicle_id = %s;",(vehicle_datas))
-                            ownership_datas_for_vehicle_data = cur.fetchall()
-                            for ownership_data in ownership_datas_for_vehicle_data:
-                                if ownership_data[0] == cus_datas[0]:
-                                    cur.execute("UPDATE customer SET secondary_phone = %s WHERE id = %s;",(phone,ownership_data[0]))
-                                    cus_id = ownership_data[0]
-                                    break
+                        for cus_data in cus_datas:
+                            if cus_data[2] == phone or cus_data[3] == phone:
+                                cus_id = cus_data[0]
+                            if vehicle_datas:
+                                cur.execute("SELECT customer_id FROM ownership WHERE vehicle_id = %s;",(vehicle_datas))
+                                ownership_datas_for_vehicle_data = cur.fetchall()
+                                for ownership_data in ownership_datas_for_vehicle_data:
+                                    if ownership_data[0] == cus_data[0]:
+                                        cur.execute("UPDATE customer SET secondary_phone = %s WHERE id = %s;",(phone,ownership_data[0]))
+                                        cus_id = ownership_data[0]
+                                        break
+                            if cus_id:
+                                break
+                        if not cus_id:                       
+                            cur.execute(""" INSERT INTO customer (name,phone)
+                                    VALUES (%s,%s)
+                                    ON CONFLICT (phone) DO NOTHING 
+                                    RETURNING id """,(row[3].value.strip().upper(),phone))
+                            cus_id = cur.fetchone()[0] 
                     else:
                         # create new customer
                         cur.execute(""" INSERT INTO customer (name,phone)
@@ -128,11 +140,14 @@ def excel_import():
                     if vehicle_datas:
                         vehicle_id = vehicle_datas[0]
                     else:
-                        cur.execute(""" INSERT INTO vehicle (plate,model_id,brand_id,year)
+                        cur.execute(""" INSERT INTO vehicle (UPPER(plate),model_id,brand_id,year)
                                         VALUES (%s,%s,%s,%s)
-                                        ON CONFLICT (plate) DO NOTHING 
-                                        RETURNING id""",(row[5].value.strip().upper(),idds[0],idds[1],vehicle_year))
-                        vehicle_id = cur.fetchone()[0]                
+                                        ON CONFLICT (plate) DO UPDATE
+                                        SET plate = EXCLUDED.plate
+                                        RETURNING id;""",(plate.upper(),idds[0],idds[1],vehicle_year))
+                        vehicle_id = cur.fetchone()[0]
+                    if not cus_id:
+                        return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid Data for Customer ({row[3].value.strip()}-{phone}) and Vehicle ({row[5].value.strip()}) at -  {row_counter} "))            
                     # create ownership
                     cur.execute(""" WITH inserted AS (
                                         INSERT INTO ownership (vehicle_id,customer_id,unique_owner)
@@ -152,9 +167,12 @@ def excel_import():
                         return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid Job Type at row -  {row_counter}"))                    
                     eachJob_concatenated = row[1].value.strftime("%Y/%m/%d") + row[2].value + row[9].value + str(unit_shop_ids[1])
                     # extends query
-                    eachJob_insert_query += f"""('{row[1].value}','{row[2].value}','{unit_shop_ids[0]}','{unit_shop_ids[1]}','{row[8].value}','{cus_id}','{vehicle_id}','{row[9].value}','{job_types[row[10].value.strip().lower()]}','{int(row[11].value):.2f}','{technicians[tech_names[0]]}','{get_partial_amount(rate[0][0],row[11].value)}','{technicians[tech_names[1]]}','{get_partial_amount(rate[0][1],row[11].value)}','{technicians[tech_names[2]]}','{get_partial_amount(rate[0][2],row[11].value)}','{technicians[tech_names[3]]}','{get_partial_amount(rate[0][3],row[11].value)}','{technicians[tech_names[4]]}','{get_partial_amount(rate[0][4],row[11].value)}','{eachJob_concatenated}','{rate[1]}','{ownership_id}'),"""
+                    try:
+                        eachJob_insert_query += f"""('{row[1].value}','{row[2].value}','{unit_shop_ids[0]}','{unit_shop_ids[1]}','{row[8].value}','{cus_id}','{vehicle_id}','{row[9].value}','{job_types[row[10].value.strip().lower()]}','{int(row[11].value):.2f}','{technicians[tech_names[0]]}','{get_partial_amount(rate[0][0],row[11].value)}','{technicians[tech_names[1]]}','{get_partial_amount(rate[0][1],row[11].value)}','{technicians[tech_names[2]]}','{get_partial_amount(rate[0][2],row[11].value)}','{technicians[tech_names[3]]}','{get_partial_amount(rate[0][3],row[11].value)}','{technicians[tech_names[4]]}','{get_partial_amount(rate[0][4],row[11].value)}','{eachJob_concatenated}','{rate[1]}','{ownership_id}'),"""
+                    except ValueError:
+                        return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid Job Data at row -  {row_counter}"))
                 cur.execute(eachJob_insert_query[:-1] + f" ON CONFLICT ({conflict_unique_column}) DO NOTHING;")
-                conn.commit()    
+                # conn.commit()    
                 cur.close()
                 conn.close()
                 return redirect(url_for('views.show_service_datas',typ='service-datas'))            

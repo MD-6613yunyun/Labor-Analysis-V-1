@@ -50,6 +50,7 @@ if (window.location.href.endsWith("/get-report")){
     .then(result => {
         let caption = document.getElementsByClassName("for-graph-caption")[0].textContent
         function drawChart() {
+            console.log(result)
             // Define the chart to be drawn.
             for (var idx = 1; idx < result.length; idx++) {
                 result[idx] = result[idx].map((value, index) =>

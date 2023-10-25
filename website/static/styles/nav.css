@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather&family=Playpen+Sans&display=swap');
 
 body{
     margin: 0;
@@ -14,6 +15,12 @@ body{
     top: 0;
     position: sticky;
     z-index: 10000;
+}
+
+marquee{
+    font-family: 'Playpen Sans', cursive;
+    font-size: 25px;
+    color: goldenrod;
 }
 
 .head-class{

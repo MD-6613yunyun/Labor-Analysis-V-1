@@ -407,6 +407,45 @@ def show_service_datas(typ,mgs=None):
             ORDER BY jb.job_date DESC,job_no DESC
             LIMIT 81;"""
             length_query = f"SELECT count(eachJob.id) FROM eachJob LEFT JOIN shop ON eachJob.shop_id = shop.id WHERE shop.id in ({user_roles_lst});"
+        elif typ == 'check-in-out':
+            query = f""" WITH month_cte AS (
+            SELECT
+                month_id,
+                TO_CHAR(DATE_TRUNC('month', TIMESTAMP '2000-01-01'::date + (month_id-1  || ' months')::interval), 'Month') AS month_text
+            FROM generate_series(1, 12) AS month_id
+            )
+            SELECT 
+                month_cte.month_text,jb.job_date,unit.name,shop.name,jb.job_no,customer.name,vehicle.plate,model.name,
+                vehicle.year,jb.invoice_no,jb.job_name,jobType.name,jb.total_amt,t_one.name,t_two.name,t_three.name,t_four.name,t_five.name,jb.shop_id
+            FROM eachJob jb 
+            LEFT JOIN month_cte
+            ON month_cte.month_id = jb.month_extracted
+            LEFT JOIN res_partner AS unit
+            ON unit.id = jb.business_unit_id
+            LEFT JOIN shop
+            ON shop.id = jb.shop_id
+            LEFT JOIN customer
+            ON customer.id = jb.customer_id
+            LEFT JOIN vehicle
+            ON vehicle.id = jb.vehicle_id
+            LEFT JOIN jobType
+            ON jobType.id = jb.job_type_id
+            LEFT JOIN technicians AS t_one
+            ON t_one.id = jb.fst_pic_id 
+            LEFT JOIN technicians AS t_two
+            ON t_two.id = jb.sec_pic_id 
+            LEFT JOIN technicians AS t_three
+            ON t_three.id = jb.thrd_pic_id 
+            LEFT JOIN technicians AS t_four
+            ON t_four.id = jb.frth_pic_id 
+            LEFT JOIN technicians AS t_five
+            ON t_five.id = jb.lst_pic_id 
+            LEFT JOIN vehicle_model model
+            ON model.id = vehicle.model_id
+            WHERE shop.id IN ({user_roles_lst})
+            ORDER BY jb.job_date DESC,job_no DESC
+            LIMIT 81;"""
+            length_query = f"SELECT count(eachJob.id) FROM eachJob LEFT JOIN shop ON eachJob.shop_id = shop.id WHERE shop.id in ({user_roles_lst});"           
         elif typ == 'pic-rate':
             query = """ SELECT id,fst_rate,sec_rate,thrd_rate,frth_rate,lst_rate FROM pic ORDER BY id DESC;"""
             length_query = "SELECT count(id) FROM pic;"
@@ -438,6 +477,9 @@ def show_service_datas(typ,mgs=None):
         elif typ == 'vehicles':
             query = "SELECT car.id,car.plate,brand.name,model.name,car.year FROM vehicle AS car LEFT JOIN vehicle_brand AS brand ON brand.id = car.brand_id LEFT JOIN vehicle_model AS model ON model.id = car.model_id ORDER BY plate desc LIMIT 81;"
             length_query = "SELECT count(id) FROM vehicle;"
+        elif typ == 'check-in-out-report':
+            print("nani")
+            return render_template('check_in_out_report.html')
         else:
             query = """  SELECT id,name FROM jobType ORDER BY name;  """
             length_query = "SELECT count(id) FROM jobType;"

@@ -9,12 +9,12 @@ Datas Tree View
 {% endblock %}
 
 {% block innertemplate %}
-{% if typ == 'service-datas' %}
+{% if typ == 'service-datas' or typ == 'check-in-out' %}
     <div class="sticky-top service-job-table showeles">
         <!-- Sticky top content here -->
         <div class="left-side">
             <div class="button-search">
-                <a href="{{url_for('imports.show_create_form',typ='service-datas')}}" class="nav-link"><button type="button" class="createServiceDataButton"><b>Create</b></button></a>
+                <a href="{{url_for('imports.show_create_form',typ=typ)}}" class="nav-link"><button type="button" class="createServiceDataButton"><b>Create</b></button></a>
             </div>
             <div class="w-50 pt-3">
                 <form action="{{url_for('imports.excel_import')}}" method="post" enctype="multipart/form-data">

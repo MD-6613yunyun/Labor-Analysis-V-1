@@ -937,3 +937,21 @@ table td input:focus{
 .vehicle-top .search-container{
     margin-top: 18px;
 }
+
+.timeSetBtn{
+    padding: 3px;
+    border: none;
+    color: white;
+    background-color: forestgreen;
+    border-radius: 5px;
+}
+
+.timeEndBtn{
+    background-color: red;
+}
+
+.am-pm-select{
+    padding: 3px;
+    border: none;
+    border-radius: 5px;
+}

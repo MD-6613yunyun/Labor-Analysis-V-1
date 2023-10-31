@@ -230,6 +230,17 @@ def show_create_form(typ,mgs=None):
         result.append(datetime.now().year)
         cur.execute("SELECT name FROM customer;")
         result.append(cur.fetchall())
+    if typ == 'check-in-out':
+        user_roles = tuple(request.cookies.get("user_roles").split(","))
+        cur.execute("SELECT id,name FROM technicians WHERE shop_id in %s;",(user_roles,))
+        result.append(cur.fetchall())
+        cur.execute("SELECT id,name FROM jobType;")
+        result.append(cur.fetchall())
+        cur.execute("SELECT id,short_name,name FROM state;")
+        result.append(cur.fetchall())
+        cur.execute("SELECT id,name FROM vehicle_brand;")
+        result.append(cur.fetchall())
+        result.append(datetime.now().year)
     elif typ == 'customers-create':
         result = [datetime.now().strftime("%Y-%m-%d")]
         cur.execute("SELECT 'CUS'||LPAD((id+1)::text,7,'0') FROM customer ORDER BY id DESC LIMIT 1;")
@@ -249,7 +260,7 @@ def show_create_form(typ,mgs=None):
         result.append(datetime.now().year)
         return render_template('registration_form.html',result=result,typ=typ)  
 
-    return render_template('input_form.html',result=result,mgs=mgs)
+    return render_template('input_form.html',result=result,mgs=mgs,typ=typ)
 
 @imports.route("/keep-in-import/<typ>",methods=['POST'])
 def keep_in_import(typ): 
@@ -330,6 +341,21 @@ def keep_in_import(typ):
                 cur.execute(eachJob_insert_query[:-1] + f" ON CONFLICT ({conflict_unique_column}) DO NOTHING;")
                 conn.commit()
             return redirect(url_for('imports.show_create_form',typ='service-datas',mgs=mgs))
+        elif typ == 'check-in-out':
+            vehicle_id = request.form.get("vehicleInformation")
+            job_no = request.form.get("jobNo")
+            job_date = request.form.get("jobDate")
+            shop_id = request.form.get("shop")
+            cur.execute("SELECT id FROM eachJob WHERE (job_no = %s and job_date = %s);",(job_no,job_date))
+            if len(cur.fetchall()) != 0 and not edit:
+                mgs = 'Job No. / Invoice No. is already existed in our system...'
+            else:
+                cur.execute("SELECT business_unit_id FROM shop WHERE id = %s;",(shop_id,))
+                unit_id = cur.fetchall()[0][0]
+                #
+                descriptions = request.form.getlist("description")[1:]
+            print(vehicle_id)
+            return ""
         elif typ == 'pic-rate':
             idd = request.form.get("idd")
             rates = request.form.getlist('rate')

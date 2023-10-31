@@ -48,11 +48,13 @@
             <a href="#"  onclick="showDropdown(this)">Reporting<i class="fa-solid fa-angle-down"></i></a>
             <div class="dropdown-container">
                 <a href="#" class="sub-head" onclick="callModalForDateRange('get_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">JOB Ability</a>
-                <a href="#" class="sub-head" onclick="callModalForDateRange('pic_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">PIC Report</a>                
+                <a href="#" class="sub-head" onclick="callModalForDateRange('pic_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">PIC Report</a>   
+                <a href="{{url_for('views.show_service_datas',typ='check-in-out-report')}}" class="sub-head">Check In-Out</a>             
             </div>
             <a href="#"  onclick="showDropdown(this)">Transactions<i class="fa-solid fa-angle-down"></i></a>
             <div class="dropdown-container">
                 <a href="{{url_for('views.show_service_datas',typ='service-datas')}}" class="sub-head">Service Data</a>
+                <a href="{{url_for('views.show_service_datas',typ='check-in-out')}}" class="sub-head">Check In Out</a>
             </div>
             <a href="#"  onclick="showDropdown(this)">Registrations<i class="fa-solid fa-angle-down"></i></a>
             <div class="dropdown-container">

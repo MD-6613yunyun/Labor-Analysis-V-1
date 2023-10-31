@@ -7,7 +7,7 @@ def db_connect():
     port = '5432'  # Default PostgreSQL port
     database = 'mmm_pandg'
     user = 'postgres'
-    password = 'md-6369'
+    password = 'md-6613'
 
     try:
         conn = psycopg2.connect(

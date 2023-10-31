@@ -180,7 +180,13 @@ function exportTableToExcel() {
     })
 }
 
-function addAnotherRow(td) {
+function addAnotherRow(td,for_check_in_out=false) {
+    if (for_check_in_out){
+        const endTimeBtn = td.parentElement.previousElementSibling.children[5].querySelector("button");
+        const startTimeBtn = td.parentElement.previousElementSibling.children[4].querySelector("button");
+        setTimeInput(startTimeBtn);
+        setTimeInput(endTimeBtn);
+    }
     let no_error = true
     let inps = td.parentElement.previousElementSibling.getElementsByClassName("inp");
     
@@ -220,15 +226,19 @@ function sumUpTotals(inp){
     total_txt[1].children[0].value = total.toFixed(2)
 }
 
-function deleteJobRow(btn,bool){
+function deleteJobRow(btn,bool,for_check_in_out=false){
     if (bool && btn.parentElement.parentElement.children.length > 3 && !btn.classList.contains("disabled")){
-        if(confirm("Are you sure want to delete the data?")){
-            btn.parentElement.remove()        
+        if(confirm("Are you sure want to delete the data?")){     
+            btn.parentElement.remove()   
+            if (for_check_in_out){
+                let clickedBtn = document.getElementsByClassName("timeEndBtn")[1]
+                setTimeInput(clickedBtn);
+            }
         }
     }
 }
 
-function checkVehiclePlate(inp,what){
+function checkVehiclePlate(inp,what,for_check_in_out=false){
     let state = prefix = digit = plate = ''
 
     if (what == 'digit'){
@@ -262,8 +272,9 @@ function checkVehiclePlate(inp,what){
                         class_name = "class='table-dark'"
                         disabled_text = ""
                     }
+                    let fun_name = for_check_in_out ? `autoFillVehicleInfo('${data[0]}','${data[6]}',for_check_in_out=true)` : `autoFillVehicleInfo('${data[0]}','${data[6]}',for_check_in_out=false)`; 
                     lst.innerHTML += `<tr ${class_name}>
-                    <td><button type='button' ${disabled_text} data-bs-dismiss='modal' onclick="autoFillVehicleInfo('${data[0]}','${data[6]}')" style="font-size:5px;" class='btn btn-sm btn-info'>✔️</button></td>
+                    <td><button type='button' ${disabled_text} data-bs-dismiss='modal' onclick="${fun_name}" style="font-size:5px;" class='btn btn-sm btn-info'>✔️</button></td>
                     <td>${data[0]}</td>
                     <td>${data[1]}</td>
                     <td>${data[2]}</td>
@@ -273,24 +284,32 @@ function checkVehiclePlate(inp,what){
                 </tr>`
                 i ++;
                 }
-                document.getElementById("changeOwner").setAttribute("onclick",`autoFillVehicleInfo('${data[0]}',null)`)
+                if (document.getElementById("changeOwner")){
+                    let fun_name = for_check_in_out ? `autoFillVehicleInfo('${data[0]}',null,for_check_in_out=true)` : `autoFillVehicleInfo('${data[0]}',null,for_check_in_out=false)`; 
+                    document.getElementById("changeOwner").setAttribute("onclick",fun_name)
+                }
                 document.getElementById("vehicleInformation").value = data[9]
                 let modalClicker = document.getElementsByClassName("validateModal")
                 modalClicker[0].click()
             }else{
-                document.querySelectorAll(".autoFillByVehicle").forEach(val => {
-                    val.disabled = false
-                    val.value = ""
-                    document.getElementById("vehicleInformation").value = "None"
-                })
+                if (confirm("Would you like to create a new vehicle?")){
+                    document.querySelectorAll(".autoFillByVehicle").forEach(val => {
+                        val.disabled = false
+                        val.value = ""
+                        document.getElementById("vehicleInformation").value = "None"
+                    })                    
+                }else{
+                    document.querySelectorAll(".each-input input").forEach(inp => {
+                        inp.value = ""
+                    })
+                }
             }
         })
         .catch(err => console.log(err))
-
     }
 }
 
-function autoFillVehicleInfo(idd,cus_id){
+function autoFillVehicleInfo(idd,cus_id,for_check_in_out=false) {
     let vari = ""
     if (cus_id){
         document.getElementById("customerInformation").value = cus_id
@@ -305,15 +324,20 @@ function autoFillVehicleInfo(idd,cus_id){
     fetch(`/get-data/vehicle/${vari}`)
     .then(response => response.json() )
     .then(result => {
+        console.log(result)
         let values = cus_id ? [result[0][3],result[0][7],result[0][5],result[0][1],result[0][4],result[0][2],result[0][8]] : [result[0][1],result[0][2],result[0][8]]
+        if (for_check_in_out){
+            values = cus_id ? [result[0][1],result[0][2],result[0][8],result[0][0]] : [result[0][1],result[0][2],result[0][8]]
+        }
         let classPlacer = cus_id ? 'autoFillByVehicle' : 'autoFillNewOwner'
         var i = 0;
         document.querySelectorAll(`.${classPlacer}`).forEach(val => {
             val.disabled = true;
             val.value = values[i]
+            console.log(val)
+            console.log(values[i])
             i ++;
         })
-        
     })
     .catch(err => console.log(err))
 }
@@ -763,7 +787,7 @@ function customerVehicleSubmit(){
             model_name.setAttribute('style', 'border: 2px solid red;');
         }
     }else{
-    document.getElementById("service-data-input-form").submit()
+        document.getElementById("service-data-input-form").submit()
     }
 }
 
@@ -921,4 +945,110 @@ function stopPropagation(event) {
 
 function goBackToPreviousLocation(){
     window.history.back()
+}
+
+// check Min and hour
+
+function checkMin(inp){
+    const regex = /^\d{0,2}$/;
+    if(regex.test(inp.value)){
+        if(parseInt(inp.value) > 59 || parseInt(inp.value) < 0){
+        inp.value = 0
+    }
+    }else{
+        inp.value = 0
+    }
+}
+
+function checkHour(inp){
+    const regex = /^\d{0,2}$/;
+    if(regex.test(inp.value)){
+        if(parseInt(inp.value) > 23 || parseInt(inp.value) < 0){
+            inp.value = 0
+        }
+        if(parseInt(inp.value) > 12){
+            inp.nextElementSibling.nextElementSibling.value = "pm"
+            inp.value = parseInt(inp.value) - 12
+        }
+    }else{
+        inp.value = 0
+    }
+}
+
+// Start Time End Time function
+
+function calculatDuration(setBtn){
+    let startTime , endTime , duration , startPlace ;
+    if (setBtn.classList.contains('timeEndBtn')){
+        endTime = setBtn.previousElementSibling
+        startTime = setBtn.parentElement.previousElementSibling.children[0]
+        duration = setBtn.parentElement.nextElementSibling
+        startPlace = setBtn.parentElement.previousElementSibling
+    }else{
+        startTime = setBtn.previousElementSibling
+        endTime = setBtn.parentElement.nextElementSibling.children[0]
+        duration = setBtn.parentElement.nextElementSibling.nextElementSibling  
+        startPlace = setBtn.parentElement 
+    }
+    if (startTime.value && endTime.value){
+        const [h1, m1] = endTime.value.split(':').map(Number);
+        const [h2, m2] = startTime.value.split(':').map(Number);
+        const diffMinutes = (h1 * 60 + m1) - (h2 * 60 + m2);
+        if (diffMinutes < 0){
+            alert("Start time must be greater than end time...")
+            startPlace.querySelectorAll("input").forEach(inp => {
+                inp.value = ""
+            })
+        }else{
+            const diffHours = Math.floor(diffMinutes / 60);
+            const diffMinutesRemaining = diffMinutes % 60;
+            const diffResult = String(diffHours).padStart(2,'0') + ':' + String(diffMinutesRemaining).padStart(2,'0')
+            duration.children[0].textContent = diffResult
+            duration.children[1].value = diffResult
+            sumAllDurations()
+        }
+    }
+}
+
+function sumAllDurations(){
+    let totalHours = totalMins = 0;
+    Array.from(document.querySelectorAll(".durationForJob")).slice(1).forEach(inp => {
+        const [h1, m1] = inp.value.split(':').map(Number)
+        totalHours += h1
+        totalMins += m1
+    })
+    document.getElementById("duration").textContent = String(totalHours).padStart(2, '0') + ':' + String(totalMins).padStart(2, '0')
+}
+
+function setTimeInput(startBtn){
+    // getting elements
+    const hourInpElement = startBtn.nextElementSibling;
+    const minInpElement = startBtn.nextElementSibling.nextElementSibling;
+    let ampmchooser = startBtn.nextElementSibling.nextElementSibling.nextElementSibling;
+    const currentDate = new Date();
+    const currentHour = currentDate.getHours(); 
+    const currentMin = currentDate.getMinutes();
+
+    console.log(hourInpElement.value,hourInpElement.value.length)
+    if (hourInpElement.value == "" || hourInpElement.value == "0"){
+        if(currentHour >= 12){
+            ampmchooser.value = "pm"
+            hourInpElement.value = currentHour - 12;
+        }else{
+            ampmchooser.value = "am"
+            hourInpElement.value = currentHour;
+        } 
+    }
+
+    if (minInpElement.value == "" || minInpElement.value == "0"){
+        minInpElement.value = currentMin;
+    }
+
+    startBtn.previousElementSibling.value = ampmchooser.value == "pm"
+    ? `${String(parseInt(hourInpElement.value) + 12).padStart(2, '0')}:${String(minInpElement.value).padStart(2, '0')}`
+    : `${String(hourInpElement.value).padStart(2, '0')}:${String(minInpElement.value).padStart(2, '0')}`;
+  
+    console.log(startBtn.previousElementSibling.value)
+
+    calculatDuration(startBtn)
 }

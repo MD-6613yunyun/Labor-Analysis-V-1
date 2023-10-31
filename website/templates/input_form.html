@@ -10,6 +10,8 @@ Create Form
 
 {% block innertemplate %}
 
+    {% if typ == 'service-datas' %}
+
     <div class="submit-discard">
         <div>
             <button class="submit-btn"  type="button" onclick="checkAllServiceDatas()">Submit</button>
@@ -185,7 +187,9 @@ Create Form
                         <td class="d-none"><input type="text" name="picrow"></td>
                     </tr>
                     <tr>
-                        <td colspan="8" class="add-job-row" onclick="addAnotherRow(this)"><button type="button" class="btn btn-outline-dark btn-sm">Add Job +</button></td>
+                        <td colspan="8" class="add-job-row" onclick="addAnotherRow(this)">
+                            <button type="button" class="btn btn-outline-dark btn-sm">Add Job +</button>
+                        </td>
                         <td class="d-none"><input type="number" value="0.0" step=".01" class="total-amount" name="totalCost"></td>
                         <td class="total-label"><b>Total</b></td>
                         <td class="total-amount"><input class="text-end" type="number" value="0.00" disabled></td>
@@ -229,6 +233,213 @@ Create Form
             </div>
         </div>
     </form>
+
+    {% elif typ == 'check-in-out' %}
+
+    <div class="submit-discard">
+        <div>
+            <button class="submit-btn"  type="button" onclick="checkAllServiceDatas()">Submit</button>
+            <button class="discard-btn" onclick=""><a class="nav-link" href="{{url_for('views.show_service_datas',typ='service-datas')}}">Discard</a></button>
+        </div>
+    </div>
+    <datalist id="datalistOptions">
+        {% for dt in result[3]%}
+            <option value="{{dt[1]}}">
+        {% endfor %}
+    </datalist> 
+    <form id="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='check-in-out')}}" method="post">
+        <div class="input-sec">
+            <div class="each-input">
+                <label for="regState">Vehicle Register No</label>
+                <select name="regState" id="regState" class="vehicle-register-box">
+                    {% for data in result[5] %}
+                        <option value="{{data[1]}}">{{data[1]}}</option> 
+                    {% endfor %}                       
+                </select>
+                <input name="regPrefix" id="regPrefix" onchange="checkVehiclePlate(this,'prefix',for_check_in_out=true)" value="" required autocomplete="off" type="text" class="text-one required-fields" onkeyup="checkRegNumber(this,3)">
+                <input name="regDigits" id="regDigits" onchange="checkVehiclePlate(this,'digit',for_check_in_out=true)" required autocomplete="off" type="number" onkeyup="checkRegNumber(this,4)" class="text-two required-fields">
+                <input id="vehicleInformation" name="vehicleInformation" value="0" hidden/>
+                <input id="customerInformation" name="customerInformation" value="0" hidden/>
+            </div>
+            <div class="each-input">
+                <label for="">Date</label>
+                <input name="jobDate" autocomplete="off"  required type="date" class="date-error-input ">
+            </div>
+            <div class="each-input">
+                <label for="">Job No</label>
+                <input autocomplete="off" name="jobNo"  onkeyup="changeToUpperCaseInput(this)" required type="text">
+            </div>
+            <div class="each-input">
+                <label for="brand">Vehicle Make</label>
+                <input type="text" onchange="generateVehicleModel(this)"  class="autoFillByVehicle autoFillNewOwner"  list="brandListOptions" value="" name="brand" id="brand"/>
+                <datalist id="brandListOptions">
+                    {% for dt in result[6]%}
+                        <option value="{{dt[1]}}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            <input type="number" value="" id="model_id" name="model_id" hidden/>
+            <input type="number" value="" id="brand_id" name="brand_id" hidden/>
+            <div class="each-input">
+                <label for="model">Vehicle Model</label>
+                <input type="text" list="modelListOptions" class="autoFillByVehicle autoFillNewOwner" required autocomplete="off" value="" name="model" id="model"/>
+                <datalist id="modelListOptions">
+                    <option value="No model was found">
+                </datalist>
+            </div>
+            <div class="each-input">
+                <label for="year">Vehicle Model Year</label>
+                <select name="year" id="year"  class="vehicle-box autoFillByVehicle autoFillNewOwner">
+                    {% set start_year = result[7] %}
+                    {% for i in range(start_year,1900,-1) %}
+                        <option value="{{i}}">{{i}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% set user_roles = request.cookies.get('user_roles') %}
+            <div class="each-input">
+                <label for="unit">Business Unit</label>
+                <select name="unit" class="vehicle-box" id="unit">
+                    {% if '1' in user_roles or '2' in user_roles or '3' in user_roles%}<option value="1">PIT & GO</option>{% endif %}
+                    {% if '4' in user_roles %}<option value="2">TOYOTA</option>{% endif %}
+                </select>
+            </div>
+            <div class="each-input">
+                <span id="temp_shop_id" class="d-none">3</span>
+                <label for="shop">Shop</label>
+                <select name="shop" onchange="showAssociatedShopAndTechnician(this)" class="vehicle-box" id="shop">
+                    {% if '3' in user_roles %}<option value="3">PIT & GO BAWGA</option>{% endif %}
+                    {% if '1' in user_roles %}<option value="1">PIT & GO BGO</option>{% endif %}
+                    {% if '2' in user_roles %}<option value="2">PIT & GO SKP</option>{% endif %}
+                    {% if '4' in user_roles %}<option value="4">TOYOTA SKP</option>{% endif %}
+                </select>
+            </div>
+        </div>
+        <div class="input-table">
+            <!-- Button trigger modal -->
+            <button type="button" class="d-none validateModal" data-bs-toggle="modal" data-bs-target="#staticBackdropValidate"></button>
+        
+            <!-- Modal -->
+            <div class="modal modal-lg fade" style="z-index: 10123;" id="staticBackdropValidate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Validate</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <strong>Chosse associated vehicle...</strong> <br>
+                            <table class="table table-bordered mt-3" style="font-size: 13px;width: max-content;">
+                                <thead>
+                                    <tr>
+                                        <td>Activate</td>
+                                        <td>Reg. No.</td>
+                                        <td>Brand</td>
+                                        <td>Model</td>
+                                        <td>Owner</td>
+                                        <td>Contact</td>
+                                        <td>State</td>
+                                    </tr>
+                                </thead>
+                                <tbody class="list-group-vehicle-information" style="font-size: 10px;">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>.</th>
+                        <th>Description</th>
+                        <th>Technician</th>
+                        <th>Job Type</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="jobControllerTablebody">  
+                    <tr id="willBeCloned" class="d-none">
+                        <td onclick="deleteJobRow(this,true,for_check_in_out=true)"><i class="fa-solid fa-trash-can"></i></td>
+                        <td><input style="width: 100%;" type="text" required  name="description" onkeyup="changeToUpperCaseInput(this)" class="inp" autocomplete="off"></td>
+                        <td><input type="text" value="" name="pic" required class="pic"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td>
+                            <select name="jobType" class="inp">
+                                {% for job_type in result[4] %}
+                                    <option value="{{job_type[0]}}">{{job_type[1]}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <input hidden type="time"  name="startTimeVal" value="" />
+                            <button class="timeSetBtn" type="button" onclick="setTimeInput(this)">Start</button>
+                            <input type="number" required  name="startHour" onchange="checkHour(this)" autocomplete="off" style="width: 50px;"> : 
+                            <input type="number" required  name="startMin" onchange="checkMin(this)"autocomplete="off" style="width: 50px;">
+                            <select name="" class="am-pm-select" required>
+                                <option value="am">AM</option>
+                                <option value="pm">PM</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input hidden type="time" name="endTimeVal"  value="" />
+                            <button class="timeSetBtn timeEndBtn" type="button" onclick="setTimeInput(this)">End</button>
+                            <input type="number" required onchange="checkHour(this)" name="startHour" autocomplete="off" style="width: 50px;"> : 
+                            <input type="number" required onchange="checkMin(this)" name="startMin" autocomplete="off" style="width: 50px;">
+                            <select name="" class="am-pm-select" required>
+                                <option value="am">AM</option>
+                                <option value="pm">PM</option>
+                            </select>
+                        </td>
+                        <td><p></p><input hidden type="text" name="duration" class="durationForJob"></td>
+                    </tr>              
+                    <tr >
+                        <td onclick="deleteJobRow(this,false)"><i class="fa-solid fa-trash-can"></i></td>
+                        <td><input style="width: 100%;" type="text" required  name="description" onkeyup="changeToUpperCaseInput(this)" class="inp" autocomplete="off"></td>
+                        <td><input type="text" value="" name="pic" required class="pic"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td>
+                            <select name="jobType" class="inp">
+                                {% for job_type in result[4] %}
+                                    <option value="{{job_type[0]}}">{{job_type[1]}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <input hidden type="time"  name="startTimeVal" value="" />
+                            <button class="timeSetBtn" type="button" onclick="setTimeInput(this)">Start</button>
+                            <input type="number" required  name="startHour" onchange="checkHour(this)" autocomplete="off" style="width: 50px;"> : 
+                            <input type="number" required  name="startMin" onchange="checkMin(this)"autocomplete="off" style="width: 50px;">
+                            <select name="" class="am-pm-select" required>
+                                <option value="am">AM</option>
+                                <option value="pm">PM</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input hidden type="time" name="endTimeVal"  value="" />
+                            <button class="timeSetBtn timeEndBtn" type="button" onclick="setTimeInput(this)">End</button>
+                            <input type="number" required onchange="checkHour(this)" name="startHour" autocomplete="off" style="width: 50px;"> : 
+                            <input type="number" required onchange="checkMin(this)" name="startMin" autocomplete="off" style="width: 50px;">
+                            <select name="" class="am-pm-select" required>
+                                <option value="am">AM</option>
+                                <option value="pm">PM</option>
+                            </select>
+                        </td>
+                        <td><p></p><input hidden type="text" name="duration" class="durationForJob"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" class="add-job-row" onclick="addAnotherRow(this,for_check_in_out=true)">
+                            <button type="button" class="btn btn-outline-dark btn-sm">Add Job +</button>
+                        </td>
+                        <td>Total Duration</td>
+                        <td><p id="duration"></p></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+
+    {% endif %}
 
 {% endblock %}
 

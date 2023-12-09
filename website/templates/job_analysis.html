@@ -1,0 +1,130 @@
+{% extends 'nav.html' %}
+
+{% block title %}
+    Job Analysis
+{% endblock %}
+
+{% block styles %}
+<link type="text/css" rel="stylesheet" href="{{url_for('static',filename='styles/input_form.css')}}">
+<style>
+    .header-in-maker-box{
+        display: grid; 
+        grid-template-columns: auto auto auto auto auto;
+        text-align: center;
+    }
+    .extra-datas{
+        font-size: 15px;
+    
+    }
+    
+    /* job analysis css */
+    .maker-box .list-model table{
+        border: 1px rgb(0, 7, 10) solid;
+    }
+
+    .maker-box .list-model table th{
+        background-color: rgb(115, 115, 115);
+        color: white;
+        border: none;
+    }
+
+    .maker-box .list-model table tbody td{
+        border: none;
+    }
+
+    .maker-box .list-model table tbody tr{
+        text-align: center;
+        background-color: white;
+        border: none;
+    }
+
+    .maker-box .list-model table tbody tr:nth-child(even){
+        background-color: rgba(222, 222, 222, 0.5);
+    }
+
+
+    .maker-box{
+        width: 99%;
+        margin: 0 auto;
+    }
+
+    .vehicle-header{
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .maker-name{
+        background: linear-gradient(to bottom, #ffffff, #bbbbbb);
+        padding: 5px 2%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 1);
+    }
+
+    .maker-name span{
+        font-size: 18px;
+    }
+
+    .maker-box i{
+        margin-right: 5px;
+    }
+
+</style>
+{% endblock %}
+
+{% block innertemplate %}
+    <h1 class="vehicle-header my-3">Job Analysis Report<span id="start-dt" class="extra-datas">( {{extra_datas[0]}} &lt; = &gt; </span><span id="end-dt" class="extra-datas">{{extra_datas[1]}}  - {{extra_datas[2]}})</span></h1></h1>
+    {% if result|length == 0%}
+        <h4 class="text-center text-danger">No Job Data was assigned durting these days...</h4>
+    {% else %}
+        {% for header,data in result.items() %}
+        <div class="maker-box">
+            <div class="maker-name" style="padding: 0;">
+                <div class="w-100 header-in-maker-box"  onclick="showModelDropDownFromBrand(this)">
+                    <div>
+                        <small class="text-danger"><b>Date</b></small>
+                        <p>{{header[1]}}</p>
+                    </div>
+                    <div>
+                        <small class="text-danger"><b>Job No</b></small>
+                        <p>{{header[2]}}</p>
+                    </div>
+                    <div>
+                        <small class="text-danger"><b>Techanician Count</b></small>
+                        <p>{{header[3]}}</p>
+                    </div>
+                    <div>
+                        <small class="text-danger"><b>Duration</b></small>
+                        <p>{{header[4]}}</p>
+                    </div>
+                    <div>
+                        <small class="text-danger"><b>Amount</b></small>
+                        <p>{{header[5]}} Kyats</p>
+                    </div>
+                </div>
+            </div>
+            <div class="list-model">
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Techanician</th>
+                            <th>Description</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dt in data %}
+                        <tr>
+                            <td>{{dt[0]}}</td>
+                            <td>{{dt[1]}}</td>
+                            <td>{{dt[2]}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

@@ -156,6 +156,15 @@ body{
     color: #56638A;
 }
 
+#admin-panel-pagination{
+    text-align: center;
+    font-size: 20px;
+}
+
+#admin-panel-pagination i{
+    color:#D72638
+}
+
 @media screen and (max-width: 850px){
     .account-holder{
         font-size: 15px;

@@ -366,14 +366,17 @@ table td input:focus{
 .table-container{
     font-size: 15px;
     overflow: auto;
-    max-height: 71vh; /* Set a maximum height for the table container */
-    width: 99%;
-    height: 100%;
+    height: calc(100vh - 27vh);
+    width: 100%;
     margin: 0 auto;
+    position: absolute;
+    bottom: 0;
+    right: 0;
 }
 
 .table-container table{
     width: max-content;
+    min-width: 100%;
     border-collapse: collapse;
 }
 
@@ -447,8 +450,8 @@ table td input:focus{
 }
 
 .technician-table,.table-sec{
-    height: 67vh;
     overflow: auto;
+    height: calc(100vh - 30vh);
 }
 
 .table-table{
@@ -500,6 +503,24 @@ table td input:focus{
     font-size: 13px;
 }
 
+#table-body-of-pic .am-pm-select{
+    min-width: 20%;
+    width: 20%;
+}
+
+#table-body-of-pic .time-box{
+    width: 50px;
+}
+
+#service-jobtable-div{
+    overflow: auto;
+}
+
+#service-jobtable-div table tr td{
+    width: max-content;
+    text-wrap: nowrap;
+}
+
 .service-job-table table tbody tr:last-child{
     margin-bottom: 20px;
 }
@@ -537,7 +558,6 @@ table td input:focus{
     padding: 10px;
     color: white;
     cursor: pointer;
-    transition: background-color .5s ease;
 }
 
 .trash-icon:hover{
@@ -634,14 +654,6 @@ table td input:focus{
     width: 40px;
 }
 
-
-.trash-icon, .check-icon{
-    background-color: #FF4242;
-    padding: 10px;
-    color: white;
-    cursor: pointer;
-    transition: background-color .5s ease;
-}
 
 .trash-icon:hover{
     background-color: #ca0000;
@@ -911,12 +923,8 @@ table td input:focus{
 }
 
 .brand-holder .vehicle-box-container{
-    height: 65vh;
+    height: calc(100vh - 30vh);
     overflow: auto;
-}
-
-.customer-table table{
-    width: 99%;
 }
 
 .customer-top-section{
@@ -954,4 +962,329 @@ table td input:focus{
     padding: 3px;
     border: none;
     border-radius: 5px;
+}
+
+/* technician leave report */
+
+.stack-top{
+    --d:2px; 
+    --w:120px;
+    --c:#f20808;
+  
+    opacity: 0.9;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(0%, 140%) rotate(-45deg); 
+    color: #fff;
+    text-align: center;
+    width: var(--w);
+    transform-origin: bottom left;
+    padding:5px 0 calc(var(--d) + 5px);
+    background:linear-gradient(rgba(0,0,0,0.6) 0 0) bottom/100% var(--d) no-repeat var(--c);
+    clip-path:polygon(0 100%,0 calc(100% - var(--d)),50% calc(100% - var(--d) - var(--w)/2),100% calc(100% - var(--d)),100% 100%,calc(100% - var(--d)) calc(100% - var(--d)), var(--d) calc(100% - var(--d)))
+}
+
+/* technician transfer form */
+
+#techanichianDetailCard{
+    background-color: #D4D4D4;
+}
+
+#techanichianDetailCard form, .shopHistorySec,#techanichianDetailCard #techanicianCardHolder{
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
+#techanichianDetailCard #techanicianCardHolder{
+
+}
+
+.absentHistory{
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
+}
+
+.shopHistory h3, .changeShop h3{
+    background-color: #D72638;
+    color: white;
+}
+
+.shopHistorySec{
+    /* border-bottom: 1px solid black; */
+    box-shadow: 0px 0px .5px .5px rgb(0, 0, 0, 0.5);
+}
+
+.active{
+    background-color: #D72638;
+    color: white;
+}
+
+#techanichianDetailCard form div:not(div.activedot){
+    display: flex;
+    flex-direction: column;
+    padding: 3px;
+}
+
+
+.navlink{
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+.navlink ul{
+    border-bottom: 1px solid #D72638;
+}
+
+.navlink ul li{
+    list-style: none;
+    display: inline;
+    border: 1px solid #D72638;
+    padding: 0 5px;
+}
+
+.pagination{
+    align-items: center;
+    align-self: center;
+}
+
+.pagination i{
+    padding: 0 3px;
+    color: #D72638;
+}
+/* leaves */
+
+
+/* leave top side */
+#leavesTopSide{
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+#leavesTopSide #filter_section{
+    display: flex;
+}
+
+#leavesTopSide #filter_section .filter_dropdown{
+    background-color: #f1f0f0;
+    box-shadow: 0px 2px 2px 2px rgba(0,0,0,0.6);
+    padding: 10px;
+    margin-right: 10px;
+
+    position: absolute;
+    right: 0;
+
+    z-index: 50;
+
+    cursor: pointer;
+}
+
+#leavesTopSide #filter_section .filter_dropdown span{
+    display: block;
+    text-wrap: nowrap;
+}
+
+#leavesTopSide #filter_section .filter_dropdown span:hover{
+    background-color: #b5b4b4;
+}
+
+#filter_section .filter_box{
+    position: relative;
+}
+
+.filter_box button{
+    margin-right: 10px;
+    border: 0.5px solid black;
+
+    box-shadow: 0px 1px 1px 1px rgba(0,0,0,0.6);
+
+    transition: background-color 0.5s ease;
+}
+
+.filter_box button:hover{
+    background-color: #b5b4b4;
+}
+
+#leaveReportKanban h3{
+    background-color: #D72638;
+    padding: 5px 0;
+    color: white;
+}
+
+#leaveReportKanban section{
+    position: relative;
+    width: 100%;
+    padding: 10px 10px 40px 10px;
+
+    background-color: #D4D4D4;
+
+    text-align: center;
+    box-shadow: 0px 0px 2px 0.5px rgba(0,0,0,0.6);
+}
+
+#leaveReportKanban footer{
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translatex(-50%);
+
+    color: white;
+    cursor: pointer;
+}
+
+#leaveReportKanban footer span{
+    font-size: 17px;
+    
+    padding: 0 5px;
+    vertical-align: middle;
+
+    background-color: #818181;
+}
+
+#leaveReportKanban footer span:first-child,
+#leaveReportKanban footer span:last-child{
+    background-color: #D72638;
+}
+
+.kanban_container{
+    display: flex;
+    flex-wrap: nowrap;
+    max-height: 400px;
+}
+
+.kanban{
+    background-color: white;
+    padding: 5px;
+    margin: 0 5px;
+
+    border-radius: 10px;
+    box-shadow: 0px 0px 2px 0.5px rgba(0,0,0,0.2);
+
+    width: 300px;
+}
+
+.kanban p{
+    margin: 0;
+    padding: 3px;
+}
+
+.kanban p:first-child{
+    background-color: #D72638;
+    color: white;
+    border-radius: 10px 10px 0px 0px;
+
+    box-shadow: inset 0px -1px 2px rgba(0,0,0,0.6);
+}
+
+#leaveForm{
+    background-color: #D4D4D4;
+    width: 90%;
+    height: 70vh;
+    margin: 0 auto;
+    border-radius: 10px;
+    box-shadow: 1px 1px 4px 2px rgb(0, 0, 0, 0.5);
+}
+
+#selectionBox{
+    width: 40%;
+    height: max-content;
+    padding: 10px;
+    margin: 0 auto;
+
+    cursor: pointer;
+
+    text-align: center;
+
+    background-color: #D4D4D4;
+    border-radius: 5px;
+    box-shadow: 1px 1px 5px 1px rgb(0, 0, 0, 0.5);
+}
+
+#selectionBox h3{
+    padding: 10px 0;
+    text-shadow: 1px 1px 4px rgb(0, 0, 0, 0.5);
+    color: #FFF;
+} 
+
+#selectionBox p{
+    font-size: 20px;
+
+    padding: 5px;
+    margin: 3px;
+    border-radius: 10px;
+}
+
+#selectionBox p:hover{
+    background-color:rgba(118, 118, 118, 0.3);
+    color: white;
+}
+
+#leaveForm{
+    height: max-content;
+    display: none;
+    grid-template-columns: auto auto;
+}
+
+#leaveForm div{
+    width: 100%;
+    margin: 0 auto;
+    padding: 5px 0;
+    text-align: center;
+}
+
+#leaveForm div input,#leaveForm div select,#leaveForm button{
+    display: block;
+    text-align: center;
+    margin: 0 auto;
+    padding: 6px;
+    width: 90%;
+
+    border: none;
+    border-radius: 10px;
+    box-shadow: inset 0px 0px 3px rgb(6, 6, 6)
+}
+
+#leaveForm div input:focus,#leaveForm div select:focus{
+    outline-color: steelblue;
+}
+
+#leaveForm button{
+    font-size: 15px;
+
+    background-color: #0b9346;
+    color: white;
+    transition: background-color 0.3s ease-in-out;
+}
+
+#leaveForm button:hover{
+    background-color: #10da67;
+}
+
+#leaveForm #selectedList{
+    width: 90%;
+    height: 230px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: inset 0px 0px 3px rgb(6, 6, 6);
+    overflow: auto;
+}
+
+#leaveForm #selectedList div{
+    display: flex;
+    justify-content: space-between;
+    padding: 0 15px;
+}
+
+/* Leave Form Modal box */
+#multipleSelectModal .modal-body{
+    max-height: 400px;
+    overflow: scroll;
+}
+
+#multipleSelectModal .modal-body div div{
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid grey;
+    padding: 5px;
 }

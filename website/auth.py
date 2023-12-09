@@ -1,4 +1,4 @@
-from flask import Blueprint,render_template,request,redirect,url_for,after_this_request
+from flask import Blueprint,render_template,request,redirect,url_for,after_this_request,session
 from website import db_connect,password_hash
 from psycopg2 import IntegrityError
 from datetime import datetime,timedelta
@@ -8,13 +8,15 @@ auth = Blueprint('auth',__name__)
 @auth.route("/")
 @auth.route("/<typ>",methods = ['GET','POST'])
 def authenticate(typ='log'):
+    session.pop('pg_id', default=None)
+    session.pop('pg_username', default=None)
     if request.method == 'POST':
         conn = db_connect()
         cur = conn.cursor()
         if typ == 'log':
             mail = request.form.get("email")
             pwd = request.form.get("password")
-            cur.execute("SELECT pwd,name,user_roles FROM user_auth WHERE mail = %s AND pending = '1';",(mail,))
+            cur.execute('''SELECT pwd,name,id FROM user_auth WHERE mail = %s AND pending = '1';''',(mail,))
             db_data = cur.fetchall()
             db_pwd = db_data[0][0] if db_data != [] else None
             print(db_data)
@@ -24,11 +26,8 @@ def authenticate(typ='log'):
                     print(pwd)
                     print(decrypted_pwd)
                     print(mail)
-                    @after_this_request
-                    def after_index(response):
-                        response.set_cookie("pg-username",db_data[0][1],expires=datetime.now() + timedelta(days=1))
-                        response.set_cookie("user_roles",db_data[0][2],expires=datetime.now() + timedelta(days=1))
-                        return response
+                    session['pg_id'] = db_data[0][2]
+                    session['pg_username'] = db_data[0][1]
                     return redirect(url_for('views.home'))
                 else:
                     return render_template('auth.html',mgs='Wrong Credentials..',typ='log')
@@ -44,7 +43,7 @@ def authenticate(typ='log'):
                 if pwd == confirmPwd:
                     try:
                         encrypted_pwd = password_hash.A3Encryption().start_encryption(pwd,mail)
-                        cur.execute("INSERT INTO user_auth (name,mail,pwd) VALUES (%s,%s,%s)",(name,mail,encrypted_pwd))
+                        cur.execute('''INSERT INTO user_auth (name,mail,pwd) VALUES (%s,%s,%s)''',(name,mail,encrypted_pwd))
                         conn.commit()
                         return redirect(url_for('auth.authenticate',typ='log'))
                     except IntegrityError as err:
@@ -53,12 +52,12 @@ def authenticate(typ='log'):
                 else:
                     return render_template('auth.html',mgs='Unmatched Password',typ='reg')
             elif typ == 'forgot':
-                cur.execute("SELECT name FROM user_auth WHERE mail = %s",(mail,))
+                cur.execute('''SELECT name FROM user_auth WHERE mail = %s''',(mail,))
                 data = cur.fetchall()
                 db_name = data[0][0] if data != [] else None
                 if db_name == name:
                     if pwd == confirmPwd:
-                        cur.execute("UPDATE user_auth SET pwd = %s WHERE mail = %s;",(pwd,mail))
+                        cur.execute('''UPDATE user_auth SET pwd = %s WHERE mail = %s;''',(pwd,mail))
                         conn.commit()
                         return redirect(url_for('auth.authenticate',typ='log'))
                     else:
@@ -70,9 +69,11 @@ def authenticate(typ='log'):
 
 @auth.route("auth/checkforget/<email>/<name>")
 def checkforget(name,email):
+    session.pop('pg_id', default=None)
+    session.pop('pg_username', default=None)
     conn = db_connect()
     cur = conn.cursor()
-    cur.execute("SELECT name FROM user_auth WHERE mail = %s;",(email,))
+    cur.execute('''SELECT name FROM user_auth WHERE mail = %s;''',(email,))
     db_data = cur.fetchall()
     db_name = db_data[0][0] if db_data != [] else None
     if db_name == name:

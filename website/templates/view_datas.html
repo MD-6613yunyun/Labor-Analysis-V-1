@@ -9,7 +9,7 @@ Datas Tree View
 {% endblock %}
 
 {% block innertemplate %}
-{% if typ == 'service-datas' or typ == 'check-in-out' %}
+{% if typ == 'service-datas' %}
     <div class="sticky-top service-job-table showeles">
         <!-- Sticky top content here -->
         <div class="left-side">
@@ -54,7 +54,7 @@ Datas Tree View
                 <i class="fa-solid fa-circle-chevron-right" onclick="clickPagination('job','next')"></i></div>
         </div>
     </div>
-    <div class="table-container table-bordered service-job-table showeles">
+    <div class="table-container table-bordered service-job-table showeles" id="service-jobtable-div">
         <table>
             <thead class="text-center">
                 <tr>
@@ -68,19 +68,11 @@ Datas Tree View
                     <th>Vehicle Model</th>
                     <th>Vehicle Model Year</th>
                     <th>Invoice</th>
-                    <th>Job Type & Spare Part Change</th>
-                    <th>Job Type</th>
-                    <th>Grand Total</th>
-                    <th>PIC1</th>
-                    <th>PIC2</th>
-                    <th>PIC3</th>
-                    <th>PIC4</th>
-                    <th>PIC5</th>
                 </tr>
             </thead>
             <tbody>
                 {% for data in result %}
-                    <tr class="job-data-changeable text-start" onclick="redirectToFormEdit('{{data[4]}},{{data[-1]}}','eachJob')">
+                    <tr class="job-data-changeable text-start" onclick="redirectToFormEdit('{{data[-1]}}','eachJob')">
                         {% for each_data in data[:-1] %}
                             <td class="ps-1">{{each_data}}</td>
                         {% endfor %}
@@ -88,6 +80,332 @@ Datas Tree View
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+
+{% elif typ == 'check-in-out' %}
+
+    <div class="sticky-top service-job-table showeles">
+        <!-- Sticky top content here -->
+        <div class="left-side">
+            <div class="button-search">
+                <a href="{{url_for('imports.show_create_form',typ=typ)}}" class="nav-link"><button type="button" class="createServiceDataButton"><b>Create</b></button></a>
+            </div>
+            <div class="paginate">
+                <form action="{{url_for('views.show_service_datas',typ='check-in-out')}}" method="POST">
+                    <div class="search-bar">
+                        <input type="text" hidden value="" name="column" id="column"/>
+                        {% if filt %}
+                            <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ=typ)}}">X</a>                        
+                        {% endif %}
+                        <input type="text" placeholder="Search" class="rounded" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)">
+                        <input type="text" hidden value="check-in-out" name="database">
+                        <div class="drop-box d-none">
+                            <p onclick="addValForTable('job_no')">Job. No. - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('plate')">Reg.  No. - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('customer.name')">Customer. - <span class="dropdownFormClicker"></span></p>
+                            {% if '4' in user_roles  and ('1' in user_roles or '2' in user_roles or '3' in user_roles) %}
+                            <p onclick="addValForTable('unit.name')">Unit      - <span class="dropdownFormClicker"></span></p>
+                            {% endif %}
+                            {% if user_roles | length  > 1 %}
+                            <p onclick="addValForTable('shop.name')">Shop      - <span class="dropdownFormClicker"></span></p>
+                            {% endif %}
+                        </div>
+                        <input hidden type="text" value="False" id="editOrSubmit" name="editOrSubmit"/>
+                    </div>
+                </form>
+                <span id="paginate-amount"> 1 - {% if length[0][0] >= 81 %} 81 {% else %} {{length[0][0]}} {% endif %} / {{length[0][0]}}</span>
+                <i class="fa-solid fa-circle-chevron-left" onclick="clickPagination('job','prev')"></i>
+                <i class="fa-solid fa-circle-chevron-right" onclick="clickPagination('job','next')"></i></div>
+        </div>
+    </div>
+    <div class="table-container table-bordered service-job-table showeles">
+        <table>
+            <thead class="text-center">
+                <tr>
+                    <th>Date</th>
+                    <th>Sequence No.</th>
+                    <th>Job No.</th>
+                    <th>Vehicle Plate</th>
+                    <th>Vehicle Brand</th>
+                    <th>Vehicle Model</th>                    
+                    <th>Business Unit</th>
+                    <th>Shop</th>
+                    <th>Used Technicians</th>
+                    <th>Total Duration</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in result %}
+                    <tr class="job-data-changeable text-start" onclick="redirectToFormEdit('{{data[-1]}}','check-in-out')">
+                        {% for each_data in data[:-1] %}
+                            <td class="ps-1">{{each_data}}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% elif typ == 'psfu-calls' %}
+
+    <div class="sticky-top service-job-table showeles">
+        <!-- Sticky top content here -->
+        <div class="left-side">
+            <div class="button-search">
+                <a href="{{url_for('dash.home')}}" class="nav-link"><button type="button" class="createServiceDataButton"><b>Create</b></button></a>
+            </div>
+            <div class="paginate">
+                <form action="{{url_for('views.show_service_datas',typ='psfu-calls')}}" method="POST">
+                    <div class="search-bar">
+                        <input type="text" hidden value="" name="column" id="column"/>
+                        {% if filt %}
+                            <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ=typ)}}">X</a>                        
+                        {% endif %}
+                        <input type="text" placeholder="Search" class="rounded" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)">
+                        <input type="text" hidden value="psfu-calls" name="database">
+                        <div class="drop-box d-none">
+                            <p onclick="addValForTable('job_no')">Job. No. - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('plate')">Reg.  No. - <span class="dropdownFormClicker"></span></p>
+                            <p onclick="addValForTable('customer.name')">Customer. - <span class="dropdownFormClicker"></span></p>
+                            {% if '4' in user_roles  and ('1' in user_roles or '2' in user_roles or '3' in user_roles) %}
+                            <p onclick="addValForTable('unit.name')">Unit      - <span class="dropdownFormClicker"></span></p>
+                            {% endif %}
+                            {% if user_roles | length  > 1 %}
+                            <p onclick="addValForTable('shop.name')">Shop      - <span class="dropdownFormClicker"></span></p>
+                            {% endif %}
+                        </div>
+                        <input hidden type="text" value="False" id="editOrSubmit" name="editOrSubmit"/>
+                    </div>
+                </form>
+                <span id="paginate-amount"> 1 - {% if length[0][0] >= 81 %} 81 {% else %} {{length[0][0]}} {% endif %} / {{length[0][0]}}</span>
+                <i class="fa-solid fa-circle-chevron-left" onclick="clickPagination('job','prev')"></i>
+                <i class="fa-solid fa-circle-chevron-right" onclick="clickPagination('job','next')"></i></div>
+        </div>
+    </div>
+    <div class="table-container table-bordered service-job-table showeles">
+        <table>
+            <thead class="text-center">
+                <tr>
+                    <th>Date</th>
+                    <th>Business Unit</th>
+                    <th>Shop</th>
+                    <th>Job No.</th>
+                    <th>License No.</th>
+                    <th>Cust. Name</th>
+                    <th>Phone Number</th>
+                    <th>Status</th>                    
+                    <th>Remark</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in result %}
+                    <tr class="job-data-changeable text-start" onclick="redirectToFormEdit('{{data[-1]}}','psfu-calls')">
+                        {% for each_data in data[:-2] %}
+                            <td class="ps-1">{{each_data}}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+{% elif typ == 'leaves' %}
+
+<h1 class="text-center py-3">Leaves</h1>
+<!-- top side bar -->
+<div class="" id="leavesTopSide">
+    <!-- top left side -->
+    <div>
+        <a href="{{url_for('imports.show_create_form',typ=typ)}}" class="btn btn-sm btn-success">Create</a>
+    </div>
+    <!-- top right side -->
+    <form action="{{url_for('views.show_service_datas',typ='leaves')}}" method="POST">
+        <div id="filter_section">
+            <div class="filter_box  mb-4">
+                <select required name="leave_type_id" class="form-select " aria-label="Default select example">
+                    <option value="" selected disabled>Leave Type</option>
+                    {% for data in extra_datas[1] %}
+                        <option value="{{data[0]}}">{{data[1]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter_box mx-2 mb-4">
+                <select required name="shop_id" class="form-select " aria-label="Default select example">
+                    <option value="" selected disabled>Shop</option>
+                    {% for data in credentials %}
+                    <option value="{{data[2]}}">{{data[3]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input required type="date" name="start_dt" class="me-2" style="height: 12px;margin-top: 2px;">
+            <input required type="date" name="end_dt" style="height: 12px;margin-top: 2px;">
+            <input hidden type="text" value="True" id="editOrSubmit" name="editOrSubmit"/>
+            <button class="btn btn-dark text-center ms-2" style="margin-top: 2px;height: 33px;">Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- kanban view  -->
+<div class="" id="leaveReportKanban">
+    {% if filter %}
+        <h3 class="text-center">{{result[1][0]}}</h3>
+        <section class="" id="">
+            <div class="kanban_container">
+                {% if result[0]|length == 0 %}
+                    <div class="kanban w-100">
+                        <p><span>Warning</span></p>                
+                        <h2>There is no data to show!!</h2>
+                    </div>
+                {% else %}
+                {% for dt in result[0] %}
+                <div class="kanban">
+                    <p><span>Name - </span><span>{{dt[0]}}</span></p>
+                    <p><span>Start Date - </span><span>{{dt[2]}}</span></p>
+                    <p><span>End Date - </span><span>{{dt[3]}}</span></p>
+                    <p><span>Duration - </span><span>{{dt[4]}} Days</span></p>
+                    <p><span>Remark - </span><span>{{dt[1]}}</span></p>
+                </div>
+                {% endfor %}
+                {% if result[0]|length > 5 %}
+                    <footer>
+                        <span>&lt</span>
+                        <span>&gt</span>
+                    </footer>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </section>
+        <hr>
+    {% else %}
+        <!-- Shop Close -->
+        <h3 class="text-center">Shop Close</h3>
+        <section class="" id="">
+            <div class="kanban_container">
+                {% if result|length == 0 %}
+                    <div class="kanban w-100">
+                        <p><span>Warning</span></p>                
+                        <h2>There is no data to show!!</h2>
+                    </div>
+                {% else %}
+                    {% for data in result %}
+                    <div class="kanban">
+                        <p><span>Shop Name - </span><span>{{data[1]}}</span></p>
+                        <p><span>Start Date - </span><span>{{data[2]}}</span></p>
+                        <p><span>End Date - </span><span>{{data[3]}}</span></p>
+                        <p><span>Duration - </span><span>{{data[4]}} days</span></p>
+                        <p><span>Remark - </span><span>{{data[5]}}</span></p>
+                    </div>
+                    {% endfor %}
+                    {% if result|length > 5 %}
+                    <footer>
+                        <span>&lt</span>
+                        <span>&gt</span>
+                    </footer>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </section><hr>
+
+        {% for header,data in extra_datas[0].items() %}
+        <!-- Casual Leave -->
+        <h3 class="text-center">{{header[1]}}</h3>
+        <section class="" id="">
+            <div class="kanban_container">
+                {% if data|length == 0 %}
+                    <div class="kanban w-100">
+                        <p><span>Warning</span></p>                
+                        <h2>There is no data to show!!</h2>
+                    </div>
+                {% else %}
+                    {% for dt in data %}
+                    <div class="kanban">
+                        <p><span>Techanician - </span><span>{{dt[2]}}</span></p>
+                        <p><span>Shop Name - </span><span>{{dt[3]}}</span></p>
+                        <p><span>Start Date - </span><span>{{dt[4]}}</span></p>
+                        <p><span>End Date - </span><span>{{dt[5]}}</span></p>
+                        <p><span>Duration - </span><span>{{dt[6]}} Days</span></p>
+                        <p><span>Remark - </span><span>{{dt[7]}}</span></p>
+                    </div>
+                    {% endfor %}
+                    {% if data|length > 5 %}
+                    <footer>
+                        <span>&lt</span>
+                        <span>&gt</span>
+                    </footer>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </section>
+        <hr>
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% elif typ == 'descriptions' or typ == 'jobType' or typ == 'leave-type' or typ == 'call-status' %}
+
+    <h1 class="header">{{typ.capitalize()}} Table</h1>
+    <div class="left-side">
+        <div class="button-search">
+            <button class="add-btn">Add +</button>
+        </div>
+        <div class="w-50 pt-3">
+            <form action="{{url_for('imports.excel_import')}}" method="post" enctype="multipart/form-data">
+                <div class="input-group mb-3">
+                    <input class="form-control" name="upload_serivce_datas" type="file" id="formFile" required>
+                    <input value="Technicians" name="selectExcelFile" type="text" hidden>
+                    <input value="technician" name="selectView" type="text" hidden>
+                    <button class="btn btn-outline-dark" type="submit" id="button-addon2">Import</button>
+                </div>
+            </form>
+        </div>
+        <div class="paginate">
+            <form action="{{url_for('views.show_service_datas',typ=typ)}}" method="POST">
+                <div class="search-bar">
+                    <input type="text" hidden value=""  name="column" id="column"/>
+                    {% if filt %}
+                        <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ=typ)}}">X</a>                        
+                    {% endif %}
+                    <input type="text" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)">
+                    <input type="text" hidden value="technicians" name="database">
+                    <div class="drop-box d-none">
+                        <p onclick="addValForTable('name')">Name - <span class="dropdownFormClicker"></span></p>
+                    </div>
+                    <input hidden type="text" value="False" id="editOrSubmit" name="editOrSubmit"/>
+                </div>
+            </form>
+            <span id="paginate-amount"> 1 - {% if length[0][0] >= 81 %} 81 {% else %} {{length[0][0]}} {% endif %} / {{length[0][0]}}</span>
+            <i class="fa-solid fa-circle-chevron-left" onclick="clickPagination('{{typ}}','prev')"></i>
+            <i class="fa-solid fa-circle-chevron-right" onclick="clickPagination('{{typ}}','next')"></i></div>
+    </div>
+
+    <div class="technician-table">
+        <form action="{{url_for('imports.keep_in_import',typ=typ)}}" id="rate-form" method="post">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="hidden-rate-form-input" class="d-none">
+                        <td></td>
+                        <td><input type="text" onkeyup="changeToUpperCaseInput(this)"  autocomplete="off" required name="jobType"></td>
+                        <td class="check-icon text-center" onclick="checkRateFormAndSumbit(this)" ><i class="fa-solid fa-square-check"></i></td>
+                    </tr>
+                    {% for data in result %} 
+                    <tr class="tree-data-changeable" id="jobType" ondblclick="replaceInputFormInViewForm(this)">
+                        <td><input hidden type="number"  value="{{data[0]}}" form="rate-form"></td>
+                        <td>{{data[1]}}</td>
+                        <td class="trash-icon text-center" onclick="deleteLineDataFromViewForm('{{data[0]}}','{{typ}}')" ><i class="fa-solid fa-trash"></i></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
     </div>
 
 {% elif typ == 'pic-rate' %}
@@ -151,11 +469,11 @@ Datas Tree View
         <div class="paginate">
             <form action="{{url_for('views.show_service_datas',typ='technician')}}" method="POST">
                 <div class="search-bar">
-                    <input type="text" hidden value=""  name="column" id="column"/>
+                    <input type="text" hidden value="" name="column" id="column"/>
                     {% if filt %}
                         <a class="link-tag-filter" href="{{url_for('views.show_service_datas',typ='technician')}}">X</a>                        
                     {% endif %}
-                    <input type="text" autocomplete="off" name='filter' onkeyup="typeSthInDropdown(this)">
+                    <input type="text" autocomplete="off" class="rounded" name='filter' onkeyup="typeSthInDropdown(this)">
                     <input type="text" hidden value="technicians" name="database">
                     <div class="drop-box d-none">
                         <p onclick="addValForTable('tech')">Name - <span class="dropdownFormClicker"></span></p>
@@ -166,8 +484,8 @@ Datas Tree View
                 </div>
             </form>
             <span id="paginate-amount"> 1 - {% if length[0][0] >= 81 %} 81 {% else %} {{length[0][0]}} {% endif %} / {{length[0][0]}}</span>
-            <i class="fa-solid fa-circle-chevron-left" onclick="clickPagination('job','prev')"></i>
-            <i class="fa-solid fa-circle-chevron-right" onclick="clickPagination('job','next')"></i></div>
+            <i class="fa-solid fa-circle-chevron-left" onclick="clickPagination('{{typ}}','prev')"></i>
+            <i class="fa-solid fa-circle-chevron-right" onclick="clickPagination('{{typ}}','next')"></i></div>
     </div>
 
     <div class="technician-table">
@@ -177,25 +495,22 @@ Datas Tree View
                     <tr>
                         <th></th>
                         <th>Name</th>
-                        <th>Business Unit</th>
-                        <th>Shop</th>
+                        <th>Current Unit</th>
+                        <th>Current Shop</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr id="hidden-rate-form-input" class="d-none">
                         <td></td>
-                        <td><input type="text" onkeyup="changeToUpperCaseInput(this)" autocomplete="off" required name="tech"></td>
                         <td>
-                            <input type="text"  onkeyup="changeToUpperCaseInput(this)" list="unitListOptions" required name="unit">
-                            <datalist id="unitListOptions">
-                                {% for dt in extra_datas[0] %}
-                                    <option value="{{dt[0]}}">
-                                {% endfor %}
-                            </datalist>
+                            <input type="text" onkeyup="changeToUpperCaseInput(this)" autocomplete="off" required name="tech">
                         </td>
                         <td>
-                            <input type="text" onkeyup="changeToUpperCaseInput(this)" list="shopListOptions" required name="shop">
+                            <input type="date"  required name="joined-date">
+                        </td>
+                        <td>
+                            <input type="text" autocomplete="off" onkeyup="changeToUpperCaseInput(this)" list="shopListOptions" required name="shop">
                             <datalist id="shopListOptions">
                                 {% for dt in extra_datas[1] %}
                                     <option value="{{dt[0]}}">
@@ -205,7 +520,7 @@ Datas Tree View
                         <td class="check-icon" onclick="checkRateFormAndSumbit(this)"><i class="fa-solid fa-square-check"></i></td>
                     </tr>
                     {% for data in result %}
-                        <tr class="testRowForDblClick" id="technician" ondblclick="replaceInputFormInViewForm(this)">
+                        <tr class="tree-data-changeable testRowForDblClick" id="technician" onclick="redirectToFormEdit('{{data[0]}}','check-in-out')">
                             <td><input hidden type="number" value="{{data[0]}}"></td>
                             <td>{{data[1]}}</td>
                             <td>{{data[2]}}</td>
@@ -384,37 +699,6 @@ Datas Tree View
     {% endif  %}
 </div>
 
-{% else %}
-
-    <h1 class="header">Job Data Table</h1>
-    <button class="add-btn">Add +</button>
-    <div class="technician-table">
-        <form action="{{url_for('imports.keep_in_import',typ='jobType')}}" id="rate-form" method="post">
-            <table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Name</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr id="hidden-rate-form-input" class="d-none">
-                        <td></td>
-                        <td><input type="text" required name="jobType"></td>
-                        <td class="check-icon" onclick="checkRateFormAndSumbit(this)" ><i class="fa-solid fa-square-check"></i></td>
-                    </tr>
-                    {% for data in result %}
-                    <tr class="testRowForDblClick" id="jobType" ondblclick="replaceInputFormInViewForm(this)">
-                        <td><input hidden type="number"  value="{{data[0]}}" form="rate-form"></td>
-                        <td>{{data[1]}}</td>
-                        <td class="trash-icon" onclick="deleteLineDataFromViewForm('{{data[0]}}','jobType')" ><i class="fa-solid fa-trash"></i></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </form>
-    </div>
 {% endif %}
 {% endblock %}
 

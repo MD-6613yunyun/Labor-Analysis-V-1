@@ -17,25 +17,22 @@
     </head>
     <body>
         <div class="top-nav-container">
-            <img src="{{url_for('static',filename='images/fireworks.gif')}}" style="width:150px;height:150px;position: absolute;z-index: 1000;top:-50px;left:20%">
-            <img src="{{url_for('static',filename='images/fireworks.gif')}}" style="width:150px;height:150px;position: absolute;z-index: 1000;top:-50px;right:30%">
+            <!-- <img src="{{url_for('static',filename='images/fireworks.gif')}}" style="width:150px;height:150px;position: absolute;z-index: 1000;top:-50px;left:20%">
+            <img src="{{url_for('static',filename='images/fireworks.gif')}}" style="width:150px;height:150px;position: absolute;z-index: 1000;top:-50px;right:30%"> -->
             <nav class="head-class">
                 <div class="logo-img">
                     <a href="{{url_for('views.home')}}" style="text-decoration: none;"><span class="" id="sms"><b>Shop Manangement<br>System</b></span><img src="{{url_for('static',filename='images/web_logo.png')}}" id="logo"/></a>
-                    {% set user_roles = request.cookies.get('user_roles') %}
-                    {% if user_roles != 'None' %}
+                    {% if session['pg_username'] %}
                     <i class="fa-solid fa-angle-right open-btn logo-arrow" onclick="openNav()"></i>
                     {% endif %}
                     <i class="fa-solid fa-angle-left close-btn logo-arrow" style="display: none;" onclick="closeNav()"></i>
                 </div>
-                <marquee width="40%" style="margin-left: 40px;" behavior="" direction="">Happy ThadinGyut Fastival</marquee>
+                <!-- <marquee width="40%" style="margin-left: 40px;" behavior="" direction="">Happy ThadinGyut Fastival</marquee> -->
                 <h1 class="job-data-header">{% block pageHeader %} {% endblock %}</h1>
                 <div class="profile-tab">
-                    {% if request.path == '/get-report' or request.path == '/pic-report' %}
-                        <i class="fa-solid fa-download" onclick="exportTableToExcel()"></i>
-                    {% endif %}
-                    {% if request.cookies.get('pg-username') %}
-                        <h4>Welcome, {{ request.cookies.get('pg-username') }}!</h4>
+                    {% block downloadBtn %}{% endblock %}
+                    {% if session['pg_username'] %}
+                    <h4>Welcome, {{ session['pg_username'] }}!</h4>
                     {% endif %}
                         <i class="fa-solid fa-circle-user"></i>
                     <button onclick="signOut()">Sign Out</button>
@@ -44,49 +41,68 @@
         </div>
 
         <div id="mySidenav" class="sidenav">
-            <a href="{{url_for('dash.home')}}">Dashboard</a>
-            <a href="#"  onclick="showDropdown(this)">Reporting<i class="fa-solid fa-angle-down"></i></a>
-            <div class="dropdown-container">
-                <a href="#" class="sub-head" onclick="callModalForDateRange('get_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">JOB Ability</a>
-                <a href="#" class="sub-head" onclick="callModalForDateRange('pic_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">PIC Report</a>   
-                <a href="{{url_for('views.show_service_datas',typ='check-in-out-report')}}" class="sub-head">Check In-Out</a>             
+                <div id="sidenavlist">
+                    <a href="{{url_for('dash.home')}}">Dashboard</a>
+                    <a href="#"  onclick="showDropdown(this)">Reporting<i class="fa-solid fa-angle-down"></i></a>
+                    <div class="dropdown-container">
+                        <a href="#" class="sub-head" onclick="callModalForDateRange('get_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">JOB Ability</a>
+                        <a href="#" class="sub-head" onclick="callModalForDateRange('pic_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">PIC Report</a>  
+                        <a href="#" class="sub-head" onclick="callModalForDateRange('check_in_report')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Job Control</a>            
+                        <a href="#" class="sub-head" onclick="callModalForDateRange('idle')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Idle Report</a> 
+                        <a href="#" class="sub-head" onclick="callModalForDateRange('job-analysis')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Job Analysis</a> 
+                    </div>
+                    <a href="#"  onclick="showDropdown(this)">Transactions<i class="fa-solid fa-angle-down"></i></a>
+                    <div class="dropdown-container">
+                        <a href="{{url_for('views.show_service_datas',typ='service-datas')}}" class="sub-head">Service Data</a>
+                        <a href="{{url_for('views.show_service_datas',typ='check-in-out')}}" class="sub-head">Job Control</a>    
+                        <a href="{{url_for('views.show_service_datas',typ='psfu-calls')}}" class="sub-head">PSFU Calls</a> 
+                        <a href="{{url_for('views.show_service_datas',typ='leaves')}}" class="sub-head">Leaves</a>  
+                    </div>
+                    <a href="#"  onclick="showDropdown(this)">Registrations<i class="fa-solid fa-angle-down"></i></a>
+                    <div class="dropdown-container">
+                        <a href="{{url_for('views.show_service_datas',typ='customers')}}" class="sub-head">Customers</a>
+                        <a href="{{url_for('views.show_service_datas',typ='vehicles')}}" class="sub-head">Vehicles</a>
+                        <a href="{{url_for('views.show_service_datas',typ='technician')}}" class="sub-head">Technicians</a>             
+                    </div>
+                    <a href="#"  onclick="showDropdown(this)">Configuration<i class="fa-solid fa-angle-down"></i></a>
+                    <div class="dropdown-container">
+                        <a href="{{url_for('views.show_service_datas',typ='pic-rate')}}" class="sub-head">PIC</a>
+                        <a href="{{url_for('views.show_service_datas',typ='job-type')}}" class="sub-head">Types</a>    
+                        <a href="{{url_for('views.show_service_datas',typ='brand')}}" class="sub-head">Brand & Model</a>  
+                        <a href="{{url_for('views.show_service_datas',typ='descriptions')}}" class="sub-head">Job Descriptions</a> 
+                        <a href="{{url_for('views.show_service_datas',typ='leave-type')}}" class="sub-head">Leave Types</a>    
+                        <a href="{{url_for('views.show_service_datas',typ='call-status')}}" class="sub-head">PSFU Status</a>        
+                    </div>
+                    {% if credentials[0][1] %}
+                        <a href="{{url_for('dash.admin_dashboard')}}">Admin Panel
+                            {% if request.path == '/'%}
+                                <span class="noti">{%block pendingCount %}{% endblock %}</span>
+                            {% endif %}
+                        </a>
+                    {% endif %}
+                </div>
             </div>
-            <a href="#"  onclick="showDropdown(this)">Transactions<i class="fa-solid fa-angle-down"></i></a>
-            <div class="dropdown-container">
-                <a href="{{url_for('views.show_service_datas',typ='service-datas')}}" class="sub-head">Service Data</a>
-                <a href="{{url_for('views.show_service_datas',typ='check-in-out')}}" class="sub-head">Check In Out</a>
-            </div>
-            <a href="#"  onclick="showDropdown(this)">Registrations<i class="fa-solid fa-angle-down"></i></a>
-            <div class="dropdown-container">
-                <a href="{{url_for('views.show_service_datas',typ='customers')}}" class="sub-head">Customers</a>
-                <a href="{{url_for('views.show_service_datas',typ='vehicles')}}" class="sub-head">Vehicles</a>                
-            </div>
-            <a href="#"  onclick="showDropdown(this)">Configuration<i class="fa-solid fa-angle-down"></i></a>
-            <div class="dropdown-container">
-                <a href="{{url_for('views.show_service_datas',typ='pic-rate')}}" class="sub-head">PIC</a>
-                <a href="{{url_for('views.show_service_datas',typ='job-type')}}" class="sub-head">Types</a>
-                <a href="{{url_for('views.show_service_datas',typ='technician')}}" class="sub-head">Technicians</a>     
-                <a href="{{url_for('views.show_service_datas',typ='brand')}}" class="sub-head">Brand & Model</a>           
-            </div>
-            {% if '5' in user_roles %}<a href="{{url_for('dash.admin_dashboard')}}">Admin Panel{% if request.path == '/'%}<span class="noti">{%block pendingCount %}{% endblock %}</span>{% endif %}</a>{% endif %}
-        </div>
           
     <!-- Modal -->
     <div class="modal fade" id="staticBackdrop" style="z-index: 10010;" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Data Option For </h1>
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel"></h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form  id="submitForm" method="post">
                     <div class="modal-body">
+                        <div class="d-none" id="summary-for-report">
+                            <label for="summarize" class="mb-1">Details</label>
+                            <input type="checkbox" name="summary" onchange="check_details(this)" id="summarize"/>
+                        </div>
                         <div class="row">
                             <div class="col">
                                 <label for="start-dt" class="mb-1">Start Date</label>
                                 <input required type="date" id="start-dt" name="start-dt" value="2023-01-25">                        
                             </div>
-                            <div class="col">
+                            <div class="col end-dt-block">
                                 <label for="end-dt" class="mb-1">End Date</label>
                                 <input required type="date" id="end-dt" name="end-dt" value="2023-05-11">                        
                             </div>
@@ -95,25 +111,18 @@
                             <div class="col">
                                 <label for="bi" class="mb-1">Business Unit</label>
                                 <select name="bi" id="bi" class="form-select form-select-sm" aria-label="Small select example">
-                                    {% if '1' in user_roles or '2' in user_roles or '3' in user_roles %}
-                                        <option value="1">PIT & GO</option>
-                                    {% endif %}
-                                    {% if '4' in user_roles %}
-                                        <option value="2">TOYOTA</option> 
-                                    {% endif %} 
-                                    {% if '1' in user_roles and '2' in user_roles and '3' in user_roles and '4' in user_roles %}                                  
-                                        <option value="0">All Units</option>
-                                    {% endif %}
+                                    {% for data in b_units %}
+                                        <option value="{{data[0]}}">{{data[1]}}</option>
+                                    {% endfor %}
                                 </select>                        
                             </div>
                             <div class="col">
                                 <label for="shop"  class="mb-1">Shop</label>
                                 <select name="shop" id="shop" class="form-select form-select-sm" aria-label="Small select example">
-                                    {% if '3' in user_roles %}<option value="3">PIT & GO BAWGA</option>{% endif %}
-                                    {% if '1' in user_roles %}<option value="1">PIT & GO BGO</option>{% endif %}
-                                    {% if '2' in user_roles %}<option value="2">PIT & GO SKP</option>{% endif %}
-                                    {% if '4' in user_roles %}<option value="4">TOYOTA SKP</option>{% endif %}
-                                    {% if '1' in user_roles and '2' in user_roles and '3' in user_roles and '4' in user_roles %}<option value="0">All Shops</option>{% endif %}
+                                    {% for data in credentials %}
+                                        <option value="{{data[2]}}">{{data[3]}}</option>
+                                    {% endfor %}
+                                    <option value="0">All Shops</option>
                                 </select>                      
                             </div>
                         </div>
@@ -160,18 +169,50 @@
                 shop_id = document.getElementById("shop").value
                 localStorage.setItem("date",JSON.stringify([start_dt,end_dt,bi_id,shop_id]))                
             }
+
+            function check_details(chk){
+                let end_dt_block = document.getElementById("end-dt")
+                let form = document.getElementById("submitForm")
+                if (chk.checked){
+                    end_dt_block.removeAttribute("required")
+                    end_dt_block.parentElement.classList.add('d-none') 
+                }else{
+                    end_dt_block.setAttribute("required", "")
+                    end_dt_block.parentElement.classList.remove('d-none')
+                }
+                console.log(chk.checked)
+            }
+            
             function callModalForDateRange(txt){
                 form = document.getElementById("submitForm")
                 let name = ""
+                document.getElementsByClassName("end-dt-block")[0].classList.remove('d-none') 
+                document.getElementsByClassName("end-dt-block")[0].children[1].setAttribute("required","") 
+                console.log(txt)
+                if (txt != 'check_in_report' && txt != 'idle'){
+                    let summarize = document.getElementById('summary-for-report')
+                    summarize.classList.add("d-none")
+                    summarize.children[1].checked = false
+
+                }
                 if (txt == "get_report"){
                     name = 'Job Ability Report'
                     form.setAttribute('action',`{{url_for('views.get_report')}}`)   
-                 
-                }else{
-                    name = 'PIC Report'
-                    form.setAttribute('action',`{{url_for('views.pic_report')}}`)  
+                }else if (txt == 'job-analysis'){
+                    name = 'Job Analysis Report'
+                    form.setAttribute('action',`{{url_for('views.job_analysis_report')}}`)
                 }
-                form.previousElementSibling.children[0].textContent += name
+                else if(txt == 'check_in_report' || txt == 'idle') {
+                    name = txt == 'check_in_report' ? 'Job Control' : 'Idle Report'
+                    document.getElementById('summary-for-report').classList.remove("d-none")
+                    let url_route = txt == 'check_in_report' ? `{{url_for('views.check_in_out_report',typ='in-out')}}` : `{{url_for('views.check_in_out_report',typ='idle')}}`
+                    form.setAttribute('action',url_route)  
+                }
+                else{
+                    name = 'PIC Report'
+                    form.setAttribute('action',`{{url_for('views.pic_report')}}`) 
+                }
+                form.previousElementSibling.children[0].textContent = `Data Option for ${name}`
             }
 
             function showDropdown(btn){              
@@ -232,37 +273,35 @@
             let todayy  = new Date()
             document.getElementById("start-dt").value = todayy.getDate
             document.getElementById("end-dt").value = todayy.getDate
-            if (window.location.href.includes("show-datas") || window.location.href.includes("create-form")){
-                let mgs;
-                console.log("test")
-                try{
-                    mgs = document.getElementById('errorMessageDisplayer').textContent.trim()
-                }catch{
-                    mgs = "None"
-                }
-                if (mgs != 'None' && mgs != ""){
-                    let modalClicker = document.getElementsByClassName("errorModal")
-                    modalClicker[0].click()
-                }
-                formExist = document.getElementById("hidden-rate-form-input")
-                if(formExist){
-                    document.getElementsByClassName("add-btn")[0].addEventListener('click',function(){
-                        if (formExist.classList.contains("d-none")){
-                            document.getElementsByClassName("add-btn")[0].textContent = "Discard"
-                            formExist.classList.remove("d-none")
-                        }else{
-                            var inputElements = formExist.getElementsByTagName("input");
-                            // Loop through the input elements and reset their values
-                            for (var i = 0; i < inputElements.length; i++) {
-                                inputElements[i].value = ""; // Set the value to an empty string
-                            }
-
-                            document.getElementsByClassName("add-btn")[0].textContent = "Add+"
-                            formExist.classList.add("d-none")                       
+            let mgs;
+            try{
+                mgs = document.getElementById('errorMessageDisplayer').textContent.trim()
+            }catch{
+                mgs = "None"
+            }
+            if (mgs != 'None' && mgs != ""){
+                let modalClicker = document.getElementsByClassName("errorModal")
+                modalClicker[0].click()
+            }
+            formExist = document.getElementById("hidden-rate-form-input")
+            if(formExist){
+                document.getElementsByClassName("add-btn")[0].addEventListener('click',function(){
+                    if (formExist.classList.contains("d-none")){
+                        document.getElementsByClassName("add-btn")[0].textContent = "Discard"
+                        formExist.classList.remove("d-none")
+                    }else{
+                        var inputElements = formExist.getElementsByTagName("input");
+                        // Loop through the input elements and reset their values
+                        for (var i = 0; i < inputElements.length; i++) {
+                            inputElements[i].value = ""; // Set the value to an empty string
                         }
-                    })
-                }
-            }else if (window.location.href.includes("create-form")){
+
+                        document.getElementsByClassName("add-btn")[0].textContent = "Add+"
+                        formExist.classList.add("d-none")                       
+                    }
+                })
+            }
+            if (window.location.href.includes("create-form")){
                 const inputList = document.querySelectorAll('.service-data-input-form input');
 
                 inputList.forEach(input => {
@@ -279,4 +318,4 @@
             }
         </script>
     </body>
-</html>
+</html> 

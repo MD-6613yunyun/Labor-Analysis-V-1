@@ -1,99 +1,534 @@
 {% extends 'nav.html' %}
 
-{% block styles %}
-<link type="text/css" rel="stylesheet" href="{{url_for('static',filename='styles/daily_report.css')}}">
-{% endblock %}
+{% block title %} Time Report {% endblock %}
+
+{% block downloadBtn %} <i class="fa-solid fa-download" onclick="captureTableAndChart()"></i> {% endblock %}
 
 {% block innertemplate %}
-    <h1 class="text-center py-3" id="dailyReportTitle">Pit & Go Check In Check Out Report</h1>
-    <div class="container-fluid m-0 p-0" style="width: 100%;height: 480px;overflow: auto;" >
-        <table id="dailyReportTable" class="table table-bordered table-hover" style="min-width: 1500px;border: 1px solid black">
+
+    {% if mgs %}
+
+        <div class="text-center mt-5">
+            <h1> Invalid Report Parameters.... </h1>
+        </div>
+    
+    {% else %}
+    <div id="loading-spinner" class="d-none" style="position: absolute;  position: absolute;top: 50%; left: 50%; transform: translate(-50%, -50%);z-index: 50;">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    {% if typ == 'idle' %}
+
+    <h3 class="text-center py-3" data-type="{{typ}}" id="dailyReportTitle">Techanician IDLE Report <span style="font-size: 15px;">({{extra_datas[1]}} at {{extra_datas[0]}})</span></h3>
+    <div class="m-0 p-0 w-100" style="height: 75vh;overflow: auto;" >
+        <table id="dailyReportTable" class="table table-bordered table-hover" style="border: 1px solid black;text-wrap: nowrap;">
             <thead style="position: sticky;top: 0;z-index: 3;">
+                <tr style="border: 1px solid white;" id="hidden-thead-row" class="d-none">
+                    <th colspan="9">
+                        <h5 class="text-center py-3" id="dailyReportTitle">Idle Report <span style="font-size: 15px;">({{extra_datas[1]}} at {{extra_datas[0]}})</span></h5>
+                    </th>
+                </tr>
                 <tr>
-                    <th  class="text-center" style="background-color: #D4D4D4;position: sticky;left: 0">Techanician</th>
-                    <th  class="text-center" style="background-color: #D4D4D4;">Description</th>
-                    <th  class="text-center" style="background-color: #D4D4D4;">Vehicle Name</th>
-                    <th  class="text-center" style="background-color: #D4D4D4;">Vehicle No</th>
-                    <th  class="text-center" style="background-color: #D4D4D4;">Start Time</th>
-                    <th  class="text-center" style="background-color: #D4D4D4;">End Time</th>
+                    <th  class="text-center" style="background-color: #D4D4D4;position: sticky;left: 0;min-width: 250px">Techanician</th>
                     <th  class="text-center" style="background-color: #D4D4D4;">Duration</th>
                     <th  class="text-center" style="background-color: #D4D4D4;">Graph</th>
                 </tr>
             </thead>
             <tbody>
+                {% for tech_name, data in extra_datas[3].items() %}
                 <tr style="vertical-align: middle;">
-                    <td class="text-center" style="position: sticky;left: 0;z-index: 2;">Thant Zin Aung Aung Aung</td>
-                    <td class="text-center">
-                        <span>Engine maintain</span><hr style="margin: 5px;">
-                        <span>Water Pipe</span><hr style="margin: 5px;">
-                        <span>Fuel Check</span><hr style="margin: 5px;">
-                        <span>Tier Replace</span>
-                    </td>
-                    <td class="text-center" style="position: sticky;left: 150px;">Mercedes</td>
-                    <td class="text-center" style="position: sticky;left: 150px;">YGN-2222</td>
-                    <td class="text-center" style="position: sticky;left: 130px;">
-                        <span>8:30</span><hr style="margin: 5px;">
-                        <span>11:30</span><hr style="margin: 5px;">
-                        <span>8:30</span><hr style="margin: 5px;">
-                        <span>11:30</span>
+                    <td class="text-center" style="position: sticky;left: 0;z-index: 2;">
+                        {% if tech_name in leave_badges %}
+                        <div class="stack-top">
+                            <div>{{leave_badges[tech_name]}}</div>
+                        </div>
+                        {% endif %}
+                        {{tech_name}}
                     </td>
                     <td class="text-center" style="position: sticky;left: 100px;">
-                        <span>11:30</span><hr style="margin: 5px;">
-                        <span>04:30</span><hr style="margin: 5px;">
-                        <span>11:30</span><hr style="margin: 5px;">
-                        <span>04:30</span>
+                        <span class="duration-data">0:00</span><hr style="margin: 5px;">
+                        <span class="duration-data">0:00</span>
+                    </td>
+                    <td style="width: 1000px;">
+                        <div id="table12345" style="width: max-content;height: 120px"></div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <!-- <table id="dailyReportTable" class="table table-bordered table-hover" style="border: 1px solid black;text-wrap: nowrap;">
+            <thead style="position: sticky;top: 0;z-index: 3;">
+                <tr style="border: 1px solid white;" id="hidden-thead-row" class="d-none">
+                    <th colspan="9" >
+                        <h5 class="text-center py-3" id="dailyReportTitle">Idle Report <span style="font-size: 15px;">({{extra_datas[1]}} at {{extra_datas[0]}})</span></h5>
+                    </th>
+                </tr>
+                <tr>
+                    <th  class="text-center" style="background-color: #D4D4D4;position: sticky;left: 0;min-width: 250px">Techanician</th>
+                    <th  class="text-center" style="background-color: #D4D4D4;">Duration</th>
+                    <th  class="text-center" style="background-color: #D4D4D4;">Graph</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tech_name, data in extra_datas[3].items() %}
+                <tr style="vertical-align: middle;">
+                    <td class="text-center" style="position: sticky;left: 0;z-index: 2;">
+                        {% if tech_name in leave_badges %}
+                        <div class="stack-top">
+                            <div style="">{{leave_badges[tech_name]}}</div>
+                        </div>
+                        {% endif %}
+                        {{tech_name}}
                     </td>
                     <td class="text-center" style="position: sticky;left: 100px;">
-                        <span>3:00</span><hr style="margin: 5px;">
-                        <span>3:00</span><hr style="margin: 5px;">
-                        <span>3:00</span><hr style="margin: 5px;">
-                        <span>3:00</span>
+                        <span class="duration-data">0:00</span><hr style="margin: 5px;">
+                        <span class="duration-data">0:00</span>
                     </td>
-                    <td>
-                        <div>
-                            <canvas></canvas>
-                        </div>
+                    <td style="width: 1000px;">
+                        <div id="table12345" style="width: max-content;height: 120px"></div>
                     </td>
                 </tr>
-                <tr style="vertical-align: middle;">
-                    <td class="text-center" style="position: sticky;left: 0;z-index: 2;">Thant Zin Aung</td>
-                    <td class="text-center">
-                        <span>Engine maintain</span><hr style="margin: 5px;">
-                        <span>Water Pipe</span><hr style="margin: 5px;">
-                        <span>Fuel Check</span><hr style="margin: 5px;">
-                        <span>Tier Replace</span>
-                    </td>
-                    <td class="text-center">Mercedes</td>
-                    <td class="text-center">YGN-2222</td>
-                    <td class="text-center">
-                        <span>8:30</span><hr style="margin: 5px;">
-                        <span>11:30</span><hr style="margin: 5px;">
-                        <span>8:30</span><hr style="margin: 5px;">
-                        <span>11:30</span>
-                    </td>
-                    <td class="text-center">
-                        <span>11:30</span><hr style="margin: 5px;">
-                        <span>04:30</span><hr style="margin: 5px;">
-                        <span>11:30</span><hr style="margin: 5px;">
-                        <span>04:30</span>
-                    </td>
-                    <td class="text-center">
-                        <span>3:00</span><hr style="margin: 5px;">
-                        <span>3:00</span><hr style="margin: 5px;">
-                        <span>3:00</span><hr style="margin: 5px;">
-                        <span>3:00</span>
-                    </td>
-                    <td>
-                        <div>
-                            <canvas></canvas>
-                        </div>
-                    </td>
+                {% endfor %}
+            </tbody>
+        </table> -->
+    </div>
+
+    {% elif typ == 'in-out' %}
+
+    <h3 class="text-center py-3" data-type="{{typ}}" id="dailyReportTitle">Job Control Report <span style="font-size: 15px;">({{extra_datas[1]}} at {{extra_datas[0]}})</span></h3>
+    <div class="container-fluid m-0 p-0"  style="width: 100%;height: 75vh;overflow: auto;">
+        <table id="dailyReportTable" class="table table-bordered table-hover" style="min-width: 2000px;border: 1px solid black;">
+            <thead style="position: sticky;top: 0;z-index: 3;text-wrap: nowrap;">
+                <tr style="border: 1px solid white;" id="hidden-thead-row" class="d-none">
+                    <th colspan="9" >
+                        <h5 class="text-center py-3" id="dailyReportTitle">Job Control Report <span style="font-size: 15px;">({{extra_datas[1]}} at {{extra_datas[0]}})</span></h5>
+                    </th>
                 </tr>
+                <tr class="text-center align-middle">
+                    <th  style="background-color: #D4D4D4;position: sticky;left: 0;">Techanician</th>
+                    <th  style="background-color: #D4D4D4;">Description</th>
+                    <th  style="background-color: #D4D4D4;">Job Type</th>
+                    <th  style="background-color: #D4D4D4;">Vehicle No</th>
+                    <th  style="background-color: #D4D4D4;">Vehicle Name</th>
+                    <th  style="background-color: #D4D4D4;">Start Time</th>
+                    <th  style="background-color: #D4D4D4;">End Time</th>
+                    <th  style="background-color: #D4D4D4;">Duration</th>
+                    <th  style="background-color: #D4D4D4;">Graph</th>
+                </tr>
+            </thead>
+            <tbody style="text-wrap: nowrap;">
+                {% for tech_name, data in total_result.items() %}
+                    <tr style="vertical-align: middle;border-bottom: 2px solid black;">
+                        <td class="text-center" style="position: sticky;left: 0;z-index: 2;width: 250px;">
+                            {% if tech_name in leave_badges %}
+                            <div>
+                                <div style="font-size: 10px;" class="text-danger">{{leave_badges[tech_name]}}</div>
+                            </div>
+                            {% endif %}
+                            {{ tech_name }}
+                        </td>
+                        <td class="text-center">
+                            {% if data %}
+                                {% for dt in data %}
+                                    <span class="desc">{{ dt[0] }}</span><hr style="margin: 5px;">
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if data %}
+                                {% for dt in data %}
+                                    <span >{{ dt[1] }}</span><hr style="margin: 5px;">
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="text-center" style="position: sticky;left: 150px;">
+                            {% if data %}
+                                {% for dt in data %}
+                                    <span >{{ dt[2] }}</span><hr style="margin: 5px;">
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="text-center" style="position: sticky;left: 150px;">
+                            {% if data %}
+                                {% for dt in data %}
+                                    <span >{{ dt[3] }}</span><hr style="margin: 5px;">
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="text-center" style="position: sticky;left: 130px;">
+                            {% if data %}
+                                {% for dt in data %}
+                                    <span class="start">{{ dt[4] }}</span><hr style="margin: 5px;">
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="text-center" style="position: sticky;left: 100px;">
+                            {% if data %}
+                                {% for dt in data %}
+                                    <span class="end">{{ dt[5] }}</span><hr style="margin: 5px;">
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="text-center" style="position: sticky;left: 100px;">
+                            {% if data %}
+                                {% for dt in data %}
+                                    <span class="duration">{{ dt[6] }}</span><hr style="margin: 5px;">
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td style="width: 1000px;">
+                            <div id="table12345" style="width: max-content;"></div>
+                        </td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>        
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>     
-    <script src="{{url_for('static',filename='scripts/chart.js')}}"></script>
+    {% elif typ == 'summary' %}
+
+        <!-- Header -->
+        <h3 class="text-center py-3" data-type="{{typ}}" id="dailyReportTitle" style="position: sticky;top: 70px;background-color: white; z-index: 5;">Job Summary Report <span style="font-size: 15px;">({{extra_datas[1]}} at {{extra_datas[0]}})</span></h3>
+        <!-- table -->
+        <div class="container-fluid m-0 p-0" style="width: 100%;height: 72vh;overflow: scroll;"  >
+            <table id="dailyReportTable" class="table table-bordered table-hover" style="min-width: 200px;border: 1px solid black;">
+                <thead class="text-center align-middle" style="position: sticky;top: 0;z-index: 3;text-wrap: nowrap;">
+                    <tr style="border: 1px solid white;" id="hidden-thead-row" class="d-none">
+                        <th colspan="9" >
+                            <h5 class="text-center py-3" id="dailyReportTitle">Job Summary Report <span style="font-size: 15px;">({{extra_datas[1]}} at {{extra_datas[0]}})</span></h5>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="" style="background-color: #D4D4D4;">Technician Name</th>
+                        <th class="" style="background-color: #D4D4D4;">Working Hours</th>
+                        <th class="" style="background-color: #D4D4D4;">Actual Hours</th>
+                        <th class="" style="background-color: #D4D4D4;">Idle Hours</th>
+                        <th class="" style="background-color: #D4D4D4;">Daily Summary Graph</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center align-middle">
+                    {% for tech_idd in technicians_ids %}
+                    <tr>
+                        <td>{{tech_idd[1]}}</td>
+                        <td class="totalHours">250mins</td>
+                        <td class="actualHours">250mins</td>
+                        <td class="idleHours">230mins</td>
+                        <td rowspan="">
+                            <div style="height: 260px;"></div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% endif %}
+
+    {% endif %}
+
+
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        let typ = document.getElementById("dailyReportTitle").getAttribute("data-type")
+        console.log(typ)
+        function time_convert(num)
+            { 
+            var minutes = Math.round((num - Math.floor(num)) * 60,2)
+            // Return the result as a string in the format "hours:minutes"
+            return Math.floor(num) + ":" + minutes;         
+            }
+
+        if(typ == 'summary'){
+            let total_works = document.getElementsByClassName("totalHours")
+            let actual_works = document.getElementsByClassName("actualHours")
+            let idle_works = document.getElementsByClassName("idleHours")
+            console.log("this is summary")
+            // Monthly report start
+            monthsummaryData = [];
+            var test_data = [['Date', 'Work Hour', { role: 'annotation' }, 'Idle Hour', { role: 'annotation' }, 'Leave', {role:'annotation'}]]
+            let counter = 0;
+            let total_working_hours = 0;
+            let actual_working_hours = 0;
+            let row_counter = 0
+            {% for each_key,each_value in result_datas.items() %}
+                var leave_text = '{{each_value[5]}}'
+                if(!(leave_text.startsWith("OFF LEAVE") || leave_text.startsWith("WHOLE SHOP LEAVE"))){
+                    total_working_hours += 8
+                    console.log(leave_text)
+                    actual_working_hours += {{each_value[0]}}
+                }else{
+                    if (!leave_text.includes("WHOLE")){
+                        total_working_hours += 4
+                    }
+                }
+
+                test_data.push(['{{each_key[1].month}}/{{each_key[1].day}}/{{each_key[1].year}}', {{each_value[0]}}, '{{each_value[1]}}', {{each_value[2]}}, '{{each_value[3]}}', {{each_value[4]}}, '{{each_value[5]}}'])
+                if(counter == Number('{{divider}}')-1){
+                    console.log(row_counter)
+                    total_works[row_counter].textContent = time_convert(total_working_hours)
+                    actual_works[row_counter].textContent = time_convert(actual_working_hours)
+                    idle_works[row_counter].textContent = time_convert(total_working_hours - actual_working_hours)
+                    counter = -1;
+                    total_working_hours = 0;
+                    monthsummaryData.push(test_data)
+                    test_data = [['Date', 'Work Hour', { role: 'annotation' }, 'Idle Hour', { role: 'annotation' }, 'Leave', {role:'annotation'}]]
+                    row_counter += 1
+                    total_working_hours = 0;
+                    actual_working_hours = 0;
+                }
+                counter += 1;
+            {% endfor %}
+            console.log(test_data)
+            console.log(monthsummaryData)
+            var monthsumoptions = {
+                height: 250,            
+                legend: {
+                    position: 'top', 
+                    alignment: 'start',
+                    textStyle: {
+                        fontSize: 11 // Adjust the legend font size
+                    },
+                },
+                chart: {
+                    title: 'Daily Summary',
+                },
+                hAxis: {
+                    title: "Dates",
+                    ticks: [0, 2, 4, 6, 8, 10],
+                    minValue: 0,
+                    maxValue: 8,
+                    textStyle: {
+                    fontSize: 10, // Font size for the vertical axis labels
+                    },
+                },
+                vAxis: {
+                    title: "Hours",
+                    ticks: [0, 2, 4, 6, 8, 10],
+                    minValue: 0,
+                    maxValue: 10,
+                    textStyle: {
+                        fontSize: 10, // Font size for the vertical axis labels
+                    },
+                },
+                // Add annotations to display labels
+                annotations: {
+                    textStyle: {
+                        fontSize: 12,
+                    },
+                },
+                seriesType: 'bars',
+            };
+
+            google.charts.load('current', {packages:['corechart']});
+
+            google.charts.setOnLoadCallback(drawChart); 
+
+            function drawChart(){
+                let dailyReportTable;
+                dailyReportTable = document.getElementById("dailyReportTable");
+                let tableBodyChildrenCol;
+                tableBodyChildrenCol = dailyReportTable.querySelector("tbody").querySelectorAll("tr");
+
+                var i;
+                for(i = 0; i < tableBodyChildrenCol.length; i++){
+                    
+                    var container = tableBodyChildrenCol[i].lastElementChild.querySelector("div");
+
+                    var chart = new google.visualization.ComboChart(container);
+
+                    container.style.width = "900px";
+                    container.style.overflow = "auto";
+                    container.style.margin = "0 auto";
+
+                    console.log(monthsummaryData[i].length);
+                    if(monthsummaryData[i].length > 9){
+                        monthsumoptions.width = monthsummaryData[i].length * 100;
+                        console.log(monthsumoptions.width);
+                    }else{
+                        monthsumoptions.width = 900;
+                        console.log(monthsumoptions.width);
+                    }
+                    var options = monthsumoptions;
+                    
+                    var data = google.visualization.arrayToDataTable(monthsummaryData[i]);
+
+                    // Add annotations for the first and third columns
+                    data.setColumnProperty(2, 'role', 'annotation');
+                    data.setColumnProperty(4, 'role', 'annotation');
+                    data.setColumnProperty(6, 'role', 'annotation');
+                    
+                    var view = new google.visualization.DataView(data);
+                    view.setColumns([0, 1, 2, 3, 4, 5, 6]);
+                    
+                    chart.draw(view, options);
+                }
+            }
+
+
+        }else{
+            console.log("this is not summary")
+            chartOption =  {
+                'width' : 1000,
+                'height' : 220,
+                timeline: { 
+                    colorByRowLabel: true,
+                },
+
+                alternatingRowStyle: false,
+                hAxis: {
+                    format: 'HH:mm',  // Format time as hours and minutes with AM/PM
+                    ticks: [
+                        new Date(0, 0, 0, 8, 30, 0),
+                        new Date(0, 0, 0, 9, 0, 0),
+                        new Date(0, 0, 0, 9, 30, 0),
+                        new Date(0, 0, 0, 10, 0, 0),
+                        new Date(0, 0, 0, 10, 30, 0),
+                        new Date(0, 0, 0, 11, 0, 0),
+                        new Date(0, 0, 0, 11, 30, 0),
+                        new Date(0, 0, 0, 12, 0, 0),
+                        new Date(0, 0, 0, 12, 30, 0),
+                        new Date(0, 0, 0, 13, 0, 0),
+                        new Date(0, 0, 0, 13, 30, 0),
+                        new Date(0, 0, 0, 14, 0, 0),
+                        new Date(0, 0, 0, 14, 30, 0),
+                        new Date(0, 0, 0, 15, 0, 0),
+                        new Date(0, 0, 0, 15, 30, 0),
+                        new Date(0, 0, 0, 16, 0, 0),
+                        new Date(0, 0, 0, 16, 30, 0),
+                        new Date(0, 0, 0, 17, 0, 0),
+                        new Date(0, 0, 0, 17, 30, 0)
+                    ],
+                    minValue: new Date(0, 0, 0, 8, 30, 0),  // Set the minimum time
+                    maxValue: new Date(0, 0, 0, 17, 30, 0),  // Set the maximum time
+                    textStyle: {
+                        fontSize: 50, // Font size for the horizontal axis labels
+                    },
+                },
+                vAxis: {
+                    title: 'Y-Axis Label',
+                    textStyle: {
+                    fontSize: 50, // Font size for the vertical axis labels
+                    },
+                },
+            }
+
+            var idleChartData = []
+            if(window.location.href.endsWith("/idle")){
+                {% for tech_name, value in extra_datas[3].items() %}
+                    var testing_data = []
+                    {% for each_time in value %}
+                        testing_data.push(['Morning IDLE Time', new Date(0, 0, 0, {{ each_time[0].hour }}, {{ each_time[0].minute }}, 0),  new Date(0, 0, 0, {{ each_time[1].hour }}, {{ each_time[1].minute }}, 0)])
+                    {% endfor %}
+                    {% for each_time in extra_datas[4][tech_name] %}
+                        testing_data.push(['Afternoon IDLE Time', new Date(0, 0, 0, {{ each_time[0].hour }}, {{ each_time[0].minute }}, 0),  new Date(0, 0, 0, {{ each_time[1].hour }}, {{ each_time[1].minute }}, 0)])
+                    {% endfor %}
+                    idleChartData.push(testing_data)
+                {% endfor %}  
+                let durationsDatas = document.getElementsByClassName("duration-data")
+                let counter = 0 
+                for (let idx in idleChartData){
+                    console.log(idx)
+                    let morningAll = 0
+                    let eveningAll = 0
+                    console.log(idleChartData[idx])
+                    idleChartData[idx].forEach(each =>{
+                        diff = ( each[2].getHours() * 3600 + each[2].getMinutes() * 60 ) - ( each[1].getHours() * 3600 + each[1].getMinutes() * 60 )
+                        if (each[0] == 'Morning IDLE Time'){
+                            morningAll += diff
+                        }else{
+                            eveningAll += diff
+                        }
+                    })
+                    durationsDatas[counter].textContent = `${Math.floor(morningAll / 3600).toString().padStart(2, '0')}:${Math.floor((morningAll % 3600) / 60).toString().padStart(2, '0')}`;
+                    durationsDatas[counter+1].textContent = `${Math.floor(eveningAll / 3600).toString().padStart(2, '0')}:${Math.floor((eveningAll % 3600) / 60).toString().padStart(2, '0')}`;
+                    console.log(morningAll)
+                    console.log(eveningAll)
+                    counter = counter + 2
+                }         
+            }else{
+                {% for value in total_result.values() %}
+                    var testing_data = [];
+
+                    {% if value|length > 0 %}
+                        var each_data = []
+                        {% for each_data in value %}
+                            testing_data.push(['{{each_data[0]}}', new Date(0, 0, 0, {{ each_data[4].hour }}, {{ each_data[4].minute }}, 0), new Date(0, 0, 0, {{ each_data[5].hour }}, {{ each_data[5].minute }}, 0)]);
+                        {% endfor %}
+                    {% endif %}
+                    if (testing_data.length == 0){
+                        testing_data.push(['N/A', new Date(0, 0, 0, 8, 30, 0), new Date(0, 0, 0, 8, 30, 0)]);
+                    }
+                    idleChartData.push(testing_data);
+                {% endfor %}
+            }
+
+            google.charts.load("current", {packages:["timeline"]});
+            google.charts.setOnLoadCallback(drawChart); 
+            function drawChart() {
+
+                const dailyReportTable = document.getElementById("dailyReportTable");
+                const tableBodyChildrenCol = dailyReportTable.querySelector("tbody").children;
+
+                var i;
+                for(i = 0; i < tableBodyChildrenCol.length; i++){
+                    var container = tableBodyChildrenCol[i].lastElementChild.querySelector("div");
+                    var chart = new google.visualization.Timeline(container);
+                    var dataTable = new google.visualization.DataTable();
+                    dataTable.addColumn({ type: 'string', id: 'Descri' });
+                    dataTable.addColumn({ type: 'date', id: 'Start' });
+                    dataTable.addColumn({ type: 'date', id: 'End' });
+
+                    dataTable.addRows(idleChartData[i]);
+
+                    var options = chartOption;
+                    if(dataTable.getNumberOfRows() <= 2){
+                        container.style.height = dataTable.getNumberOfRows() * 70 + 'px';
+                    }
+
+                    chart.draw(dataTable, options);
+                }
+            }
+        }
+
+        // This code should be placed after the HTML2Canvas library is loaded.
+
+        const captureTableAndChart = async () => {
+            for (let idx of [1]){
+            const targetElement = document.getElementById('dailyReportTable'); // Replace with the ID of the container that holds both table and chart
+            const spinner = document.getElementById('loading-spinner')
+            const hiddenRow = document.getElementById('hidden-thead-row')
+
+            console.log("downloading")
+            targetElement.style.filter = 'blur(2px)'
+            hiddenRow.classList.remove('d-none')
+            spinner.classList.remove('d-none')
+            console.log(targetElement)
+            // Use HTML2Canvas to capture the content
+            const canvas = await html2canvas(targetElement);
+        
+            // Convert the captured content to an image data URL
+            const dataURL = canvas.toDataURL('image/png');
+        
+            // Create a link to download the image
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = `${document.getElementById("dailyReportTitle").textContent.replaceAll(" ", "_")}.png`
+            link.click();
+
+            console.log("downloaded")
+            spinner.classList.add('d-none')
+            hiddenRow.classList.add('d-none')
+            targetElement.style.filter = 'blur(0px)'
+            }
+        };
+
+    </script>
+{% endblock %}
+
+{% block errorMessageDisplayer %}
+{{mgs}}
 {% endblock %}

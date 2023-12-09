@@ -8,41 +8,52 @@
 <link rel="stylesheet" href="{{url_for('static',filename='styles/report_graph.css')}}"/>
 {% endblock %}
 {% block title %} Report Graph {% endblock %}
-
+{% block downloadBtn %} <i class="fa-solid fa-download" onclick="exportTableToExcel()"></i> {% endblock %}
 {% block innertemplate %}
 
-<p class="d-none for-graph-caption">( {{extra_datas[2]}} &lt; = &gt; {{extra_datas[3]}} || {{extra_datas[4]}} ||  {{extra_datas[5]}} MMK )</p>
-<h1 class="text-center mt-5 graph-header">Technicians Activities Report <span id="start-dt" class="extra-datas">( {{extra_datas[2]}} &lt; = &gt; </span><span id="end-dt" class="extra-datas">{{extra_datas[3]}}  - {{extra_datas[4]}})</span></h1>
-<a id="download_link" class="d-none" href="/" download="">download</a>
-<div id="chartContainer" class="m-5 mt-2" style="overflow:auto;">
-    <div id="container" style="height: 500px;"></div>
-</div>
-<div id="graph-image-container" class="d-none">
+{% if mgs %}
 
-</div>
-<div class="table-responsive m-5" style="width: 90%;table-layout: auto;width: auto;white-space: nowrap;">
-    <table class="table table-bordered table-container" id="report-table">
-        <thead class="text-center table-header">
-            <tr>
-                <th>#</th>
-                    {% for tech_name in extra_datas[0] %}
-                        <th>{{tech_name}}</th>
-                    {% endfor %}
-            </tr>
-        </thead>
-        <tbody >
-            {% for id,result in total_result.items() %}
+    <h1 class="text-center mt-5">Invalid Parameters for your reporting ! </h1>
+    <h1 class="text-center">Please Try again with correct ones ....</h1>
+
+{% else %}
+    <p class="d-none for-graph-caption">( {{extra_datas[2]}} &lt; = &gt; {{extra_datas[3]}} || {{extra_datas[4]}} ||  {{extra_datas[5]}} MMK )</p>
+    <h1 class="text-center mt-5 graph-header">Technicians Activities Report <span id="start-dt" class="extra-datas">( {{extra_datas[2]}} &lt; = &gt; </span><span id="end-dt" class="extra-datas">{{extra_datas[3]}}  - {{extra_datas[4]}})</span></h1>
+    <a id="download_link" class="d-none" href="/" download="">download</a>
+    <div id="chartContainer" class="m-5 mt-2" style="overflow:auto;">
+        <div id="container" style="height: 500px;"></div>
+    </div>
+    <div id="graph-image-container" class="d-none">
+
+    </div>
+    <div class="table-responsive m-5" style="width: 90%;table-layout: auto;width: auto;white-space: nowrap;">
+        <table class="table table-bordered table-container" id="report-table">
+            <thead class="text-center table-header">
                 <tr>
-                    <th>{{extra_datas[1][id]}}</th>
-                    {% for data in result %}
-                        <td class="text-end summary-data-in-graph-report-table">{{data}}</td>
-                    {% endfor %}                    
+                    <th>#</th>
+                        {% for tech_name in extra_datas[0] %}
+                            <th>{{tech_name}}</th>
+                        {% endfor %}
                 </tr>
+            </thead>
+            <tbody >
+                {% for id,result in total_result.items() %}
+                    <tr>
+                        <th>{{extra_datas[1][id]}}</th>
+                        {% for data in result %}
+                            <td class="text-end summary-data-in-graph-report-table">{{data}}</td>
+                        {% endfor %}                    
+                    </tr>
 
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
+{% endif %}
 
+{% endblock %}
+
+{% block errorMessageDisplayer %}
+{{mgs}}
 {% endblock %}

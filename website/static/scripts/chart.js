@@ -1,78 +1,96 @@
-const workTime =[
+// Monthly report start
+monthsummaryData = [
     [
-        ['2023-10-01T08:30', '2023-10-01T11:30'],
-        ['2023-10-01T13:30', '2023-10-01T16:30']
-    ],
-    [
-        ['2023-10-01T08:30', '2023-10-01T11:30'],
-        ['2023-10-01T13:30', '2023-10-01T14:30']
-    ],
-]
-
-const labels = [
-    ['engine maintain', 'water pipe'],
-    ['engine maintain', 'water pipe', 'fuel check', 'tier replace'],
-    [],
-    ['engine maintain', 'water pipe', 'fuel check', 'tier replace', 'fuel check', 'tier replace','fuel check', 'tier replace','engine maintain', 'water pipe', 'fuel check', 'tier replace', 'fuel check', 'tier replace','fuel check'],
-]
-
-const callBack = {
-        label: function(context){
-            return context.dataset.data[context.dataIndex]
-        }
-    }
-
-// config 
-const config = {
-    type: 'bar',
-    data: {
-    datasets: [{
-                    label: 'Working Hour',
-                    barPercentage: 0.5,
-                    backgroundColor: [
-                        'rgba(233, 11, 12, 0.8)',
-                    ]
-                }
-            ]
+        ['Date', 'Work Hour', { role: 'annotation' }, 'Idle Hour', { role: 'annotation' }],
+        ['11/11/2023', 7, 'Label 1', 3, 'Label 2'],
+        // Add labels for each column
+        ['11/12/2023', 6, 'Label 3', 4, 'Label 4'],
+        ['11/13/2023', 8, 'Label 5', 2, 'Label 6'],
+        // Add more data as needed
+    ]
+];
+var monthsumoptions = {
+    height: 350,
+    chart: {
+        title: 'Daily Summary',
     },
-    options: {
-        indexAxis: 'y',
-        plugins: {
-            tooltip: {}
-        },
-        scales: {
-            x:{
-                type: 'time',
-                time: {
-                    unit: 'hour',
-                    stepSize: 0.5,
-                    displayFormats:{
-                        hour: 'H:mm'
-                    },
-                },
-                min: '2023-10-01T08:00', // Set the minimum time
-                max: '2023-10-01T18:00',
-                position: 'top',
-            },
-            y: {
-                beginAtZero: true
-            },
+    hAxis: {
+        title: "Dates",
+        ticks: [1, 2, 3, 4, 5, 6, 7, 8],
+        minValue: 0,
+        maxValue: 8
+    },
+    vAxis: {
+        title: "Hours",
+        ticks: [1, 2, 3, 4, 5, 6, 7, 8],
+        minValue: 0,
+        maxValue: 8
+    },
+    // Add annotations to display labels
+    annotations: {
+        textStyle: {
+            fontSize: 12,
         },
     },
 };
 
-const dailyReportTable = document.getElementById("dailyReportTable");
-const tableBodyChildrenCol = dailyReportTable.querySelector("tbody").children;
+// Monthly report end
 
-var i;
-for(i = 0; i < tableBodyChildrenCol.length ;i++){
-    const getCanvas = tableBodyChildrenCol[i].lastElementChild.querySelector('div').querySelector('canvas');
-    getCanvas.width = 400;
-    getCanvas.height = 150;
-    const chartConfig = JSON.parse(JSON.stringify(config));
-    chartConfig.data.labels = labels[i];
-    chartConfig.data.datasets[0].data = workTime[i];
-    chartConfig.options.plugins.tooltip.callbacks = callBack;
-    console.log(chartConfig);
-    const myChart = new Chart(getCanvas, chartConfig);
+// start drawing graph
+const currentURL = window.location.href;
+console.log(currentURL)
+if(currentURL.endsWith("/in-out")){
+    google.charts.load('current', {packages:['bar']});
+}
+
+google.charts.setOnLoadCallback(drawChart); 
+
+function drawChart(){
+    let dailyReportTable;
+    if(currentURL.endsWith("/in-out")){
+        dailyReportTable = document.getElementById("monthlyReportSum");
+    }
+    let tableBodyChildrenCol;
+    if(currentURL.endsWith("/in-out")){
+        tableBodyChildrenCol = dailyReportTable.querySelector("tbody").querySelectorAll("tr:nth-child(odd)");
+    }
+
+    var i;
+    for(i = 0; i < tableBodyChildrenCol.length; i++){
+        
+        var container = tableBodyChildrenCol[i].lastElementChild.querySelector("div");
+
+        if(currentURL.endsWith("/in-out")){
+            var chart = new google.charts.Bar(container);
+            container.style.width = "900px";
+            container.style.overflow = "auto";
+            container.style.margin = "0 auto";
+        }
+
+        
+        if(currentURL.endsWith("/in-out")){
+            console.log(monthsummaryData[i].length);
+            if(monthsummaryData[i].length > 9){
+                monthsumoptions.width = monthsummaryData[i].length * 100;
+                console.log(monthsumoptions.width);
+            }else{
+                monthsumoptions.width = 900;
+                console.log(monthsumoptions.width);
+            }
+            var options = monthsumoptions;
+        }
+        
+        if(currentURL.endsWith("/in-out")){
+            var data = google.visualization.arrayToDataTable(monthsummaryData[i]);
+
+            // Add annotations for the first and third columns
+            data.setColumnProperty(2, 'role', 'annotation');
+            data.setColumnProperty(4, 'role', 'annotation');
+            
+            var view = new google.visualization.DataView(data);
+            view.setColumns([0, 1, 2, 3, 4]);
+            
+            chart.draw(view, google.charts.Bar.convertOptions(options));
+        }
+    }
 }

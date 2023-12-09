@@ -23,13 +23,7 @@ function checkUsernameForget(btn){
 }
 
 function signOut(){
-    document.cookie = 'pg-username' + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = 'user_roles' + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location = '/auth/log'
-}
-if (window.location.href.includes("/auth")){
-    document.cookie = 'pg-username' + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = 'user_roles' + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
 function showDropdown(btn){              
     dropdownContent = btn.nextElementSibling
@@ -181,16 +175,17 @@ function exportTableToExcel() {
 }
 
 function addAnotherRow(td,for_check_in_out=false) {
+    let previousRowofTable = td.parentElement.parentElement.previousElementSibling;
     if (for_check_in_out){
-        const endTimeBtn = td.parentElement.previousElementSibling.children[5].querySelector("button");
-        const startTimeBtn = td.parentElement.previousElementSibling.children[4].querySelector("button");
+        const endTimeBtn = previousRowofTable.children[5].querySelector("button");
+        const startTimeBtn = previousRowofTable.children[4].querySelector("button");
         setTimeInput(startTimeBtn);
         setTimeInput(endTimeBtn);
     }
     let no_error = true
-    let inps = td.parentElement.previousElementSibling.getElementsByClassName("inp");
+    let inps = previousRowofTable.getElementsByClassName("inp");
     
-    td.parentElement.previousElementSibling.querySelectorAll("input.pic:not(.d-none)").forEach(pic => {
+    previousRowofTable.querySelectorAll("input.pic:not(.d-none)").forEach(pic => {
         if (pic.value.trim() == ""){
             no_error = false
         }
@@ -205,10 +200,51 @@ function addAnotherRow(td,for_check_in_out=false) {
         }
     }
 
+    
     if (no_error & !td.classList.contains("disabled")) {
-      let clonedRow = document.getElementById("willBeCloned").cloneNode(true);
-      clonedRow.classList.remove('d-none')
-      td.parentElement.parentNode.insertBefore(clonedRow, td.parentElement);
+        // checking duplicates technicians in the same time
+        if (for_check_in_out){
+            let techId = previousRowofTable.getElementsByClassName("pic_id")[0].value
+            console.log(techId)
+            let startTime = previousRowofTable.children[4].children[0].value
+            let endTime = previousRowofTable.children[5].children[0].value
+            let dateValue = document.getElementsByClassName("date-error-input")[0].value;
+            console.log(startTime)
+            console.log(dateValue)
+            const serverData = {
+                job_date: dateValue,
+                tech_id: techId,
+                start_time: startTime,
+                end_time: endTime
+              };
+              
+            fetch('/import/keep-in-import/check-in-out-techs', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(serverData),
+            })
+            .then(response => response.json())
+            .then(result => {
+                no_error = true 
+                if(result[0] == '0'){
+                    let asking = confirm("Another Job was assigned to the technician. Assign another Job??")
+                    no_error = asking ? true : false;
+                }
+                if (no_error){
+                    let clonedRow = document.getElementById("willBeCloned").cloneNode(true);
+                    clonedRow.classList.remove('d-none')
+                    td.parentElement.parentElement.parentNode.insertBefore(clonedRow, td.parentElement.parentElement);  
+                }
+
+            })
+            .catch(error => console.error('Error:', error));
+        }else{
+            let clonedRow = document.getElementById("willBeCloned").cloneNode(true);
+            clonedRow.classList.remove('d-none')
+            td.parentElement.parentElement.parentNode.insertBefore(clonedRow, td.parentElement.parentElement);            
+        }
     }
 }
 
@@ -226,15 +262,18 @@ function sumUpTotals(inp){
     total_txt[1].children[0].value = total.toFixed(2)
 }
 
-function deleteJobRow(btn,bool,for_check_in_out=false){
-    if (bool && btn.parentElement.parentElement.children.length > 3 && !btn.classList.contains("disabled")){
-        if(confirm("Are you sure want to delete the data?")){     
-            btn.parentElement.remove()   
+function deleteJobRow(btn,for_check_in_out=false){
+    console.log(btn.parentElement.parentElement.parentElement.children.length)
+    if (btn.parentElement.parentElement.parentElement.children.length > 3){
+        if(confirm("Are you sure you want to delete the data?")){
+            btn.parentElement.parentElement.remove()
             if (for_check_in_out){
                 let clickedBtn = document.getElementsByClassName("timeEndBtn")[1]
-                setTimeInput(clickedBtn);
+                setTimeInput(clickedBtn);                
             }
         }
+    }else{
+        alert("You must edit the data for the remaining first row rather than deleting that row..")
     }
 }
 
@@ -261,7 +300,7 @@ function checkVehiclePlate(inp,what,for_check_in_out=false){
         .then(response => response.json() )
         .then(result => {
             console.log(result)
-            if(result.length > 0){
+            if(result.length > 0 && result[0][result[0].length-1] == 't'){
                 let lst = document.getElementsByClassName('list-group-vehicle-information')[0]
                 lst.innerHTML = ""
                 let i = 1
@@ -291,6 +330,18 @@ function checkVehiclePlate(inp,what,for_check_in_out=false){
                 document.getElementById("vehicleInformation").value = data[9]
                 let modalClicker = document.getElementsByClassName("validateModal")
                 modalClicker[0].click()
+            }else if(result.length > 0 && result[0][result[0].length-1] == 'f'){
+                document.getElementById("vehicleInformation").value = result[0][0]
+                let allinputs = Array.from(document.getElementsByClassName("autoFillByVehicle"))
+                if (allinputs.length > 4){
+                    allinputs = [allinputs[3],allinputs[5],allinputs[6]]
+                }
+                console.log(allinputs)
+                for (let idx in allinputs){
+                    idx = Number(idx)
+                    allinputs[idx].value = result[0][idx+1]
+                    allinputs[idx].setAttribute("disabled", "")
+                }
             }else{
                 if (confirm("Would you like to create a new vehicle?")){
                     document.querySelectorAll(".autoFillByVehicle").forEach(val => {
@@ -365,9 +416,9 @@ function autoFillByCustomer(inp){
     .catch(err => console.log(err))
 }
 
-function checkAllServiceDatas() {
+function checkAllServiceDatas(forWhat="not-approve") {
     let picRows = document.querySelectorAll('#table-body-of-pic tr:not(.d-none) .pic:not(.d-none),.form-area .upperPic');
-    let allRows = document.querySelectorAll('.input-sec input:not([hidden]):not([disabled]),#table-body-of-pic tr:not(.d-none) .inp');
+    let allRows = document.querySelectorAll('.input-sec input:not([hidden]):not([disabled]):not(.not-required-input),#table-body-of-pic tr:not(.d-none) .inp');
     let promises = [];
     let notDNone = document.querySelectorAll("#table-body-of-pic tr:not(.d-none)")
     for (let i = 0;i < notDNone.length-1;i++){
@@ -386,6 +437,7 @@ function checkAllServiceDatas() {
             promises.push(Promise.resolve(true));
         }
     }
+
     let model_name = document.getElementById("model")
     if (model_name.value.trim() != ""){
         promises.push(
@@ -407,36 +459,24 @@ function checkAllServiceDatas() {
             })
         );
     }
+    
+    shop_value = document.getElementsByClassName("specific-shop-id-in-form")[0].value
+    date_value = document.getElementsByClassName("date-error-input")[0].value
     // Validate picRows inputs
     for (let pic of picRows) {
-        if (pic.value.trim() == "") {
+        if (pic.value.trim() == "" || shop_value.trim() == '0' || date_value.trim() == '') {
             pic.setAttribute('style', 'border: 2px solid red;');
             promises.push(Promise.resolve(false));
-        } else {
-            shop_value = document.getElementById("temp_shop_id").textContent
-            console.log(shop_value)
-            promises.push(
-                fetch(`/get-data/check-technician/${pic.value}|${shop_value}`)
-                .then(response => response.json())
-                .then(result => {
-                    if (result.length != 1) {
-                        pic.setAttribute('style', 'border: 2px solid red;');
-                        return false;
-                    } else {
-                        return true;
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                    return false;
-                })
-            );
         }
     }
 
     Promise.all(promises).then(results => {
         let no_error = results.every(result => result);
-
+        if (forWhat == 'approve'){
+            document.querySelectorAll(".approve-data").forEach(inp => {
+                inp.removeAttribute("disabled");
+            })
+        }
         if (no_error) {
             document.getElementById("service-data-input-form").submit();
         }
@@ -444,23 +484,33 @@ function checkAllServiceDatas() {
 }
 
 
-offsetLimit  = 81
-function clickPagination(target,txt){
+let offsetLimit  = 81
+function clickPagination(target,txt,shop_id=0){
     target_mapp = {"job":"job-data-changeable",
               "vehicles":"vehicle-data-changeable",
-              "customers":"customer-data-changeable"}
+              "customers":"customer-data-changeable",
+              "descriptions":"tree-data-changeable",
+              "jobType":"tree-data-changeable",
+              "technician":"tree-data-changeable",
+              "psfuCall":`shop-psfu-${shop_id}-data-changeable`,}
+    console.log(target)
     all_tr = document.getElementsByClassName(target_mapp[target])
+    offsetLimit = target == 'psfuCall' ? 20 : 81
     let display_amt_holder = document.getElementById("paginate-amount")
+    if (target == 'psfuCall'){
+        display_amt_holder = document.getElementById(`${shop_id}-paginate-amount`)
+    }
     if (txt == 'prev'){
         let displayAmt = display_amt_holder.textContent.trim().split("/")
         getTotal = displayAmt[1]
         last = displayAmt[0].split("-")[1]
         fst = Number(displayAmt[0].split("-")[0])
+        let offset_var = target == 'psfuCall' ? `${fst-(offsetLimit+1)}~${shop_id}` : `${fst-(offsetLimit+1)}`
         if (fst != 1){
-            fetch(`/offset-display/${target}/${fst-82}`)
+            fetch(`/offset-display/${target}/${offset_var}`)
             .then(response => response.json())
             .then(result => {
-                display_amt_holder.textContent = `${fst-81}-${fst-1} / ${getTotal}`
+                display_amt_holder.textContent = `${fst-offsetLimit}-${fst-1} / ${getTotal}`
                 replaceTableData(result,target)
             })
             .catch(err => console.log(err))
@@ -470,17 +520,18 @@ function clickPagination(target,txt){
         let displayAmt = display_amt_holder.textContent.trim().split("/")
         getTotal = Number(displayAmt[1])
         last = Number(displayAmt[0].split("-")[1])
+        let offset_var = target == 'psfuCall' ? `${last}~${shop_id}` : `${last}`
         if (last != getTotal){
-            fetch(`/offset-display/${target}/${last}`)
+            fetch(`/offset-display/${target}/${offset_var}`)
             .then(response => response.json())
             .then(result => { 
                 if (target == 'job') {         
                     formattedDate = new Date(result[0][1]).toISOString().substr(0, 10);
                 }
-                if(last+82 > Number(getTotal)){
+                if(last+(offsetLimit+1) > Number(getTotal)){
                     display_amt_holder.textContent = `${last+1}-${getTotal} / ${getTotal}`
                 }else{
-                    display_amt_holder.textContent = `${last+1}-${last+81} / ${getTotal}`
+                    display_amt_holder.textContent = `${last+1}-${last+offsetLimit} / ${getTotal}`
                 }
                 replaceTableData(result,target)
             })
@@ -492,6 +543,7 @@ function clickPagination(target,txt){
 function replaceTableData(result,target) {
     let i = 0;
     for (i = 0; i < result.length; i++) {
+        all_tr[i].classList.remove("d-none")
         if (target == 'job'){
             all_tr[i].setAttribute('onclick',`redirectToFormEdit('${result[i][4]},${result[i][result[i].length - 1]}','eachJob')`)
             tds = all_tr[i].getElementsByTagName('td');
@@ -500,18 +552,39 @@ function replaceTableData(result,target) {
             ? new Date(result[i][index]).toISOString().substr(0, 10)
             : result[i][index];
             });
+        }
+        else if(target == "descriptions" || target == "jobType" || target == "technician"){
+            tds = all_tr[i].getElementsByTagName('td');
+            tds[0].children[0].value = result[i][0]
+            for (let ij=1;ij<tds.length-1;ij++) {
+                tds[ij].textContent = result[i][ij]
+            }
+            tds[tds.length-1].setAttribute("onclick", `deleteLineDataFromViewForm('${result[i][0]}','${target}')`)
+        }else if (target == "psfuCall"){
+            tds = all_tr[i].getElementsByTagName('td');
+            if (tds[0].classList.contains("line-through")){
+                for(let tdd of tds){
+                    tdd.classList.remove("line-through")
+                }
+            }
+            tds[0].textContent = new Date(result[i][1]).toISOString().substr(0, 10)
+            tds[1].textContent = result[i][0]
+            tds[2].textContent = result[i][2]
+            tds[3].textContent = result[i][3]
+            tds[4].textContent = result[i][4]
+            tds[6].children[1].value = ""
+            tds[7].children[0].value = result[i][6]
+            tds[8].children[0].setAttribute("onclick", `redirectToFormEdit('${result[i][5]}','eachJob')`)
         } else{
             all_tr[i].setAttribute('onclick',`redirectToFormEdit('${result[i][0]}','${target.slice(0,-1)}')`)
             tds = all_tr[i].getElementsByTagName('td');
             Array.from(tds).forEach((td, index) => { td.innerText = result[i][index+1]; });        
         }
     }
-    
     for (i = i;i < all_tr.length;i++){
-        tds = all_tr[i].getElementsByTagName('td');
-        Array.from(tds).forEach((td, index) => { td.innerText = ""; });        
+        all_tr[i].classList.add("d-none")        
     }
-    console.log(all_tr)
+    // console.log(all_tr)
 }
 
 function typeSthInDropdown(inp){
@@ -537,9 +610,8 @@ function addValForTable(col){
 
 function redirectToFormEdit(dt,table){
     let column = document.getElementById('column')
-    let table_column = {'eachJobs':'job_no','customer':'name','vehicle':'plate'}
+    let table_column = {'eachJobs':'job_no','customer':'name','vehicle':'plate','check-in-out':'id','technician':'id','psfu-calls':'id'}
     column.value = table_column[table]
-
     if (column.nextElementSibling.classList.contains("rounded")){
         column.nextElementSibling.value = dt
     }else{
@@ -548,7 +620,6 @@ function redirectToFormEdit(dt,table){
     document.getElementById('editOrSubmit').value = 'True'
     console.log(column.parentElement)
     column.parentElement.parentElement.submit()
-
 }
 
 function deleteAllServiceDatas(idd,db){
@@ -622,10 +693,17 @@ function showBtnAndRemoveDisabled(btn){
     document.querySelectorAll(".let-edit-user").forEach(inp => {
         inp.disabled = false
     })
-    for (let delBtn of  document.querySelectorAll(".disabled-for-delete")){
-        delBtn.classList.remove("disabled")
+    for (let delBtn of document.querySelectorAll(".disabled-for-delete")){
+        delBtn.removeAttribute("disabled")
+    }
+    if (btn.classList.contains("for-check-in-out")){
+        document.getElementById("approve-btn").classList.add("d-none")
     }
     btn.classList.add('d-none')
+    approve_btn = document.getElementById("approve-input")
+    if (approve_btn){
+        approve_btn.setAttribute("disabled", "")
+    }
 }
 
 var temp_datas_for_replace_input = []
@@ -750,19 +828,44 @@ function regexForPicRate(inp){
     inp.value = inp.value.replace(/[^0-9,]/g, '');
 }
 
-function showAssociatedShopAndTechnician(inp){
-    document.getElementById("temp_shop_id").textContent = inp.value
-    fetch(`/get-data/show-technician-shop/${inp.value}`)
-    .then(response => response.json())
-    .then(result => {
-        document.getElementById("shop").value = inp.value
-        let techDataList =  document.getElementById("datalistOptions")
-        techDataList.innerHTML = ""
-        result.forEach(tech => {
-            techDataList.innerHTML += `<option value="${tech[0]}"/>`
+function showAssociatedShopAndTechnician(){
+    let date_value = document.getElementsByClassName("date-error-input")[0].value
+    let shop_value = document.getElementsByClassName("specific-shop-id-in-form")[0]
+    let picRows = document.querySelectorAll('#table-body-of-pic tr:not(.d-none) .pic:not(.d-none),.form-area .upperPic')
+    if (date_value.trim() == ""){
+        alert("Please choose  date to get real time information of technicians..")
+        shop_value.value = "0"
+    }else if(date_value.trim() != "" && shop_value.value.trim() != "0" && shop_value.value.trim() != ""){
+        fetch(`/get-data/show-technician-shop/${shop_value.value}~~${date_value}`)
+        .then(response => response.json())
+        .then(result => {
+            if (document.getElementsByClassName("date-error-input")[0].classList.contains("for-tech-leaves")){
+                let techSelectList = document.getElementById("availableList")
+                techSelectList.innerHTML = ""
+                result.forEach(tech => {
+                    techSelectList.innerHTML += `<div><span>${tech[0]}</span><input value="${tech[1]}" type="checkbox"></div>`
+                })
+                document.getElementById("selectedList").querySelectorAll("div").forEach(divv => {
+                    if (divv.getAttribute("hidden") == null){
+                        divv.remove()
+                    }
+                })
+            }else{
+                document.getElementById("shop").value = shop_value.value
+                let techDataList =  document.getElementById("datalistOptions")
+                techDataList.innerHTML = ""
+                result.forEach(tech => {
+                    techDataList.innerHTML += `<option value="${tech[0]}" data-id="${tech[1]}"/>`
+                })
+                for (let eachRow of picRows){
+                    eachRow.value = ""
+                    // Manually trigger the onchange event
+                    eachRow.dispatchEvent(new Event('change'));
+                }
+            }
         })
-    })
-    .catch(err => console.log(err))
+        .catch(err => console.log(err))
+    }
 }
 
 function customerVehicleSubmit(){
@@ -919,14 +1022,30 @@ function showHiddenInputBrand(){
 }
 
 function tickThePsfuCall(tick){
-    console.log(tick.value)
-    fetch(`/get-data/removeCall/${tick.value}`)
-    .then(response => {
-        if (response.status == 200){
-            tick.disabled = true;
+    let wholeTr = tick.parentElement.parentElement
+    console.log(wholeTr)
+    let status_id = wholeTr.querySelector("#status_id").value.trim()
+    if (status_id == ''){
+        alert("Please select PSFU status..")
+        tick.checked = false;
+    }else{
+        if(confirm("Are you sure want to close this call?")){
+            console.log(tick.value)
+            fetch(`/get-data/postPsfuCall/${wholeTr.querySelector("#psfu_id").value}||${status_id}||${wholeTr.querySelector("#remark").value}`)
+            .then(response => {
+                if (response.status == 200){
+                    const tableData = tick.parentElement.parentElement.children;
+                    for(let i = 0; i < tableData.length; i++){
+                        tableData[i].classList.toggle("line-through");
+                    };
+                    tick.disabled = true;
+                }
+            })
+            .catch(err => console.log(err))
+        }else{
+            tick.checked = false;
         }
-    })
-    .catch(err => console.log(err))
+    }
 }
 
 function checkRegisteredUser(idd,what){
@@ -1030,21 +1149,27 @@ function setTimeInput(startBtn){
     const currentMin = currentDate.getMinutes();
 
     console.log(hourInpElement.value,hourInpElement.value.length)
-    if (hourInpElement.value == "" || hourInpElement.value == "0"){
-        if(currentHour >= 12){
+    if (hourInpElement.value == "" || (parseInt(hourInpElement.value) == 0 && minInpElement.value.trim() == "")) {
+        if(currentHour > 12){
             ampmchooser.value = "pm"
             hourInpElement.value = currentHour - 12;
         }else{
-            ampmchooser.value = "am"
+            ampmchooser.value = currentHour < 12 ? "am" : "pm"
             hourInpElement.value = currentHour;
         } 
     }
+    
+    if (hourInpElement.value == "12"){
+        ampmchooser.value = "pm"       
+    }else if(hourInpElement.value == "0"){
+        ampmchooser.value = "am"
+    }
 
-    if (minInpElement.value == "" || minInpElement.value == "0"){
+    if (minInpElement.value == "" || (parseInt(minInpElement.value) == 0 && hourInpElement.value.trim() == "")){
         minInpElement.value = currentMin;
     }
 
-    startBtn.previousElementSibling.value = ampmchooser.value == "pm"
+    startBtn.previousElementSibling.value = ampmchooser.value == "pm" & hourInpElement.value != "12"
     ? `${String(parseInt(hourInpElement.value) + 12).padStart(2, '0')}:${String(minInpElement.value).padStart(2, '0')}`
     : `${String(hourInpElement.value).padStart(2, '0')}:${String(minInpElement.value).padStart(2, '0')}`;
   
@@ -1052,3 +1177,215 @@ function setTimeInput(startBtn){
 
     calculatDuration(startBtn)
 }
+
+function CheckIdFromOneToOne(inp){
+    let inpVal = inp.value
+    let is_valid = '00'
+    console.log(inp.list.getElementsByTagName('option'))
+    for (let opt of inp.list.getElementsByTagName('option')){
+        if (inpVal == opt.value){
+            is_valid = opt.getAttribute('data-id')
+            inp.nextElementSibling.value = is_valid
+            break;
+        }
+    }
+    if (is_valid == '00'){
+        inp.value = ""
+        inp.nextElementSibling.value = "-1"
+    }
+    console.log(inp.nextElementSibling.value)
+}
+
+// technician transfer form
+
+//Techanician Nav Change Function
+function navChange(btn){
+    const changeShop = document.getElementById("changeShop");
+    const shopHistory = document.getElementById("shopHistory");
+    const leaveForm = document.getElementById("leaveForm");
+    console.log(btn,btn.nextElementSibling);
+    if(btn.classList.contains("shopHistoryNav")){
+        if(shopHistory.classList.contains("d-none")){
+            shopHistory.classList.remove("d-none");
+            btn.classList.add("active");
+            btn.nextElementSibling.classList.remove("active");
+            btn.nextElementSibling.nextElementSibling.classList.remove("active");
+            changeShop.classList.add("d-none");
+            leaveForm.classList.add("d-none");
+        }
+    }else if(btn.classList.contains("changeShopNav")){
+        if(changeShop.classList.contains("d-none")){
+            changeShop.classList.remove("d-none");
+            btn.classList.add("active");
+            btn.previousElementSibling.classList.remove("active");
+            btn.nextElementSibling.classList.remove("active");
+            shopHistory.classList.add("d-none");
+            leaveForm.classList.add("d-none");
+        }
+    }else if(btn.classList.contains("leaveFormNav")){
+        if(leaveForm.classList.contains("d-none")){
+            leaveForm.classList.remove("d-none");
+            btn.classList.add("active");
+            btn.previousElementSibling.classList.remove("active");
+            btn.previousElementSibling.previousElementSibling.classList.remove("active");
+            changeShop.classList.add("d-none");
+            shopHistory.classList.add("d-none");
+        }
+    }
+}
+
+
+function changeTabOver(btn, idd){
+    const visibleObject = document.getElementById(idd);
+    const allTabs = document.querySelectorAll('.eachTab')
+    const tabLists = document.querySelectorAll(".tab-list");
+    allTabs.forEach((allTab) => {
+            allTab.classList.add("d-none")
+    })
+    tabLists.forEach((tabList) => {
+            tabList.classList.remove("active");
+    })
+    btn.classList.add('active')
+    console.log(visibleObject)
+    visibleObject.classList.remove('d-none')
+}
+
+// techanician edit btn function
+function showTechnicianInput(btn){
+    const techanicianDetailCard = document.getElementById("techanichianDetailCard");
+    const hiddeninput = techanicianDetailCard.querySelectorAll("input");
+    const currentValue = techanicianDetailCard.querySelectorAll("span");
+
+    if(btn.innerText == "Edit"){
+        btn.classList.add("d-none");
+        btn.nextElementSibling.classList.remove("d-none");
+        btn.nextElementSibling.nextElementSibling.setAttribute("onclick","removeTechnicianInput(this)")
+        btn.nextElementSibling.nextElementSibling.children[0].setAttribute("onclick", "return false;")
+        currentValue[0].hidden = true;
+        hiddeninput[0].value = currentValue[0].innerText;
+        hiddeninput[0].classList.remove("d-none");
+    }
+}
+
+function removeTechnicianInput(btn){
+    const techanicianDetailCard = document.getElementById("techanichianDetailCard");
+    const hiddeninput = techanicianDetailCard.querySelectorAll("input");
+    const currentValue = techanicianDetailCard.querySelectorAll("span");
+    btn.previousElementSibling.previousElementSibling.classList.remove("d-none");
+    btn.previousElementSibling.classList.add("d-none");
+    btn.children[0].removeAttribute("onclick");
+    currentValue[0].hidden = false;
+    hiddeninput[0].classList.add("d-none");
+
+}
+
+// leavees 
+
+
+function gotoform(clickedTab){
+    const leaveForm = document.getElementById("leaveForm");
+    clickedTab.parentElement.style.display = "none";
+    leaveForm.style.display = "grid";
+    if(clickedTab.innerText == "Leave"){
+        leaveForm.children[1].children[2].style.display = "none";
+    }else{
+        leaveForm.children[0].children[4].style.display = "none";
+        leaveForm.children[0].children[4].removeAttribute("required")
+
+        leaveForm.children[1].children[0].style.display = "none";
+
+        leaveForm.children[1].children[1].style.display = "none";
+        leaveForm.children[1].children[1].removeAttribute("required")
+
+        document.getElementById("shopListInModal").classList.remove("d-none")
+    }
+}
+
+function addToList(){
+    let shopAvailableList = document.getElementById("shopListInModal")
+    const availableList = shopAvailableList.classList.contains("d-none") ?  document.getElementById('availableList') : shopAvailableList;
+    const selectedList = document.getElementById("selectedList");
+
+    let i;
+    for(i = 0; i < availableList.children.length; i++){
+        if(availableList.children[i].querySelector("input").checked == true && !availableList.children[i].hidden){
+            availableList.children[i].hidden = true;
+            let theName = availableList.children[i].querySelector("span").innerText;
+            let clonedDiv = selectedList.querySelector("div[hidden]").cloneNode(true);
+            clonedDiv.removeAttribute("hidden");
+            clonedDiv.querySelector("span").innerText = theName;  
+            clonedDiv.querySelector("input").value = availableList.children[i].querySelector("input").value
+            selectedList.append(clonedDiv);
+        }
+    }
+    document.getElementById("multipleSelectModal").querySelector("input[type='search']").value = ""
+    let y;
+    for(y = 0; y < availableList.children.length; y++){
+        if(!availableList.children[y].hidden){
+            availableList.children[y].style.display = "";
+        }
+    }    
+    document.getElementById("modalCloseBtn").click();
+}
+
+function deleteParentDiv(btn){
+    let shopAvailableList = document.getElementById("shopListInModal")
+    const availableList = shopAvailableList.classList.contains("d-none") ?  document.getElementById('availableList') : shopAvailableList;
+    console.log(availableList)
+    for(i = 0; i < availableList.children.length; i++){
+        if(btn.previousElementSibling.previousElementSibling.innerText == availableList.children[i].querySelector("span").innerText && availableList.children[i].hidden == true){
+            availableList.children[i].removeAttribute("hidden");
+            availableList.children[i].querySelector("input").checked = false;
+        }
+    }
+    btn.parentElement.remove();
+}
+
+// search feature of modal box
+function searchavailableList(inp){
+    const availableList = document.getElementById('availableList');
+    if(inp.value.length > 0){
+        let x;
+        for(x = 0; x < availableList.children.length; x++){
+            let eachlistText = availableList.children[x].querySelector("span").innerText;
+            if(!eachlistText.trim().toUpperCase().includes(inp.value.toUpperCase())){
+                availableList.children[x].style.display = "none";
+            }else{
+                availableList.children[x].style.display = "";
+            }
+        }
+    }else{
+        let y;
+        for(y = 0; y < availableList.children.length; y++){
+            if(!availableList.children[y].hidden){
+                availableList.children[y].style.display = "";
+            }
+        }
+    }
+}
+
+// leave report dropdown feature
+function droppingFilter(btn){
+    const dropdown = document.getElementsByClassName("filter_dropdown");
+    let i;
+    for(i = 0 ; i < dropdown.length; i++){
+        dropdown[i].style.display = "none";
+    }
+    
+    if(btn.nextElementSibling.style.display == "none"){
+        btn.nextElementSibling.style.display = "";
+    }else if(btn.nextElementSibling.style.display = ""){
+        btn.nextElementSibling.style.display = "none";
+    }
+}
+
+
+// window.addEventListener("click", function(e){
+//     const dropdown = document.getElementsByClassName("filter_dropdown");
+//     if(!e.target.classList.contains("filter_btn")){
+//         let i;
+//         for(i = 0 ; i < dropdown.length; i++){
+//             dropdown[i].style.display = "none";
+//         }
+//     }
+// })

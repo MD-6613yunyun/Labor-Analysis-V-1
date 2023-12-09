@@ -34,7 +34,7 @@ Create Form
             </div>
             <div class="each-input">
                 <label for="">Date</label>
-                <input name="jobDate" autocomplete="off"  required type="date" class="date-error-input ">
+                <input name="jobDate" autocomplete="off" onchange="showAssociatedShopAndTechnician()"  required type="date" class="date-error-input">
             </div>
             <div class="each-input">
                 <label for="">Name</label>
@@ -93,22 +93,21 @@ Create Form
                     {% endfor %}
                 </select>
             </div>
-            {% set user_roles = request.cookies.get('user_roles') %}
             <div class="each-input">
                 <label for="unit">Business Unit</label>
                 <select name="unit" class="vehicle-box" id="unit">
-                    {% if '1' in user_roles or '2' in user_roles or '3' in user_roles%}<option value="1">PIT & GO</option>{% endif %}
-                    {% if '4' in user_roles %}<option value="2">TOYOTA</option>{% endif %}
+                    {% for data in b_units %}
+                        <option value="{{data[0]}}">{{data[1]}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="each-input">
                 <span id="temp_shop_id" class="d-none">3</span>
                 <label for="shop">Shop</label>
-                <select name="shop" onchange="showAssociatedShopAndTechnician(this)" class="vehicle-box" id="shop">
-                    {% if '3' in user_roles %}<option value="3">PIT & GO BAWGA</option>{% endif %}
-                    {% if '1' in user_roles %}<option value="1">PIT & GO BGO</option>{% endif %}
-                    {% if '2' in user_roles %}<option value="2">PIT & GO SKP</option>{% endif %}
-                    {% if '4' in user_roles %}<option value="4">TOYOTA SKP</option>{% endif %}
+                <select name="shop" onchange="showAssociatedShopAndTechnician()" class="vehicle-box specific-shop-id-in-form" id="shop">
+                    {% for data in credentials %}
+                        <option value="{{data[2]}}">{{data[3]}}</option>
+                    {% endfor %}
                 </select>
             </div>
         </div>
@@ -135,7 +134,7 @@ Create Form
                         {% endfor %}
                     </datalist>                 
                     <tr id="willBeCloned" class="d-none">
-                        <td onclick="deleteJobRow(this,true)"><i class="fa-solid fa-trash-can"></i></td>
+                        <td><button type="button" onclick="deleteJobRow(this,for_check_in_out=false)"><i class="fa-solid fa-trash-can"></i></button></td>
                         <td><input type="text" name="description" onkeyup="changeToUpperCaseInput(this)" class="inp" autocomplete="off"></td>
                         <td>
                             <select name="pic-rate" class="inp" onchange="storeValueFromListToHiddenInput(this)">
@@ -161,7 +160,7 @@ Create Form
                         <td class="d-none"><input type="text" name="picrow"></td>
                     </tr>
                     <tr>
-                        <td onclick="deleteJobRow(this,false)"><i class="fa-solid fa-trash-can"></i></td>
+                        <td><button type="button" onclick="deleteJobRow(this,for_check_in_out=false)"><i class="fa-solid fa-trash-can"></i></button></td>
                         <td><input type="text" required  name="description" onkeyup="changeToUpperCaseInput(this)" class="inp" autocomplete="off"></td>
                         <td>
                             <select name="pic-rate" class="inp" onchange="storeValueFromListToHiddenInput(this)">
@@ -187,8 +186,8 @@ Create Form
                         <td class="d-none"><input type="text" name="picrow"></td>
                     </tr>
                     <tr>
-                        <td colspan="8" class="add-job-row" onclick="addAnotherRow(this)">
-                            <button type="button" class="btn btn-outline-dark btn-sm">Add Job +</button>
+                        <td colspan="8" class="add-job-row">
+                            <button type="button" onclick="addAnotherRow(this)" class="btn btn-outline-dark btn-sm">Add Job +</button>
                         </td>
                         <td class="d-none"><input type="number" value="0.0" step=".01" class="total-amount" name="totalCost"></td>
                         <td class="total-label"><b>Total</b></td>
@@ -234,12 +233,129 @@ Create Form
         </div>
     </form>
 
+    {% elif typ == 'leaves' %}
+
+    
+    <h1 class="text-center py-2">Leave Form</h1>
+
+    <div id="selectionBox">
+        <a class="nav-link text-start" href="{{url_for('views.show_service_datas',typ=typ)}}"><i class="fa-solid fa-circle-left ms-4 fs-5 text-white"></i></a>
+        <h3 class="text-center" style="margin-top: -30px;"><b>Choose Leave Type</b></h3>
+        <p title="ပုံမှန်ဝန်ထမ်းခွင့်" onclick="gotoform(this)">Leave</p>
+        <p title="ဆိုင်ပိတ်ရက်" onclick="gotoform(this)">Shop Close</p>
+    </div> 
+
+    <form action="{{url_for('imports.keep_in_import',typ=typ)}}" method="POST">
+        <div id="leaveForm" class="">
+            <!-- left side -->
+            <div>
+                <div class="text-start p-0 ms-2 mt-2">
+                    <a class="nav-link" href="{{url_for('imports.show_create_form',typ=typ)}}"><i class="fa-solid fa-circle-left ms-4 fs-5 text-white"></i></a>
+                </div>
+                <!-- Start Date -->
+                <div style="margin-top: -20px;">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" onchange="showAssociatedShopAndTechnician()"  name="startDate" class="date-error-input for-tech-leaves" required>
+                </div>
+                <!-- End Date -->
+                <div style="margin-top: -10px;">
+                    <label for="endDate">End Date</label>
+                    <input type="date" name="endDate"  required> 
+                </div>
+                <!-- Duration -->
+                <select required class="mt-2" name="duration" id="duration" >
+                    <option value="" selected disabled>Duration</option>
+                    <option value="1">Whole    Day</option>
+                    <option value="2">Half Morning</option>
+                    <option value="3">Half Evening</option>
+                </select>
+                <!-- Shop -->
+                <select required  name="shop" id="shop" class="specific-shop-id-in-form mt-3 mb-1" onchange="showAssociatedShopAndTechnician()">
+                    <option value="" selected disabled>Select Shop</option>
+                    {% for data in credentials %}
+                    <option value="{{data[2]}}">{{data[3]}}</option>
+                    {% endfor %}
+                </select>
+                <!-- Remark -->
+                <div class="mb-2">
+                    <label for="remark">Remark</label>
+                    <input type="text" autocomplete="off" id="remark" name="remark" class="" required> 
+                </div>
+                <!-- save button -->
+                <div>
+                    <button type="submit">Save</button>
+                </div>
+            </div>
+            <!-- right side -->
+            <div>
+                <div id="addTechanicianDiv" class="mt-4">
+                    <button type="button" data-bs-target="#multipleSelectModal" data-bs-toggle="modal" style="background-color: white; color: black;box-shadow: 0px 0px 3px rgb(6, 6, 6);">Click to Add Techanician</button>
+                </div>
+                <select class="mt-2 mb-2" required name="leave-type-id" id="" style="background-color: white; color: black;box-shadow: 0px 0px 3px rgb(6, 6, 6);">
+                    <option value="" disabled selected>Select Leave Type</option>
+                    {% for data in result[3] %}
+                    <option value="{{data[0]}}">{{data[1]}}</option>
+                    {% endfor %}
+                </select>
+                <div>
+                    <button type="button" data-bs-target="#multipleSelectModal" data-bs-toggle="modal" style="background-color: white; color: black;box-shadow: 0px 0px 3px rgb(6, 6, 6);">Click to Add Shop</button>
+                </div>
+                <div id="selectedList">
+                    <div hidden>
+                        <span></span>
+                        <input type="number" value="" name="tech" hidden>
+                        <i class="fa-solid fa-rectangle-xmark text-danger" onclick="deleteParentDiv(this)"></i>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </form> 
+
+
+
+    <!-- modal box -->
+    <div class="modal fade" id="multipleSelectModal" aria-hidden="true" style="z-index: 10000">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="modalTitle">Select Techanician</h3>
+                    <button id="modalCloseBtn" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input type="search" class="form-control" placeholder="Search" oninput="searchavailableList(this)">
+                    </div>
+                    <!-- tech select list -->
+                    <div id="availableList"></div>
+                    <div id="shopListInModal" class="d-none">
+                        {% for data in credentials %}
+                        <div>
+                            <span>{{data[3]}}</span>
+                            <input name="shops" value="{{data[2]}}" type="checkbox">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" onclick="addToList()">Add+</button>
+                </div>
+            </div>    
+        </div> 
+    </div>
+
     {% elif typ == 'check-in-out' %}
+
+    <datalist id="descriptionsListOptions">
+        {% for desc in result[8] %}
+            <option value="{{desc[1]}}" data-id="{{desc[0]}}"></option>
+        {% endfor %}
+    </datalist>
 
     <div class="submit-discard">
         <div>
             <button class="submit-btn"  type="button" onclick="checkAllServiceDatas()">Submit</button>
-            <button class="discard-btn" onclick=""><a class="nav-link" href="{{url_for('views.show_service_datas',typ='service-datas')}}">Discard</a></button>
+            <button class="discard-btn" onclick=""><a class="nav-link" href="{{url_for('views.show_service_datas',typ='check-in-out')}}">Discard</a></button>
+            <button class="btn btn-outline-secondary"  type="button" onclick="checkAllServiceDatas()">{{result[9]}}</button>
         </div>
     </div>
     <datalist id="datalistOptions">
@@ -248,6 +364,7 @@ Create Form
         {% endfor %}
     </datalist> 
     <form id="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='check-in-out')}}" method="post">
+        <input type="text" value="None" hidden name="status"/>
         <div class="input-sec">
             <div class="each-input">
                 <label for="regState">Vehicle Register No</label>
@@ -260,14 +377,15 @@ Create Form
                 <input name="regDigits" id="regDigits" onchange="checkVehiclePlate(this,'digit',for_check_in_out=true)" required autocomplete="off" type="number" onkeyup="checkRegNumber(this,4)" class="text-two required-fields">
                 <input id="vehicleInformation" name="vehicleInformation" value="0" hidden/>
                 <input id="customerInformation" name="customerInformation" value="0" hidden/>
+                <input type="text" value="{{result[9]}}" id="form_seq" name="form_seq" hidden/>
             </div>
             <div class="each-input">
                 <label for="">Date</label>
-                <input name="jobDate" autocomplete="off"  required type="date" class="date-error-input ">
+                <input name="jobDate" autocomplete="off" onchange="showAssociatedShopAndTechnician()" required type="date" class="date-error-input">
             </div>
             <div class="each-input">
                 <label for="">Job No</label>
-                <input autocomplete="off" name="jobNo"  onkeyup="changeToUpperCaseInput(this)" required type="text">
+                <input autocomplete="off" class="not-required-input" name="jobNo"  onkeyup="changeToUpperCaseInput(this)" required type="text">
             </div>
             <div class="each-input">
                 <label for="brand">Vehicle Make</label>
@@ -296,22 +414,21 @@ Create Form
                     {% endfor %}
                 </select>
             </div>
-            {% set user_roles = request.cookies.get('user_roles') %}
             <div class="each-input">
                 <label for="unit">Business Unit</label>
                 <select name="unit" class="vehicle-box" id="unit">
-                    {% if '1' in user_roles or '2' in user_roles or '3' in user_roles%}<option value="1">PIT & GO</option>{% endif %}
-                    {% if '4' in user_roles %}<option value="2">TOYOTA</option>{% endif %}
+                    {% for data in b_units %}
+                        <option value="{{data[0]}}">{{data[1]}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="each-input">
-                <span id="temp_shop_id" class="d-none">3</span>
                 <label for="shop">Shop</label>
-                <select name="shop" onchange="showAssociatedShopAndTechnician(this)" class="vehicle-box" id="shop">
-                    {% if '3' in user_roles %}<option value="3">PIT & GO BAWGA</option>{% endif %}
-                    {% if '1' in user_roles %}<option value="1">PIT & GO BGO</option>{% endif %}
-                    {% if '2' in user_roles %}<option value="2">PIT & GO SKP</option>{% endif %}
-                    {% if '4' in user_roles %}<option value="4">TOYOTA SKP</option>{% endif %}
+                <select name="shop"  onchange="showAssociatedShopAndTechnician()" class="vehicle-box specific-shop-id-in-form" id="shop">
+                    <option value="0" selected disabled>Select...</option>
+                    {% for data in credentials %}
+                        <option value="{{data[2]}}">{{data[3]}}</option>
+                    {% endfor %}
                 </select>
             </div>
         </div>
@@ -360,11 +477,17 @@ Create Form
                         <th>Duration</th>
                     </tr>
                 </thead>
-                <tbody id="jobControllerTablebody">  
+                <tbody id="table-body-of-pic">  
                     <tr id="willBeCloned" class="d-none">
-                        <td onclick="deleteJobRow(this,true,for_check_in_out=true)"><i class="fa-solid fa-trash-can"></i></td>
-                        <td><input style="width: 100%;" type="text" required  name="description" onkeyup="changeToUpperCaseInput(this)" class="inp" autocomplete="off"></td>
-                        <td><input type="text" value="" name="pic" required class="pic"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                        <td><button type="button" onclick="deleteJobRow(this,for_check_in_out=true)"><i class="fa-solid fa-trash-can"></i></button></td>
+                        <td>
+                            <input style="width: 100%;" list="descriptionsListOptions" type="text" required  onchange="CheckIdFromOneToOne(this)" name="description" onkeyup="changeToUpperCaseInput(this)" class="inp" autocomplete="off">
+                            <input name="description_id" type="number" value="0" hidden>
+                        </td>
+                        <td>
+                            <input type="text" value="" name="pic" required class="pic"  onkeyup="changeToUpperCaseInput(this)" onchange="CheckIdFromOneToOne(this)"  list="datalistOptions" autocomplete="off" >
+                            <input name="pic_id" class="pic_id" type="number" value="-1" hidden>
+                        </td>
                         <td>
                             <select name="jobType" class="inp">
                                 {% for job_type in result[4] %}
@@ -373,31 +496,37 @@ Create Form
                             </select>
                         </td>
                         <td>
-                            <input hidden type="time"  name="startTimeVal" value="" />
+                            <input hidden type="time"  class="inp" name="startTimeVal" value="" />
                             <button class="timeSetBtn" type="button" onclick="setTimeInput(this)">Start</button>
-                            <input type="number" required  name="startHour" onchange="checkHour(this)" autocomplete="off" style="width: 50px;"> : 
-                            <input type="number" required  name="startMin" onchange="checkMin(this)"autocomplete="off" style="width: 50px;">
+                            <input type="number" class="inp time-box" required  name="startHour" onchange="checkHour(this)" autocomplete="off" > : 
+                            <input type="number" class="inp time-box" required  name="startMin" onchange="checkMin(this)"autocomplete="off" >
                             <select name="" class="am-pm-select" required>
                                 <option value="am">AM</option>
                                 <option value="pm">PM</option>
                             </select>
                         </td>
                         <td>
-                            <input hidden type="time" name="endTimeVal"  value="" />
+                            <input hidden type="time" class="inp" name="endTimeVal"  value="" />
                             <button class="timeSetBtn timeEndBtn" type="button" onclick="setTimeInput(this)">End</button>
-                            <input type="number" required onchange="checkHour(this)" name="startHour" autocomplete="off" style="width: 50px;"> : 
-                            <input type="number" required onchange="checkMin(this)" name="startMin" autocomplete="off" style="width: 50px;">
+                            <input type="number" class="inp time-box" required onchange="checkHour(this)" name="startHour" autocomplete="off" > : 
+                            <input type="number" class="inp time-box" required onchange="checkMin(this)" name="startMin" autocomplete="off" >
                             <select name="" class="am-pm-select" required>
                                 <option value="am">AM</option>
                                 <option value="pm">PM</option>
                             </select>
                         </td>
-                        <td><p></p><input hidden type="text" name="duration" class="durationForJob"></td>
+                        <td><p class="p-0 m-0"></p><input hidden type="text" name="duration" class="durationForJob"></td>
                     </tr>              
-                    <tr >
-                        <td onclick="deleteJobRow(this,false)"><i class="fa-solid fa-trash-can"></i></td>
-                        <td><input style="width: 100%;" type="text" required  name="description" onkeyup="changeToUpperCaseInput(this)" class="inp" autocomplete="off"></td>
-                        <td><input type="text" value="" name="pic" required class="pic"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" ></td>
+                    <tr>
+                        <td><button type="button" onclick="deleteJobRow(this,for_check_in_out=true)"><i class="fa-solid fa-trash-can"></i></button></td>
+                        <td>
+                            <input style="width: 100%;" list="descriptionsListOptions" type="text" required  onchange="CheckIdFromOneToOne(this)" name="description" onkeyup="changeToUpperCaseInput(this)" class="inp" autocomplete="off">
+                            <input name="description_id" type="number" value="0" hidden>
+                        </td>
+                        <td>
+                            <input type="text" value=""  name="pic" required class="pic" onchange="CheckIdFromOneToOne(this)" onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" >
+                            <input name="pic_id" class="pic_id" type="number" value="-1" hidden>
+                        </td>
                         <td>
                             <select name="jobType" class="inp">
                                 {% for job_type in result[4] %}
@@ -406,33 +535,33 @@ Create Form
                             </select>
                         </td>
                         <td>
-                            <input hidden type="time"  name="startTimeVal" value="" />
+                            <input hidden class="inp" type="time"  name="startTimeVal" value="" />
                             <button class="timeSetBtn" type="button" onclick="setTimeInput(this)">Start</button>
-                            <input type="number" required  name="startHour" onchange="checkHour(this)" autocomplete="off" style="width: 50px;"> : 
-                            <input type="number" required  name="startMin" onchange="checkMin(this)"autocomplete="off" style="width: 50px;">
+                            <input type="number" class="inp time-box" required  name="startHour" onchange="checkHour(this)" autocomplete="off" > : 
+                            <input type="number" class="inp time-box" required  name="startMin" onchange="checkMin(this)"autocomplete="off" >
                             <select name="" class="am-pm-select" required>
                                 <option value="am">AM</option>
                                 <option value="pm">PM</option>
                             </select>
                         </td>
                         <td>
-                            <input hidden type="time" name="endTimeVal"  value="" />
+                            <input hidden class="inp" type="time" name="endTimeVal"  value="" />
                             <button class="timeSetBtn timeEndBtn" type="button" onclick="setTimeInput(this)">End</button>
-                            <input type="number" required onchange="checkHour(this)" name="startHour" autocomplete="off" style="width: 50px;"> : 
-                            <input type="number" required onchange="checkMin(this)" name="startMin" autocomplete="off" style="width: 50px;">
+                            <input type="number" class="inp time-box" required onchange="checkHour(this)" name="startHour" autocomplete="off" > : 
+                            <input type="number" class="inp time-box" required onchange="checkMin(this)" name="startMin" autocomplete="off" >
                             <select name="" class="am-pm-select" required>
                                 <option value="am">AM</option>
                                 <option value="pm">PM</option>
                             </select>
                         </td>
-                        <td><p></p><input hidden type="text" name="duration" class="durationForJob"></td>
+                        <td><p class="p-0 m-0"></p><input hidden type="text" name="duration" class="durationForJob"></td>
                     </tr>
                     <tr>
-                        <td colspan="5" class="add-job-row" onclick="addAnotherRow(this,for_check_in_out=true)">
-                            <button type="button" class="btn btn-outline-dark btn-sm">Add Job +</button>
+                        <td colspan="5" class="add-job-row">
+                            <button type="button" onclick="addAnotherRow(this,for_check_in_out=true)" class="btn btn-outline-dark btn-sm">Add Job +</button>
                         </td>
                         <td>Total Duration</td>
-                        <td><p id="duration"></p></td>
+                        <td><p class="p-0 m-0" id="duration"></p></td>
                     </tr>
                 </tbody>
             </table>

@@ -10,14 +10,313 @@ Edit Datas
 
 {% block innertemplate %}
 
+    {% if typ == 'check-in-out' %}
+
+    <datalist id="descriptionsListOptions">
+        {% for desc in result[7] %}
+            <option value="{{desc[1]}}" data-id="{{desc[0]}}"></option>
+        {% endfor %}
+    </datalist>
+
+    <div class="submit-discard" style="position: relative;">
+        <div>
+            <a href="{{url_for('imports.show_create_form',typ=typ)}}"><button class="submit-btn" type="button">Create</button></a>
+            <button class="edit-btn for-check-in-out" type="button" onclick="showBtnAndRemoveDisabled(this)">Edit</button>
+            <button class="submit-btn d-none"  type="button" onclick="checkAllServiceDatas()">Submit</button>
+            <button class="discard-btn" onclick=""><a class="nav-link" href="{{url_for('views.show_service_datas',typ='check-in-out')}}">Discard</a></button>
+            <button class="btn btn-outline-secondary"  type="button" onclick="checkAllServiceDatas()">{{result[5][0][23]}}</button>
+            {% if not result[5][0][20] %}
+            <button class="submit-btn" id="approve-btn"  type="button" onclick="checkAllServiceDatas('approve')" style="position: absolute;right: 210px">Approve</button>
+            {% else %}
+            <button class="submit-btn" id="approve-btn" disabled  type="button"  style="position: absolute;right: 210px">Already Approved</button>
+            {% endif %}
+            <button class="delete-btn" type="button" onclick="deleteAllServiceDatas('{{result[5][0][11]}}','checkinoutDelForm')" style="position: absolute;right: 10px;">Delete the Whole Form</button>
+        </div>
+    </div>
+    <datalist id="datalistOptions">
+        {% for dt in result[8] %}
+            <option data-id="{{dt[0]}}" value="{{dt[1]}}">
+        {% endfor %}
+    </datalist> 
+    <form id="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='check-in-out')}}" method="post">
+        <input type="text" value="{{result[5][0][20]}}" hidden name="status"/>
+        <div class="input-sec">
+            <div class="each-input">
+                <input type="number" value="{{result[5][0][11]}}" id="newOrEdit" name="newOrEdit" hidden/>
+                <input type="text" value="{{result[5][0][23]}}" id="form_seq" name="form_seq" hidden/>
+                <label for="regState">Vehicle Register No</label>
+                <input type="text" disabled value="{{result[5][0][0]}}" autocomplete="off" name="plate" required id="plate">
+                <input id="vehicleInformation" name="vehicleInformation" value="{{result[5][0][1]}}" hidden/>
+            </div>
+            <div class="each-input">
+                <label for="">Date</label>
+                <input name="jobDate" disabled  autocomplete="off" value="{{result[5][0][2]}}" onchange="showAssociatedShopAndTechnician()" required type="date" class="date-error-input let-edit-user approve-data">
+            </div>
+            <div class="each-input">
+                <label for="">Job No</label>
+                <input type="text" class="not-required-input" hidden id="approve-input"  name="approve" value="{{result[5][0][11]}}"/>
+                <input autocomplete="off" disabled class="let-edit-user not-required-input approve-data" value="{{result[5][0][3]}}" name="jobNo"  onkeyup="changeToUpperCaseInput(this)" required type="text">
+            </div>
+            <div class="each-input">
+                <label for="brand">Vehicle Make</label>
+                <input type="text" disabled onchange="generateVehicleModel(this)" value="{{result[5][0][4]}}"  class="autoFillByVehicle autoFillNewOwner"  list="brandListOptions" value="" name="brand" id="brand"/>
+                <datalist id="brandListOptions">
+                    {% for dt in result[3]%}
+                        <option value="{{dt[1]}}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            <input type="number"  id="model_id" value="{{result[5][0][7]}}" name="model_id" hidden/>
+            <input type="number"  id="brand_id" value="{{result[5][0][6]}}" name="brand_id" hidden/>
+            <div class="each-input">
+                <label for="model">Vehicle Model</label>
+                <input type="text" disabled list="modelListOptions" value="{{result[5][0][5]}}" class="autoFillByVehicle autoFillNewOwner" required autocomplete="off"  name="model" id="model"/>
+                <datalist id="modelListOptions">
+                    <option value="No model was found">
+                </datalist>
+            </div>
+            <div class="each-input">
+                <label for="year">Vehicle Model Year</label>
+                <select name="year" id="year"  disabled class="vehicle-box autoFillByVehicle autoFillNewOwner">
+                    <option value="{{result[5][0][8]}}" selected>{{result[5][0][8]}}</option>
+                </select>
+            </div>
+            <div class="each-input">
+                <label for="unit">Business Unit</label>
+                <select name="unit" disabled class="vehicle-box let-edit-user" id="unit">
+                    {% for data in b_units %}
+                        <option value="{{data[0]}}" {% if result[5][0][9] == data[0] %} selected {% endif %}>{{data[1]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="each-input">
+                <label for="shop">Shop</label>
+                <select name="shop"  onchange="showAssociatedShopAndTechnician(this)" disabled class="vehicle-box specific-shop-id-in-form let-edit-user approve-data" id="shop">
+                    {% for data in credentials %}
+                        <option value="{{data[2]}}" {% if result[5][0][19] ==  data[2] %} selected {% endif %}>{{data[3]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="input-table">
+            <!-- Button trigger modal -->
+            <button type="button" class="d-none validateModal" data-bs-toggle="modal" data-bs-target="#staticBackdropValidate"></button>
+        
+            <!-- Modal -->
+            <div class="modal modal-lg fade" style="z-index: 10123;" id="staticBackdropValidate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Validate</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <strong>Chosse associated vehicle...</strong> <br>
+                            <table class="table table-bordered mt-3" style="font-size: 13px;width: max-content;">
+                                <thead>
+                                    <tr>
+                                        <td>Activate</td>
+                                        <td>Reg. No.</td>
+                                        <td>Brand</td>
+                                        <td>Model</td>
+                                        <td>Owner</td>
+                                        <td>Contact</td>
+                                        <td>State</td>
+                                    </tr>
+                                </thead>
+                                <tbody class="list-group-vehicle-information" style="font-size: 10px;">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>.</th>
+                        <th>Description</th>
+                        <th>Technician</th>
+                        <th>Job Type</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body-of-pic">  
+                    <tr id="willBeCloned" class="d-none">
+                        <td><button type="button" onclick="deleteJobRow(this,for_check_in_out=true)"><i class="fa-solid fa-trash-can"></i></button></td>
+                        <td>
+                            <input style="width: 100%;" list="descriptionsListOptions" type="text" required  onchange="CheckIdFromOneToOne(this)" name="description" onkeyup="changeToUpperCaseInput(this)" class="inp" autocomplete="off">
+                            <input name="description_id" type="number" value="0" hidden>
+                        </td>
+                        <td>
+                            <input type="text" value="" name="pic" required class="pic"  onkeyup="changeToUpperCaseInput(this)" onchange="CheckIdFromOneToOne(this)"  list="datalistOptions" autocomplete="off" >
+                            <input name="pic_id" class="pic_id" type="number" value="-1" hidden>
+                        </td>
+                        <td>
+                            <select name="jobType" class="inp">
+                                {% for job_type in result[1] %}
+                                    <option value="{{job_type[0]}}">{{job_type[1]}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <input hidden type="time"  class="inp" name="startTimeVal" value="" />
+                            <button class="timeSetBtn" type="button" onclick="setTimeInput(this)">Start</button>
+                            <input type="number" class="inp time-box" required  name="startHour" onchange="checkHour(this)" autocomplete="off" > : 
+                            <input type="number" class="inp time-box" required  name="startMin" onchange="checkMin(this)"autocomplete="off" >
+                            <select name="" class="am-pm-select"  required>
+                                <option value="am">AM</option>
+                                <option value="pm">PM</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input hidden type="time" class="inp" name="endTimeVal"  value="" />
+                            <button class="timeSetBtn timeEndBtn" type="button" onclick="setTimeInput(this)">End</button>
+                            <input type="number" class="inp time-box" required onchange="checkHour(this)" name="startHour" autocomplete="off" > : 
+                            <input type="number" class="inp time-box" required onchange="checkMin(this)" name="startMin" autocomplete="off" >
+                            <select name="" class="am-pm-select" required>
+                                <option value="am">AM</option>
+                                <option value="pm">PM</option>
+                            </select>
+                        </td>
+                        <td><p class="p-0 m-0"></p><input hidden type="text" name="duration" class="durationForJob"></td>
+                    </tr>          
+                    {% for data in result[5] %}    
+                        <tr>
+                            <td><button type="button" class="let-edit-user" disabled onclick="deleteJobRow(this,for_check_in_out=true)"><i class="fa-solid fa-trash-can"></i></button></td>
+                            <td>
+                                <input disabled style="width: 100%;" list="descriptionsListOptions" type="text" required value="{{data[13]}}"  onchange="CheckIdFromOneToOne(this)" name="description" onkeyup="changeToUpperCaseInput(this)" class="inp let-edit-user" autocomplete="off">
+                                <input name="description_id" type="number" value="{{data[21]}}" hidden>
+                            </td>
+                            <td>
+                                <input disabled type="text"  name="pic" required value="{{data[14]}}" class="pic let-edit-user" onchange="CheckIdFromOneToOne(this)"  onkeyup="changeToUpperCaseInput(this)"  list="datalistOptions" autocomplete="off" >
+                                <input name="pic_id" class="pic_id" type="number" value="{{data[22]}}" hidden>
+                            </td>
+                            <td>
+                                <select disabled name="jobType" class="inp let-edit-user">
+                                    {% for job_type in result[1] %}
+                                        {% if job_type[1] == data[15] %}
+                                            <option value="{{job_type[0]}}" selected>{{job_type[1]}}</option>
+                                        {% else %}
+                                            <option value="{{job_type[0]}}" >{{job_type[1]}}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                <input hidden class="inp" type="time"  name="startTimeVal" value="{{data[16]}}" />
+                                <button disabled class="timeSetBtn let-edit-user" type="button" onclick="setTimeInput(this)">Start</button>
+                                <input disabled type="number" value="{% if data[16].hour <= 12 %}{{data[16].hour}}{% else %}{{data[16].hour-12}}{%endif%}"  class="inp time-box let-edit-user" required  name="startHour" onchange="checkHour(this)" autocomplete="off" > : 
+                                <input disabled  type="number" value="{{data[16].minute}}" class="inp time-box let-edit-user" required  name="startMin" onchange="checkMin(this)"autocomplete="off" >
+                                <select disabled name="" class="am-pm-select let-edit-user" required>
+                                    <option value="am" {% if data[16].hour < 12 %}selected{% endif %}>AM</option>
+                                    <option value="pm" {% if data[16].hour >= 12 %}selected{% endif %}>PM</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input hidden class="inp" type="time" name="endTimeVal"  value="{{data[17]}}" />
+                                <button disabled class="timeSetBtn timeEndBtn let-edit-user" type="button" onclick="setTimeInput(this)">End</button>
+                                <input disabled type="number" value="{% if data[17].hour <= 12 %}{{data[17].hour}}{% else %}{{data[17].hour-12}}{%endif%}" class="inp time-box let-edit-user required onchange="checkHour(this)" name="startHour" autocomplete="off" > : 
+                                <input disabled  type="number" value="{{data[17].minute}}" class="inp time-box let-edit-user" required onchange="checkMin(this)" name="startMin" autocomplete="off" >
+                                <select disabled name="" class="am-pm-select let-edit-user" required>
+                                    <option value="am" {% if data[17].hour < 12 %}selected{% endif %}>AM</option>
+                                    <option value="pm" {% if data[17].hour >= 12 %}selected{% endif %}>PM</option>
+                                </select>
+                            </td>
+                            <td><p class="p-0 m-0">{{data[18]}}</p><input hidden type="text" value="{{data[18]}}" name="duration" class="durationForJob"></td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="5" class="add-job-row" >
+                            <button type="button" onclick="addAnotherRow(this,for_check_in_out=true)" disabled class="btn btn-outline-dark btn-sm let-edit-user">Add Job +</button>
+                        </td>
+                        <td>Total Duration</td>
+                        <td><p class="p-0 m-0" id="duration">{{result[6]}}</p></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+
+    {% elif typ == 'psfu-calls' %}
+
+    <form  id="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='psfu-calls')}}" method="post">
+        <div class="submit-discard">
+            <div>
+                <button class="edit-btn" type="button" onclick="showBtnAndRemoveDisabled(this)">Edit</button>
+                <button type="submit" class="submit-btn d-none">Submit</button>
+                <button class="discard-btn"><a class="nav-link" onclick="goBackToPreviousLocation()">Discard</a></button>
+            </div>
+            <div>
+                <button class="delete-btn" type="button" onclick="deleteAllServiceDatas('{{result[0][12]}}','psfu-calls')">Delete the Whole Form</button>
+            </div>
+        </div>
+        <div class="input-sec">
+            <div class="each-input">
+                <div class="each-input">
+                    <label for="plate">Job No</label>
+                    <input type="text" style="width: 200px;" disabled value="{{result[0][5]}}" autocomplete="off" name="plate" required id="plate">
+                </div>
+                <input id="psfu_id" name="psfu_id" value="{{result[0][12]}}" hidden/>
+            </div>
+            <div class="each-input">
+                <label for="jobDate">Date</label>
+                <input name="jobDate" autocomplete="off" value="{{result[0][0]}}" required type="date" class="date-error-input" disabled>
+            </div>
+            <div class="each-input">
+                <label for="">Customer Name</label>
+                <input name="customerName" value="{{result[0][7]}}" disabled onchange="autoFillByCustomer(this)" list="customerListOptions" autocomplete="off" class="autoFillByVehicle" required type="text">
+            </div>
+            <div class="each-input">
+                <label for="">Vehicle Plate</label>
+                <input autocomplete="off" value="{{result[0][6]}}" name="invoiceNo" onkeyup="changeToUpperCaseInput(this)" disabled required type="text">
+            </div>
+            <div class="each-input">
+                <label for="brand">Phone Number</label>
+                <input type="text" disabled value="{{result[0][8]}}" onchange="generateVehicleModel(this)"  class="autoFillByVehicle autoFillNewOwner" list="brandListOptions"  name="brand" id="brand"/>
+            </div>
+            <div class="each-input">
+                <label for="unit">Business Unit</label>
+                <select name="unit" disabled class="vehicle-box" id="unit">
+                    {% for data in b_units %}
+                    <option value="{{data[0]}}" {% if result[0][2] == data[0] %} selected {% endif %}>{{result[0][1]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="each-input">
+                <label for="shop">Shop</label>
+                <select name="shop"  onchange="showAssociatedShopAndTechnician(this)" disabled class="vehicle-box" id="shop">
+                    {% for data in credentials %}
+                        <option value="{{data[2]}}" {% if result[0][4] ==  data[2] %} selected {% endif %}>{{result[0][3]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="each-input">
+                <label for="phone">Status</label>
+                <select disabled required name="call_status_id" class="vehicle-box let-edit-user">
+                    {% for data in result[1] %}
+                    <option value="{{data[0]}}" {% if data[1] == result[0][9] %} selected {% endif %}>{{data[1]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="each-input align-middle">
+                <label class="text-center" for="model" style="height: 50px;">Remark</label>
+                <textarea  cols="30"  type="text" disabled value="{{result[0][10]}}" list="modelListOptions" class="let-edit-user" required autocomplete="off"  name="remark" id="model">{{result[0][10]}}</textarea>
+            </div>
+        </div>
+    </form>
+    {% elif typ == 'service-datas' %}
+
     <div class="submit-discard">
         <div>
             <button class="edit-btn" type="button" onclick="showBtnAndRemoveDisabled(this)">Edit</button>
-            <button class="submit-btn d-none" onclick="checkAllServiceDatas()">Submit</button>
+            <button type="button" class="submit-btn d-none" onclick="checkAllServiceDatas()">Submit</button>
             <button class="discard-btn"><a class="nav-link" onclick="goBackToPreviousLocation()">Discard</a></button>
         </div>
         <div>
-            <button class="delete-btn" type="button" onclick="deleteAllServiceDatas('{{result[0][0][3]}},{{result[0][0][2]}}','eachJobDelForm')">Delete the Whole Form</button>
+            <button class="delete-btn" type="button" onclick="deleteAllServiceDatas('{{result[0][0][28]}}','eachJobDelForm')">Delete the Whole Form</button>
         </div>
     </div>
     <form  id="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='service-datas')}}" method="post">
@@ -67,7 +366,7 @@ Edit Datas
             <div class="each-input">
                 <label for="jobNo">Job no</label>
                 <input type="text" class="let-edit-user" onkeyup="changeToUpperCaseInput(this)" disabled value="{{result[0][0][3]}}"  autocomplete="off" name="jobNo" required id="jobNo">
-                <input type="text" value="{{result[0][0][3]}},{{result[0][0][2]}}"  name="oldJobNo" required id="oldJobNo" hidden>
+                <input type="text" value="{{result[0][0][28]}}"  name="oldJobNo" required id="oldJobNo" hidden>
             </div>
             <div class="each-input">
                 <label for="year">Vehicle Model Year</label>
@@ -75,22 +374,20 @@ Edit Datas
                     <option value="{{result[0][0][15]}}" selected>{{result[0][0][15]}}</option>
                 </select>
             </div>
-            {% set user_roles = request.cookies.get('user_roles') %}
             <div class="each-input">
                 <label for="unit">Business Unit</label>
                 <select name="unit" disabled class="vehicle-box let-edit-user" id="unit">
-                    {% if '1' in user_roles or '2' in user_roles or '3' in user_roles%}<option value="1" {% if result[0][0][17] == 1 %} selected {% endif %} >PIT & GO</option>{% endif %}
-                    {% if '4' in user_roles %}<option value="2" {% if result[0][0][17] == 2 %} selected {% endif %}>TOYOTA</option>{% endif %}
+                    {% for data in b_units %}
+                    <option value="{{data[0]}}" {% if result[0][0][17] == data[0] %} selected {% endif %}>{{data[1]}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="each-input">
                 <label for="shop">Shop</label>
-                <span id="temp_shop_id" class="d-none">{{result[0][0][18]}}</span>
-                <select name="shop"  onchange="showAssociatedShopAndTechnician(this)" disabled class="vehicle-box let-edit-user" id="shop">
-                    {% if '1' in user_roles %}<option value="1" {% if result[0][0][18] ==  1 %} selected {% endif %}>PIT & GO BGO</option>{% endif %}
-                    {% if '2' in user_roles %}<option value="2" {% if result[0][0][18] ==  2 %} selected {% endif %}>PIT & GO SKP</option>{% endif %}
-                    {% if '3' in user_roles %}<option value="3" {% if result[0][0][18] ==  3 %} selected {% endif %}>PIT & GO BAWGA</option>{% endif %}
-                    {% if '4' in user_roles %}<option value="4" {% if result[0][0][18] ==  4 %} selected {% endif %}>TOYOTA SKP</option>{% endif %}
+                <select name="shop"  onchange="showAssociatedShopAndTechnician(this)" disabled class="vehicle-box let-edit-user specific-shop-id-in-form" id="shop">
+                    {% for data in credentials %}
+                        <option value="{{data[2]}}" {% if result[0][0][18] ==  data[2] %} selected {% endif %}>{{data[3]}}</option>
+                    {% endfor %}
                 </select>
             </div>
         </div>
@@ -122,8 +419,8 @@ Edit Datas
                         {% endfor %}
                     </datalist>     
                     <tr id="willBeCloned" class="d-none">
-                        <td onclick="deleteJobRow(this,true)"><i class="fa-solid fa-trash-can"></i></td>
-                        <td><input type="text" name="description" onkeyup="changeToUpperCaseInput(this)" class="inp"></td>
+                        <td><button type="button" onclick="deleteJobRow(this,for_check_in_out=false)"><i class="fa-solid fa-trash-can"></i></button></td>
+                        <td><input type="text" autocomplete="off" name="description" onkeyup="changeToUpperCaseInput(this)" class="inp"></td>
                         <td>
                             <select name="jobType" class="inp">
                                 {% for job_type in result[2] %}
@@ -148,8 +445,8 @@ Edit Datas
                     </tr>
                     {% for data in result[0] %}
                         <tr>
-                            <td onclick="deleteJobRow(this,true)" class="disabled-for-delete disabled"><i class="fa-solid fa-trash-can"></i></td>
-                            <td><input type="text" disabled value="{{data[19]}}" required  name="description" onkeyup="changeToUpperCaseInput(this)" class="inp let-edit-user"  ></td>
+                            <td><button type="button" disabled onclick="deleteJobRow(this,for_check_in_out=false)" class="disabled-for-delete"><i class="fa-solid fa-trash-can"></i></button></td>
+                            <td><input type="text" disabled value="{{data[19]}}" required  name="description" onkeyup="changeToUpperCaseInput(this)" autocomplete="off" class="inp let-edit-user"  ></td>
                             <td>
                                 <select name="jobType" disabled required class="inp let-edit-user">
                                     {% for job_type in result[2] %}
@@ -178,7 +475,7 @@ Edit Datas
                         </tr>
                     {% endfor %}               
                     <tr class="total-last-row">
-                        <td colspan="8" class="add-job-row disabled-for-delete disabled"  onclick="addAnotherRow(this)"><button type="button" class="btn btn-outline-dark btn-sm">Add Job +</button></td>
+                        <td colspan="8" class="add-job-row disabled-for-delete disabled"><button onclick="addAnotherRow(this)" type="button" class="btn btn-outline-dark btn-sm">Add Job +</button></td>
                         <td class="d-none"><input type="number" value="0.0" step=".01" class="total-amount" name="totalCost"></td>
                         <td class="total-label"><b>Total</b></td>
                         <td class="total-amount"><input class="text-end" type="number" value="{{result[5]}}" disabled></td>
@@ -223,4 +520,171 @@ Edit Datas
         </div>
     </form>
 
+    {% elif typ == 'technician' %}
+
+    <h1 class="text-center mt-2">Techanician Panel</h1>
+    <div class="container mt-2">
+    <form action="{{url_for('imports.keep_in_import',typ='technician')}}" id="rate-form" method="post">
+        <button class="btn btn-sm mb-1 text-white" type="button" style="background-color: rgb(80, 147, 202);" onclick="showTechnicianInput(this)">Edit</button>
+        <button class="btn btn-sm mb-1 text-white bg-success d-none" type="submit">Save</button>
+        <button class="btn btn-sm mb-1 text-white" type="button" style="background-color: rgb(175, 59, 35);">
+            <a class="nav-link" href="{{url_for('views.show_service_datas',typ='technician')}}">Discard</a>
+        </button>
+        <div class="card card-body px-4" id="techanichianDetailCard">
+            <h3 class="card-title text-center mb-3">Technician Details</h3>
+            <div class="row gy-2 align-items-center" id="techanicianCardHolder">
+                <div >
+                    <small>Techanician</small><br>
+                    <span><b>{{result[0][0][1]}}</b></span>
+                    <input type="text" name="tech" class="form-control w-50 d-none" value="">
+                    <input type="number" hidden name="tech_id"  class="form-control w-50" value="{{result[0][0][0]}}">
+                </div>
+                <div >
+                    <small>Current Shop</small><br>
+                    <span><b>{{result[0][0][4]}}</b></span>
+                </div>
+                <div >
+                    <small>Status</small><br>
+                    <span class="">
+                        <b>
+                            {% if result[0][0][4] != 'INACTIVE' %}
+                                ACTIVE
+                            {% else %}
+                                INACTIVE
+                            {% endif %}
+                        </b>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </form>
+        <div class="navlink">
+            <ul>
+                <li onclick="changeTabOver(this,'shopHistory')" class="shopHistoryNav tab-list active">Shop History</li>
+                <li onclick="changeTabOver(this,'changeShop')" class="changeShopNav tab-list">Change Shop</li>
+                <li onclick="changeTabOver(this,'leaveHistory')" class="leaveFormNav tab-list">Absent History</li>
+            </ul>
+        </div>
+        <!-- Start Change Shop Section -->
+        <div>
+            <form action="{{url_for('imports.keep_in_import',typ='technician')}}" id="rate-form" method="post">
+                <div id="changeShop" class="card card-body changeShop p-0 d-none eachTab mb-3" style="background-color:#D4D4D4">
+                    <h3 class="card-title text-center py-2 text-white">Change Shop<button class="btn btn-sm btn-success float-end me-3">Save</button></h3>
+                    <div class="row pb-2 gx-3 gy-2 align-items-center ms-4 me-4">
+                        <div class="col-sm-3 form-floating">
+                            <input type="number" hidden name="tech_id"  class="form-control w-50" value="{{result[0][0][0]}}">
+                            <select name="from-shop" class="form-select">
+                                {% if result[0][0][6] %}
+                                    <option value="{{result[0][1][3]}}" selected>{{result[0][1][4]}}</option>
+                                {% else %}
+                                    <option value="{{result[0][0][3]}}" selected>{{result[0][0][4]}}</option>
+                                {% endif %}
+                            </select>
+                            <label for="" class="ms-2">From Shop</label>
+                        </div>
+                        <div class="col-sm-3 form-floating">
+                            <select name="to-shop" id="" class="form-select">
+                                {% for shop in result[1] %}
+                                    <option value="{{shop[0]}}">{{shop[1]}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="" class="ms-2">To Shop</label>
+                        </div>
+                        <div class="col-sm-3 form-floating">
+                            <input id="startDateShopChange"  type="date" name="start-dt" class="form-control border-0">
+                            <label for="" class="ms-2">Start Date</label>
+                        </div>
+                        <div class="col-sm-3 form-floating">
+                            <input id="" value="" type="text" name="remark" class="form-control border-0">
+                            <label for="" class="ms-2">Remark</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <!-- End Change Shop Section -->
+            <!-- Start Shop History -->
+            <div id="shopHistory" class="card card-body shopHistory p-0 eachTab mb-3" style="background-color:#D4D4D4">
+                <h3 class="card-title text-center py-2">Shop History</h3>
+                {% for data in result[0] %}
+                    <div class="shopHistorySec p-3">
+                        <div>
+                            <small>Shop Name<br></small>
+                            <span><b>{{data[4]}}</b></span>
+                        </div>
+                        <div>
+                            <small>Start Date<br></small>
+                            <span><b>{{data[5]}}</b></span>
+                        </div>
+                        <div>
+                            <small>End Date<br></small>
+                            <span>
+                                <b>
+                                    {% if not data[6] %}
+                                        Current
+                                    {% else %}
+                                        {{data[6]}}
+                                    {% endif %}
+                                </b>
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+                <!-- <div class="pagination" id="">
+                    <i class="fa-solid fa-square-caret-left"></i>
+                    1/5 - 5/10
+                    <i class="fa-solid fa-square-caret-right"></i>
+                </div> -->
+            </div>
+            <!-- end shop History -->
+            <!-- start leave form -->
+            <div id="leaveHistory" class="card card-body eachTab shopHistory p-0 mb-3 d-none" style="background-color:#D4D4D4">
+                <h3 class="card-title text-center py-2">Absent History</h3>
+                <div class="absentHistory p-3">
+                    {% for data in result[2] %}
+                    <div>
+                        <small>Leave Type<br></small>
+                        <span><b>{{data[0]}}</b></span>
+                    </div>
+                    <div>
+                        <small>Description<br></small>
+                        <span><b>{{data[1]}}</b></span>
+                    </div>
+                    <div>
+                        <small>Start Date<br></small>
+                        <span><b>{{data[2]}}</b></span>
+                    </div>
+                    <div>
+                        <small>End Date<br></small>
+                        <span><b>{{data[3]}}</b></span>
+                    </div>
+                    <div>
+                        <small>Total<br></small>
+                        <span><b>{{data[4]}}</b></span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- <div class="pagination" id="">
+                    <i class="fa-solid fa-square-caret-left"></i>
+                    1/5 - 5/10
+                    <i class="fa-solid fa-square-caret-right"></i>
+                </div> -->
+            </div>
+            <!-- end leave form -->
+        </div>
+    </div>
+    {% endif %}
+
+    {% if typ == 'technician' %}
+    <script type="text/javascript">
+        var nextDay = new Date('{{result[0][0][5]}}');
+        nextDay.setDate(nextDay.getDate() + 1);
+        var latestDay = nextDay.toISOString().split('T')[0]
+        document.getElementById("startDateShopChange").min = latestDay;
+    </script>
+    {% endif %}
+
+{% endblock %}
+
+{% block errorMessageDisplayer %}
+{{mgs}}
 {% endblock %}

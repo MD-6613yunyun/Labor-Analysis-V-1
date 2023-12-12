@@ -53,10 +53,15 @@ if (window.location.href.endsWith("/get-report")){
             }
             let haxisFontSize = 12
             if (result.length > 20){
-            document.getElementById("chartContainer").children[0].style.width = `${(result.length - 1)*30}px`
+                let graphWidth = (result.length - 1)*30
+                if (graphWidth < 1200){
+                  graphWidth = 1200
+	 	}
+		console.log(graphWidth)
+                document.getElementById("chartContainer").children[0].style.width = `${graphWidth}px`
                 haxisFontSize = 8
-        }
-            
+            }
+            console.log(document.getElementById("chartContainer").children[0].style.width)
             var data = google.visualization.arrayToDataTable(result);
             var the_last_total = (result[0].length)-3
             // Set chart options

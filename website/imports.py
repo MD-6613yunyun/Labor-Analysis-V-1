@@ -112,6 +112,7 @@ def excel_import():
                         return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid Phone {phone} at {row_counter}.\n Please Starts  customer phone with 09.."))   
                     cur.execute("SELECT id,name,phone,secondary_phone FROM customer WHERE phone = %s or secondary_phone = %s or name = %s;",(phone,phone,row[3].value.strip().upper()))
                     cus_datas = cur.fetchall()
+                    cus_id = None
                     if cus_datas:
                         for cus_data in cus_datas:
                             if cus_data[2] == phone or cus_data[3] == phone:
@@ -177,7 +178,7 @@ def excel_import():
                     # check job type
                     if row[10].value.strip().lower() not in job_types:
                         return redirect(url_for('views.show_service_datas',typ=view_type,mgs=f"Invalid Job Type at row -  {row_counter}"))                    
-                    eachJob_concatenated = row[1].value.strftime("%Y/%m/%d") + row[2].value + row[9].value + str(unit_shop_ids[1])
+                    eachJob_concatenated = row[1].value.strftime("%Y/%m/%d") + row[2].value + row[9].value + str(unit_shop_ids[1]) + str(row[11].value) + ',' +  ','.join(sorted(map(str,[technicians[tech_names[0]],technicians[tech_names[1]],technicians[tech_names[2]],technicians[tech_names[3]],technicians[tech_names[4]]])))
                     # extends query
                     try:
                         eachJob_insert_query += f"""('{form_id}','{row[9].value}','{job_types[row[10].value.strip().lower()]}','{int(row[11].value):.2f}','{technicians[tech_names[0]]}','{get_partial_amount(rate[0][0],row[11].value)}','{technicians[tech_names[1]]}','{get_partial_amount(rate[0][1],row[11].value)}','{technicians[tech_names[2]]}','{get_partial_amount(rate[0][2],row[11].value)}','{technicians[tech_names[3]]}','{get_partial_amount(rate[0][3],row[11].value)}','{technicians[tech_names[4]]}','{get_partial_amount(rate[0][4],row[11].value)}','{eachJob_concatenated}','{rate[1]}'),"""
@@ -597,7 +598,9 @@ def keep_in_import(typ):
             cur.execute("UPDATE psfu_call SET call_status_id = %s , remark = %s WHERE id = %s;",(call_status_id,remark,psfu_id))
             conn.commit()
         elif typ == 'technician':
-            tech_name  = request.form.get("tech").strip()
+            tech_name  = request.form.get("tech")
+            if tech_name:
+                tech_name = tech_name.strip()
             tech_id = request.form.get("tech_id")
             edit_form = False
             if tech_id:

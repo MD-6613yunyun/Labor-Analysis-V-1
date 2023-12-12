@@ -726,6 +726,15 @@ table td input:focus{
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.5);
+    position:relative;
+}
+
+.input-sec #service-check-in-out-no{
+    position: absolute;
+    right: 0;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
 }
 
 .each-input{

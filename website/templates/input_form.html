@@ -355,7 +355,6 @@ Create Form
         <div>
             <button class="submit-btn"  type="button" onclick="checkAllServiceDatas()">Submit</button>
             <button class="discard-btn" onclick=""><a class="nav-link" href="{{url_for('views.show_service_datas',typ='check-in-out')}}">Discard</a></button>
-            <button class="btn btn-outline-secondary"  type="button" onclick="checkAllServiceDatas()">{{result[9]}}</button>
         </div>
     </div>
     <datalist id="datalistOptions">
@@ -366,6 +365,7 @@ Create Form
     <form id="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='check-in-out')}}" method="post">
         <input type="text" value="None" hidden name="status"/>
         <div class="input-sec">
+            <div id="service-check-in-out-no">{{result[9]}}</div>
             <div class="each-input">
                 <label for="regState">Vehicle Register No</label>
                 <select name="regState" id="regState" class="vehicle-register-box">

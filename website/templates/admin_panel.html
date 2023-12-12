@@ -108,7 +108,7 @@ function inputShop(inp,mail){
         .then(result => {
             if(result>0){
                 let spanTag = document.createElement("span");
-                spanTag.innerHTML = `${value}<i class="fa-solid fa-xmark" onclick="deleteShop(this)"></i>`;
+                spanTag.innerHTML = `${value}<i class="fa-solid fa-xmark" onclick="deleteShop(this,'${mail}')"></i>`;
                 inp.nextElementSibling.appendChild(spanTag);
                 inp.value = "";                
             }

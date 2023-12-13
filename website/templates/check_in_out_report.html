@@ -23,7 +23,7 @@
 
     <h3 class="text-center py-3" data-type="{{typ}}" id="dailyReportTitle">Techanician IDLE Report <span style="font-size: 15px;">({{extra_datas[1]}} at {{extra_datas[0]}})</span></h3>
     <div class="m-0 p-0 w-100" style="height: 75vh;overflow: auto;" >
-        <table id="dailyReportTable" class="table table-bordered table-hover" style="border: 1px solid black;text-wrap: nowrap;">
+        <table id="dailyReportTable" data-report="{{typ}}" class="table table-bordered table-hover" style="border: 1px solid black;text-wrap: nowrap;">
             <thead style="position: sticky;top: 0;z-index: 3;">
                 <tr style="border: 1px solid white;" id="hidden-thead-row" class="d-none">
                     <th colspan="9">
@@ -58,48 +58,13 @@
                 {% endfor %}
             </tbody>
         </table>
-        <!-- <table id="dailyReportTable" class="table table-bordered table-hover" style="border: 1px solid black;text-wrap: nowrap;">
-            <thead style="position: sticky;top: 0;z-index: 3;">
-                <tr style="border: 1px solid white;" id="hidden-thead-row" class="d-none">
-                    <th colspan="9" >
-                        <h5 class="text-center py-3" id="dailyReportTitle">Idle Report <span style="font-size: 15px;">({{extra_datas[1]}} at {{extra_datas[0]}})</span></h5>
-                    </th>
-                </tr>
-                <tr>
-                    <th  class="text-center" style="background-color: #D4D4D4;position: sticky;left: 0;min-width: 250px">Techanician</th>
-                    <th  class="text-center" style="background-color: #D4D4D4;">Duration</th>
-                    <th  class="text-center" style="background-color: #D4D4D4;">Graph</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for tech_name, data in extra_datas[3].items() %}
-                <tr style="vertical-align: middle;">
-                    <td class="text-center" style="position: sticky;left: 0;z-index: 2;">
-                        {% if tech_name in leave_badges %}
-                        <div class="stack-top">
-                            <div style="">{{leave_badges[tech_name]}}</div>
-                        </div>
-                        {% endif %}
-                        {{tech_name}}
-                    </td>
-                    <td class="text-center" style="position: sticky;left: 100px;">
-                        <span class="duration-data">0:00</span><hr style="margin: 5px;">
-                        <span class="duration-data">0:00</span>
-                    </td>
-                    <td style="width: 1000px;">
-                        <div id="table12345" style="width: max-content;height: 120px"></div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table> -->
     </div>
 
     {% elif typ == 'in-out' %}
 
     <h3 class="text-center py-3" data-type="{{typ}}" id="dailyReportTitle">Job Control Report <span style="font-size: 15px;">({{extra_datas[1]}} at {{extra_datas[0]}})</span></h3>
     <div class="container-fluid m-0 p-0"  style="width: 100%;height: 75vh;overflow: auto;">
-        <table id="dailyReportTable" class="table table-bordered table-hover" style="min-width: 2000px;border: 1px solid black;">
+        <table id="dailyReportTable" data-report="{{typ}}" class="table table-bordered table-hover" style="min-width: 2000px;border: 1px solid black;">
             <thead style="position: sticky;top: 0;z-index: 3;text-wrap: nowrap;">
                 <tr style="border: 1px solid white;" id="hidden-thead-row" class="d-none">
                     <th colspan="9" >
@@ -193,7 +158,7 @@
         <h3 class="text-center py-3" data-type="{{typ}}" id="dailyReportTitle" style="position: sticky;top: 70px;background-color: white; z-index: 5;">Job Summary Report <span style="font-size: 15px;">({{extra_datas[1]}} at {{extra_datas[0]}})</span></h3>
         <!-- table -->
         <div class="container-fluid m-0 p-0" style="width: 100%;height: 72vh;overflow: scroll;"  >
-            <table id="dailyReportTable" class="table table-bordered table-hover" style="min-width: 200px;border: 1px solid black;">
+            <table id="dailyReportTable" data-report="{{typ}}" class="table table-bordered table-hover" style="min-width: 200px;border: 1px solid black;">
                 <thead class="text-center align-middle" style="position: sticky;top: 0;z-index: 3;text-wrap: nowrap;">
                     <tr style="border: 1px solid white;" id="hidden-thead-row" class="d-none">
                         <th colspan="9" >
@@ -215,8 +180,8 @@
                         <td class="totalHours">250mins</td>
                         <td class="actualHours">250mins</td>
                         <td class="idleHours">230mins</td>
-                        <td rowspan="">
-                            <div style="height: 260px;"></div>
+                        <td>
+                            <div style="height: 260px;" class="chartInDiv"></div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -498,31 +463,48 @@
 
         const captureTableAndChart = async () => {
             for (let idx of [1]){
-            const targetElement = document.getElementById('dailyReportTable'); // Replace with the ID of the container that holds both table and chart
-            const spinner = document.getElementById('loading-spinner')
-            const hiddenRow = document.getElementById('hidden-thead-row')
 
-            console.log("downloading")
-            targetElement.style.filter = 'blur(2px)'
-            hiddenRow.classList.remove('d-none')
-            spinner.classList.remove('d-none')
-            console.log(targetElement)
-            // Use HTML2Canvas to capture the content
-            const canvas = await html2canvas(targetElement);
-        
-            // Convert the captured content to an image data URL
-            const dataURL = canvas.toDataURL('image/png');
-        
-            // Create a link to download the image
-            const link = document.createElement('a');
-            link.href = dataURL;
-            link.download = `${document.getElementById("dailyReportTitle").textContent.replaceAll(" ", "_")}.png`
-            link.click();
+                const report_type = document.getElementById('dailyReportTable').getAttribute("data-report")
 
-            console.log("downloaded")
-            spinner.classList.add('d-none')
-            hiddenRow.classList.add('d-none')
-            targetElement.style.filter = 'blur(0px)'
+                let temp_div_width = ''
+                if (report_type == 'summary'){
+                    let allGraphs = document.querySelectorAll('.chartInDiv').forEach(divv => {
+                        temp_div_width = divv.style.width
+                        divv.style.width = '100%'
+                    })
+                }
+
+                const targetElement = document.getElementById('dailyReportTable'); // Replace with the ID of the container that holds both table and chart
+                const spinner = document.getElementById('loading-spinner')
+                const hiddenRow = document.getElementById('hidden-thead-row')
+
+                console.log("downloading")
+                targetElement.style.filter = 'blur(2px)'
+                hiddenRow.classList.remove('d-none')
+                spinner.classList.remove('d-none')
+
+                // Use HTML2Canvas to capture the content
+                const canvas = await html2canvas(targetElement);
+            
+                // Convert the captured content to an image data URL
+                const dataURL = canvas.toDataURL('image/png');
+            
+                // Create a link to download the image
+                const link = document.createElement('a');
+                link.href = dataURL;
+                link.download = `${document.getElementById("dailyReportTitle").textContent.replaceAll(" ", "_")}.png`
+                link.click();
+
+                console.log("downloaded")
+                spinner.classList.add('d-none')
+                hiddenRow.classList.add('d-none')
+                targetElement.style.filter = 'blur(0px)'
+
+                if (report_type == 'summary'){
+                    let allGraphs = document.querySelectorAll('.chartInDiv').forEach(divv => {
+                        divv.style.width = temp_div_width
+                    })
+                }
             }
         };
 

@@ -1002,11 +1002,7 @@ table td input:focus{
 
 #techanichianDetailCard form, .shopHistorySec,#techanichianDetailCard #techanicianCardHolder{
     display: grid;
-    grid-template-columns: auto auto auto;
-}
-
-#techanichianDetailCard #techanicianCardHolder{
-
+    grid-template-columns: auto auto auto auto;
 }
 
 .absentHistory{

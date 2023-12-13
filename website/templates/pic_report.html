@@ -19,12 +19,12 @@
                 <tr class="table-header">
                     <th rowspan="2" class="name">Name</th>
                     <!-- Repeat the headers for Total, PIC1, PIC2, and PIC3 manually -->
-                    <th colSpan="8">TOTAL</th>
-                    <th colSpan="7">PIC1</th>
-                    <th colSpan="7">PIC2</th>
-                    <th colSpan="7">PIC3</th>
-                    <th colSpan="7">PIC4</th>
-                    <th colSpan="7">PIC5</th>
+                    <th colSpan="{{( job_types | length ) + 1}}">TOTAL</th>
+                    <th colSpan="{{( job_types | length )}}">PIC1</th>
+                    <th colSpan="{{( job_types | length )}}">PIC2</th>
+                    <th colSpan="{{( job_types | length )}}">PIC3</th>
+                    <th colSpan="{{( job_types | length )}}">PIC4</th>
+                    <th colSpan="{{( job_types | length )}}">PIC5</th>
                 </tr>
             <tr class="sub-head">
                 {% for i in range(6) %}

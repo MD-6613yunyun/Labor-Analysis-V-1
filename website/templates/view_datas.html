@@ -497,6 +497,7 @@ Datas Tree View
                         <th>Name</th>
                         <th>Current Unit</th>
                         <th>Current Shop</th>
+                        <th>Current Team</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -517,6 +518,13 @@ Datas Tree View
                                 {% endfor %}
                             </datalist>
                         </td>
+                        <td>
+                            <select class="form-select" name="team_id">
+                                {% for dt in extra_datas[2] %}
+                                    <option value="{{dt[0]}}">{{dt[1]}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
                         <td class="check-icon" onclick="checkRateFormAndSumbit(this)"><i class="fa-solid fa-square-check"></i></td>
                     </tr>
                     {% for data in result %}
@@ -525,6 +533,7 @@ Datas Tree View
                             <td>{{data[1]}}</td>
                             <td>{{data[2]}}</td>
                             <td>{{data[3]}}</td>
+                            <td>{{data[4]}}</td>
                             <td class="trash-icon" onclick="deleteLineDataFromViewForm('{{data[0]}}','technicians')"><i class="fa-solid fa-trash"></i></td>
                         </tr>
                     {% endfor %}

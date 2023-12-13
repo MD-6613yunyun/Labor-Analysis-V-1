@@ -17,15 +17,16 @@ def home():
         return render_template('home.html',noti_counts=noti_counts,credentials=credentials,b_units = b_units)
     return redirect(url_for('auth.authenticate',typ='log'))
 
-@views.route("/get-graph-report/<start_dt>/<end_dt>/<bi>/<shop>")
+@views.route("/get-graph-report/<start_dt>/<end_dt>/<bi>/<shop>/<report_type>")
 @views.route("/get-report",methods=['GET','POST'])
-def get_report(start_dt=None,end_dt=None,bi=None,shop=None):
+def get_report(start_dt=None,end_dt=None,bi=None,shop=None,report_type=None):
     if request.method == 'POST' or start_dt:
         if not start_dt and not end_dt:
             start_dt = request.form.get('start-dt')
             end_dt = request.form.get('end-dt')
             bi = request.form.get('bi')
             shop = request.form.get('shop') 
+            report_type = request.form.get('report-type')
         else:
             if 'pg_username' not in session or "pg_id" not in session:
                 return redirect(url_for('views.home'))
@@ -44,6 +45,10 @@ def get_report(start_dt=None,end_dt=None,bi=None,shop=None):
         technician_where_clause = ""
         technician_where_clause = f"AND shop.business_unit_id in ({bi if bi != '0' else all_unit_by_users})"
         technician_where_clause += f"AND transfer.to_shop_id in ({shop if shop != '0' else all_shop_by_users})" 
+        # job_types
+        print(report_type)
+        cur.execute(f"SELECT id,name FROM jobType WHERE team_id IN ({report_type}) ORDER BY id;")
+        job_types = cur.fetchall()
 
         cur.execute(f""" SELECT tech.id,tech.name FROM technicians tech
                             INNER JOIN (
@@ -56,15 +61,15 @@ def get_report(start_dt=None,end_dt=None,bi=None,shop=None):
                         ON transfer.technician_id = tech.id
                             INNER JOIN shop 
                         ON shop.id = transfer.to_shop_id
-                        WHERE tech.id != 0 {technician_where_clause} ORDER BY tech.id;""")
+                        WHERE tech.id != 0 {technician_where_clause} AND tech.team_id IN ({report_type}) ORDER BY tech.id;""")
         technicians_ids = cur.fetchall()
         technicians_names = [tech[1] for tech in technicians_ids]
         if len(technicians_names) == 0:
             mgs = "No Technician found for your specified unit and shop.."
             return render_template('report_graph_view.html',mgs=mgs,credentials=credentials,b_units=b_units)
         else:
-            cur.execute("SELECT id,name FROM jobType ORDER BY id;")
-            job_types = cur.fetchall()
+            print(job_types)
+            print(report_type, "this is report type")
             get_job_types = {job_type[0]:job_type[1] for job_type in job_types}
             total_result = {job_type[0]:[] for job_type in job_types}
             total_result[0] = []
@@ -86,7 +91,9 @@ def get_report(start_dt=None,end_dt=None,bi=None,shop=None):
                         ), 0.0) AS total_sum
                 FROM (
                     SELECT id
-                    FROM jobtype) AS jt
+                    FROM jobtype
+                    WHERE team_id IN ({report_type})
+                    ) AS jt
                 CROSS JOIN (
                     SELECT DISTINCT month_extracted
                     FROM eachJobForm
@@ -99,10 +106,11 @@ def get_report(start_dt=None,end_dt=None,bi=None,shop=None):
                     ON form.id = line.form_id
                     WHERE form.job_date BETWEEN '{start_dt}' AND '{end_dt}'
                 ) AS ej ON jt.id = ej.job_type_id AND months.month_extracted = ej.month_extracted
-                {where_clause}
+                {where_clause} 
                 GROUP BY jt.id
                 ORDER BY jt.id;""")
                 datas = cur.fetchall()
+                print(datas,"all datas")
                 if '/get-graph-report' in request.path:
                     data = [dt[1] for dt in datas]
                     total_result.append([technicians_names[idx]]+data+[sum(data),str(sum(data))])
@@ -135,6 +143,7 @@ def check_in_out_report(typ='in-out'):
         ## getting shop id and unit id 
         bi = request.form.get('bi')
         shop = request.form.get('shop')
+        report_type = request.form.get('report-type')
         credentials , b_units = extract_shop_datas(cur)
         # all shop , units owned by user
         all_unit_by_users = ",".join([str(dt[0]) for dt in b_units])
@@ -173,7 +182,7 @@ def check_in_out_report(typ='in-out'):
                         ON transfer.technician_id = tech.id
                             INNER JOIN shop 
                         ON shop.id = transfer.to_shop_id
-                        WHERE tech.id != 0  {technician_where_clause} ORDER BY tech.id;""")
+                        WHERE tech.id != 0  {technician_where_clause} AND tech.team_id IN ({report_type}) ORDER BY tech.id;""")
         technicians_ids = cur.fetchall()
 
         if len(technicians_ids) == 0:
@@ -533,6 +542,7 @@ def pic_report():
         end_dt = request.form.get('end-dt')
         bi_id = request.form.get('bi')
         shop_id = request.form.get('shop')
+        report_type = request.form.get('report-type')
 
         credentials , b_units = extract_shop_datas(cur)
         # all shop , units owned by user
@@ -548,8 +558,11 @@ def pic_report():
         technician_where_clause += f"AND transfer.to_shop_id in ({shop_id if shop_id != '0' else all_shop_by_users})" 
 
 
-        cur.execute("SELECT id,name FROM jobType ORDER BY id;")
+
+        cur.execute(f"SELECT id,name FROM jobType WHERE team_id IN ({report_type}) ORDER BY id;")
         job_types = cur.fetchall()
+
+        print(job_types)
 
         cur.execute(f""" SELECT tech.id,tech.name FROM technicians tech
                     INNER JOIN (
@@ -562,7 +575,7 @@ def pic_report():
                 ON transfer.technician_id = tech.id
                     INNER JOIN shop 
                 ON shop.id = transfer.to_shop_id
-                WHERE tech.id != 0 {technician_where_clause} ORDER BY tech.id;""")
+                WHERE tech.id != 0 {technician_where_clause} AND tech.team_id IN ({report_type}) ORDER BY tech.id;""")
         technicians_ids = cur.fetchall()
         if len(technicians_ids) == 0:
             mgs = 'No technicians found for your specific shop and business unit id..'
@@ -588,7 +601,7 @@ def pic_report():
                             COALESCE(SUM(CASE WHEN ej.lst_pic_id = {technician_id[0]} THEN ej.lst_pic_amt ELSE 0.0 END), 0.0) AS pic_5
                         FROM (
                             SELECT id
-                            FROM jobtype
+                            FROM jobtype WHERE team_id IN ({report_type})
                         ) AS jt
                         CROSS JOIN (
                             SELECT DISTINCT month_extracted
@@ -608,7 +621,7 @@ def pic_report():
                     """          
             cur.execute(query)
             datas = cur.fetchall()
-            result = [[] for _ in range(len(job_types))]
+            result = [[] for _ in range(7)]
             for data in datas:
                 for i,dt in enumerate(data[1:]):
                     result[i].append('{:,.2f}'.format(dt))
@@ -622,6 +635,7 @@ def pic_report():
             else:
                 cur.execute("SELECT name FROM shop WHERE id = %s;",(shop_id,))        
                 shop_name = cur.fetchall()[0][0]
+            print(job_types)
     else:
         return redirect(url_for('views.home'))
     return render_template('pic_report.html',total_result=total_result,job_types=job_types,extra_datas = [start_dt,end_dt,shop_name],credentials =credentials , b_units = b_units)
@@ -838,7 +852,7 @@ def show_service_datas(typ,mgs=None):
                 print(result)
                 return render_template('edit_form.html',result = result,typ=typ, credentials = credentials ,b_units = b_units)
         elif typ == 'technician':
-            query = f""" SELECT tech.id,tech.name,bi.name,shop.name FROM technicians tech
+            query = f""" SELECT tech.id,tech.name,bi.name,shop.name,team.name FROM technicians tech
                             INNER JOIN (
                                 SELECT technician_id, to_shop_id FROM technicians_transfer
                                 WHERE 
@@ -851,6 +865,8 @@ def show_service_datas(typ,mgs=None):
                         ON shop.id = transfer.to_shop_id
                             INNER JOIN res_partner bi
                         ON bi.id = shop.business_unit_id
+                            LEFT JOIN technician_team AS team
+                        ON team.id = tech.team_id
                             WHERE tech.id != 0 AND {column}.name iLIKE '%{val}%'  
                                 AND transfer.to_shop_id IN ({user_roles_lst})
                         ORDER BY tech.name;"""
@@ -860,7 +876,7 @@ def show_service_datas(typ,mgs=None):
 		                                        WHEN his.to_date IS NULL THEN 1
 							                    WHEN CURRENT_DATE BETWEEN his.from_date AND his.to_date THEN 0
 		                                        ELSE 2
-                                            END AS flag_shop
+                                            END AS flag_shop, tech.team_id , team.name
                                     FROM technicians_transfer AS his
                                 LEFT JOIN technicians AS tech
                                     ON tech.id = his.technician_id
@@ -868,6 +884,8 @@ def show_service_datas(typ,mgs=None):
                                     ON from_shop.id = his.from_shop_id
                                 LEFT JOIN shop AS to_shop
                                     ON to_shop.id = his.to_shop_id
+                                LEFT JOIN technician_team AS team
+                                    ON team.id = tech.team_id
                                 WHERE tech.id = %s
 				                    ORDER BY flag_shop;""",(val,))
                 result = []
@@ -881,6 +899,8 @@ def show_service_datas(typ,mgs=None):
                                 WHERE technician_id = %s
                                 ORDER BY start_date DESC;
                                 """,(val,))
+                result.append(cur.fetchall())
+                cur.execute("SELECT id,name FROM technician_team;")
                 result.append(cur.fetchall())
                 # print(result)
                 return render_template('edit_form.html',result = result,typ=typ, credentials = credentials ,b_units = b_units)
@@ -1104,7 +1124,8 @@ def show_service_datas(typ,mgs=None):
                                     (SELECT name FROM shop WHERE id = transfer.from_shop_id)
                                 ELSE 
                                     shop.name
-                            END AS shop_name
+                            END AS shop_name,
+                            team.name
                         FROM 
                             technicians tech
                         INNER JOIN (
@@ -1120,6 +1141,8 @@ def show_service_datas(typ,mgs=None):
                         LEFT JOIN shop ON shop.id = transfer.to_shop_id
                         LEFT JOIN res_partner AS bi
                         ON bi.id = shop.business_unit_id
+                        LEFT JOIN technician_team AS team
+                        ON team.id = tech.team_id
                         WHERE 
                             tech.id != 0 AND ( 
                             (transfer.to_shop_id = 5 AND transfer.from_shop_id in ({user_roles_lst}) )
@@ -1131,6 +1154,8 @@ def show_service_datas(typ,mgs=None):
             cur.execute("SELECT name  FROM res_partner;")
             extra_datas.append(cur.fetchall())
             cur.execute("SELECT name  FROM shop WHERE name <> 'INACTIVE';")
+            extra_datas.append(cur.fetchall())
+            cur.execute("SELECT id,name FROM technician_team;")
             extra_datas.append(cur.fetchall())
             length_query =f"""  SELECT 
                                     COUNT(tech.id)
@@ -1355,6 +1380,9 @@ def offset_display(for_what,ofset):
     cur = conn.cursor()
     credentials , b_units = extract_shop_datas(cur)
     user_roles_lst = ",".join([str(dt[2]) for dt in credentials])
+    shop_id = ''
+    if '~' in ofset:
+        ofset, shop_id = ofset.split('~')
     print(for_what)
     queries_dct = {
         "job" : f""" WITH month_cte AS (
@@ -1387,48 +1415,51 @@ def offset_display(for_what,ofset):
             "descriptions":f"SELECT id,name FROM descriptions ORDER BY name LIMIT 81 OFFSET {ofset};",
             "jobType":f"SELECT id,name FROM jobType ORDER BY name LIMIT 81 OFFSET {ofset};",
             "psfuCall":f""" SELECT form.job_no,form.job_date,car.plate,cus.name,cus.phone,form.id,psfu.id FROM psfu_call AS psfu
-            INNER JOIN eachJobFORM AS form
-            ON form.id = psfu.form_id
-            LEFT JOIN vehicle car
-            ON car.id = form.vehicle_id
-            LEFT JOIN customer cus
-            ON cus.id = form.customer_id
-            WHERE form.shop_id = '{ofset.split("~")[1]}' and form.job_date < CURRENT_DATE - 2 AND psfu.call_status_id IS NULL
-            ORDER BY form.job_date LIMIT 20 OFFSET {ofset.split("~")[0]}; """,
+                INNER JOIN eachJobFORM AS form
+                    ON form.id = psfu.form_id
+                LEFT JOIN vehicle car
+                    ON car.id = form.vehicle_id
+                LEFT JOIN customer cus
+                    ON cus.id = form.customer_id
+                WHERE form.shop_id = '{shop_id}' and form.job_date < CURRENT_DATE - 2 AND psfu.call_status_id IS NULL
+                    ORDER BY form.job_date LIMIT 20 OFFSET {ofset}; """,
             "technician":f"""SELECT 
-                            tech.id,
-                            tech.name,
-                            bi.name,
-                            CASE 
-                                WHEN transfer.to_shop_id = 5 THEN 
-                            'INACTIVE - ' || 
-                                    (SELECT name FROM shop WHERE id = transfer.from_shop_id)
-                                ELSE 
-                                    shop.name
-                            END AS shop_name
-                        FROM 
-                            technicians tech
-                        INNER JOIN (
-                            SELECT 
-                                technician_id, 
-                                from_shop_id,
-                                to_shop_id 
+                                tech.id,
+                                tech.name,
+                                bi.name,
+                                CASE 
+                                    WHEN transfer.to_shop_id = 5 THEN 
+                                'INACTIVE - ' || 
+                                        (SELECT name FROM shop WHERE id = transfer.from_shop_id)
+                                    ELSE 
+                                        shop.name
+                                END AS shop_name,
+                                team.name
                             FROM 
-                                technicians_transfer
+                                technicians tech
+                            INNER JOIN (
+                                SELECT 
+                                    technician_id, 
+                                    from_shop_id,
+                                    to_shop_id 
+                                FROM 
+                                    technicians_transfer
+                                WHERE 
+                                    (CURRENT_DATE BETWEEN from_date AND to_date OR CURRENT_DATE >= from_date AND to_date IS NULL)
+                            ) AS transfer ON transfer.technician_id = tech.id
+                            LEFT JOIN shop ON shop.id = transfer.to_shop_id
+                            LEFT JOIN res_partner AS bi
+                            ON bi.id = shop.business_unit_id
+                            LEFT JOIN technician_team AS team
+                            ON team.id = tech.team_id
                             WHERE 
-                                (CURRENT_DATE BETWEEN from_date AND to_date OR CURRENT_DATE >= from_date AND to_date IS NULL)
-                        ) AS transfer ON transfer.technician_id = tech.id
-                        LEFT JOIN shop ON shop.id = transfer.to_shop_id
-                        LEFT JOIN res_partner AS bi
-                        ON bi.id = shop.business_unit_id
-                        WHERE 
-                            tech.id != 0 AND ( 
-                            (transfer.to_shop_id = 5 AND transfer.from_shop_id in ({user_roles_lst}) )
-                                OR  
-                                transfer.to_shop_id IN ({user_roles_lst})
-                            ) 
-                        ORDER BY tech.name
-                            LIMIT 81 OFFSET {ofset}; """
+                                tech.id != 0 AND ( 
+                                (transfer.to_shop_id = 5 AND transfer.from_shop_id in ({user_roles_lst}) )
+                                    OR  
+                                    transfer.to_shop_id IN ({user_roles_lst})
+                                ) 
+                            ORDER BY tech.name
+                                LIMIT 81 OFFSET {ofset}; """
     }
     cur.execute(queries_dct[for_what])
     result_datas = cur.fetchall()

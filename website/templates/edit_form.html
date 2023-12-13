@@ -24,7 +24,6 @@ Edit Datas
             <button class="edit-btn for-check-in-out" type="button" onclick="showBtnAndRemoveDisabled(this)">Edit</button>
             <button class="submit-btn d-none"  type="button" onclick="checkAllServiceDatas()">Submit</button>
             <button class="discard-btn" onclick=""><a class="nav-link" href="{{url_for('views.show_service_datas',typ='check-in-out')}}">Discard</a></button>
-            <button class="btn btn-outline-secondary"  type="button" onclick="checkAllServiceDatas()">{{result[5][0][23]}}</button>
             {% if not result[5][0][20] %}
             <button class="submit-btn" id="approve-btn"  type="button" onclick="checkAllServiceDatas('approve')" style="position: absolute;right: 210px">Approve</button>
             {% else %}
@@ -41,6 +40,7 @@ Edit Datas
     <form id="service-data-input-form" action="{{url_for('imports.keep_in_import',typ='check-in-out')}}" method="post">
         <input type="text" value="{{result[5][0][20]}}" hidden name="status"/>
         <div class="input-sec">
+            <div id="service-check-in-out-no">{{result[5][0][23]}}</div>
             <div class="each-input">
                 <input type="number" value="{{result[5][0][11]}}" id="newOrEdit" name="newOrEdit" hidden/>
                 <input type="text" value="{{result[5][0][23]}}" id="form_seq" name="form_seq" hidden/>
@@ -247,7 +247,7 @@ Edit Datas
             <div>
                 <button class="edit-btn" type="button" onclick="showBtnAndRemoveDisabled(this)">Edit</button>
                 <button type="submit" class="submit-btn d-none">Submit</button>
-                <button class="discard-btn"><a class="nav-link" onclick="goBackToPreviousLocation()">Discard</a></button>
+                <button class="discard-btn"><a class="nav-link" href="{{url_for('views.show_service_datas',typ='psfu-calls')}}">Discard</a></button>
             </div>
             <div>
                 <button class="delete-btn" type="button" onclick="deleteAllServiceDatas('{{result[0][12]}}','psfu-calls')">Delete the Whole Form</button>
@@ -542,6 +542,15 @@ Edit Datas
                 <div >
                     <small>Current Shop</small><br>
                     <span><b>{{result[0][0][4]}}</b></span>
+                </div>
+                <div >
+                    <small>Team</small><br>
+                    <span><b>{{result[0][0][9]}}</b></span>
+                    <select class="d-none form-select" name="team_id">
+                    {% for data in result[3] %}
+                        <option value="{{data[0]}}" {%if data[0] == result[0][0][8] %} selected {% endif %} >{{data[1]}}</option>
+                    {% endfor %}
+                    </select>
                 </div>
                 <div >
                     <small>Status</small><br>

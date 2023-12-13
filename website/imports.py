@@ -264,8 +264,8 @@ def show_create_form(typ,mgs=None):
         result.append(datetime.now().year)
         cur.execute("SELECT id,name FROM descriptions;")
         result.append(cur.fetchall())
-        cur.execute("SELECT 'JC/' || RIGHT(EXTRACT(YEAR FROM NOW())::TEXT,2) || '/' || TO_CHAR(EXTRACT(MONTH FROM NOW()),'FM00') || '/' || COALESCE((SELECT TO_CHAR(RIGHT(seq, 2)::INT + 1, 'FM0000') FROM checkinoutform ORDER BY seq DESC LIMIT 1),'0001');")
-        result.append(cur.fetchone()[0])
+        # cur.execute("SELECT 'JC/' || RIGHT(EXTRACT(YEAR FROM NOW())::TEXT,2) || '/' || TO_CHAR(EXTRACT(MONTH FROM NOW()),'FM00') || '/' || COALESCE((SELECT TO_CHAR(RIGHT(seq, 2)::INT + 1, 'FM0000') FROM checkinoutform ORDER BY seq DESC LIMIT 1),'0001');")
+        # result.append(cur.fetchone()[0])
     elif typ == 'customers-create':
         result = [datetime.now().strftime("%Y-%m-%d")]
         cur.execute("SELECT 'CUS'||LPAD((id+1)::text,7,'0') FROM customer ORDER BY id DESC LIMIT 1;")
@@ -409,7 +409,22 @@ def keep_in_import(typ):
             approve = request.form.get("approve")
             edit = request.form.get("newOrEdit")
             status = request.form.get("status")
-            form_seq = request.form.get("form_seq")
+
+            if edit:
+                form_seq = request.form.get("form_seq")
+            else:
+                cur.execute(""" SELECT
+                                    'JC' ||
+                                    RIGHT(EXTRACT(YEAR FROM %s::date)::TEXT, 2) || '/' ||
+                                    TO_CHAR(EXTRACT(MONTH FROM %s::date), 'FM00') || '/' ||
+                                    TO_CHAR(
+                                        COALESCE(
+                                        (SELECT (SPLIT_PART(seq, '/', 3)::int) + 1 FROM checkinoutform WHERE EXTRACT(MONTH FROM job_date) = EXTRACT(MONTH FROM %s::date) AND EXTRACT(YEAR FROM job_date) = EXTRACT(YEAR FROM %s::date) ORDER BY seq DESC LIMIT 1),
+                                        '0001'
+                                        ),'FM0000'); 
+                            """,(job_date, job_date, job_date, job_date))
+                form_seq = cur.fetchone()[0]
+
             no_error = False
 
             print(approve)
@@ -556,7 +571,6 @@ def keep_in_import(typ):
                                 SELECT %s,%s,%s,%s
                                 WHERE NOT EXISTS (SELECT 1 FROM shop_leaves WHERE shop_id = %s AND start_date = %s AND end_date = %s and remark = %s);"""
                                 ,(shop_id,start_dt,end_dt,remark,shop_id,start_dt,end_dt,remark))
-                    
                     cur.execute(""" INSERT INTO leaves(leave_type_id,shop_id,technician_id,start_date,end_date,remark)
                                         SELECT (SELECT id FROM leave_type WHERE name = %s),%s,tech.id,%s,%s,%s FROM technicians tech
                                         INNER JOIN (
@@ -601,13 +615,15 @@ def keep_in_import(typ):
             tech_name  = request.form.get("tech")
             if tech_name:
                 tech_name = tech_name.strip()
+            team_id = request.form.get("team_id")
             tech_id = request.form.get("tech_id")
             edit_form = False
             if tech_id:
                 if tech_name:
-                    cur.execute("UPDATE technicians SET name = %s WHERE id = %s AND NOT EXISTS (SELECT 1 FROM technicians WHERE name = %s) RETURNING id;",(tech_name,tech_id,tech_name))
+                    cur.execute("UPDATE technicians SET name = %s  WHERE id = %s AND NOT EXISTS (SELECT 1 FROM technicians WHERE name = %s) RETURNING id;",(tech_name,tech_id,tech_name))
                     if not cur.fetchone():
                         mgs = "Name is already Existed..."
+                    cur.execute("UPDATE technicians SET team_id = %s WHERE id = %s;",(team_id,tech_id))
                 else:
                     from_shop = request.form.get("from-shop")
                     to_shop = request.form.get("to-shop")
@@ -627,7 +643,7 @@ def keep_in_import(typ):
 		                                        WHEN his.to_date IS NULL THEN 1
 							                    WHEN CURRENT_DATE BETWEEN his.from_date AND his.to_date THEN 0
 		                                        ELSE 2
-                                            END AS flag_shop
+                                            END AS flag_shop , tech.team_id , team.name
                                     FROM technicians_transfer AS his
                                 LEFT JOIN technicians AS tech
                                     ON tech.id = his.technician_id
@@ -635,11 +651,23 @@ def keep_in_import(typ):
                                     ON from_shop.id = his.from_shop_id
                                 LEFT JOIN shop AS to_shop
                                     ON to_shop.id = his.to_shop_id
+                                LEFT JOIN technician_team AS team
+                                    ON team.id = tech.team_id
                                 WHERE tech.id = %s
 				                    ORDER BY flag_shop;""",(tech_id,))
                 result = []
                 result.append(cur.fetchall())
                 cur.execute("SELECT id,name FROM shop;")
+                result.append(cur.fetchall())
+                cur.execute("""SELECT lt.name,remark,start_date,end_date,end_date-start_date
+                                FROM leaves 
+                                INNER JOIN leave_type AS lt
+                                ON lt.id = leaves.leave_type_id
+                                WHERE technician_id = %s
+                                ORDER BY start_date DESC;
+                                """,(tech_id,))
+                result.append(cur.fetchall())
+                cur.execute("SELECT id,name FROM technician_team;")
                 result.append(cur.fetchall())
                 return render_template('edit_form.html',result = result,typ=typ, credentials = credentials ,b_units = b_units, mgs=mgs)
             
@@ -650,7 +678,7 @@ def keep_in_import(typ):
             if not data:
                 mgs = 'Invalid Shop / Business Unit'
             else:
-                cur.execute(""" INSERT INTO technicians (name,business_unit_id,shop_id) VALUES (%s,%s,%s) ON CONFLICT (name) DO NOTHING RETURNING id;""",(tech_name,data[0],data[1]))
+                cur.execute(""" INSERT INTO technicians (name,business_unit_id,shop_id,team_id) VALUES (%s,%s,%s,%s) ON CONFLICT (name) DO NOTHING RETURNING id;""",(tech_name,data[0],data[1],team_id))
                 tech_id = cur.fetchone()
                 if not tech_id:
                     mgs = 'Technician Name is already existed....'

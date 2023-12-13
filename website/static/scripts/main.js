@@ -39,7 +39,8 @@ function showDropdown(btn){
 var imgCharData;
 if (window.location.href.endsWith("/get-report")){
     dates = JSON.parse(localStorage.getItem('date'))
-    fetch(`/get-graph-report/${dates[0]}/${dates[1]}/${dates[2]}/${dates[3]}`)
+    console.log(`/get-graph-report/${dates[0]}/${dates[1]}/${dates[2]}/${dates[3]}/${dates[4]}`)
+    fetch(`/get-graph-report/${dates[0]}/${dates[1]}/${dates[2]}/${dates[3]}/${dates[4]}`)
     .then(response => response.json())
     .then(result => {
         let caption = document.getElementsByClassName("for-graph-caption")[0].textContent
@@ -637,7 +638,7 @@ function deleteAllServiceDatas(idd,db){
                 document.getElementById('errorMessageDisplayer').textContent = "You can't delete this data as some data depends on this.."
                 document.getElementsByClassName("errorModal")[0].click()
             }else{
-                window.location.href = window.location.href
+                window.location.href = document.getElementsByClassName("discard-btn")[0].children[0].href
             }
         })
         .catch(err => console.log(err))
@@ -1259,16 +1260,19 @@ function changeTabOver(btn, idd){
 function showTechnicianInput(btn){
     const techanicianDetailCard = document.getElementById("techanichianDetailCard");
     const hiddeninput = techanicianDetailCard.querySelectorAll("input");
+    const hiddenselect = techanicianDetailCard.querySelector("select");
     const currentValue = techanicianDetailCard.querySelectorAll("span");
-
+    console.log(currentValue);
     if(btn.innerText == "Edit"){
         btn.classList.add("d-none");
         btn.nextElementSibling.classList.remove("d-none");
         btn.nextElementSibling.nextElementSibling.setAttribute("onclick","removeTechnicianInput(this)")
         btn.nextElementSibling.nextElementSibling.children[0].setAttribute("onclick", "return false;")
         currentValue[0].hidden = true;
+        currentValue[2].hidden = true;
         hiddeninput[0].value = currentValue[0].innerText;
         hiddeninput[0].classList.remove("d-none");
+        hiddenselect.classList.remove("d-none")
     }
 }
 
@@ -1276,11 +1280,14 @@ function removeTechnicianInput(btn){
     const techanicianDetailCard = document.getElementById("techanichianDetailCard");
     const hiddeninput = techanicianDetailCard.querySelectorAll("input");
     const currentValue = techanicianDetailCard.querySelectorAll("span");
+    const hiddenselect = techanicianDetailCard.querySelector("select");
     btn.previousElementSibling.previousElementSibling.classList.remove("d-none");
     btn.previousElementSibling.classList.add("d-none");
     btn.children[0].removeAttribute("onclick");
     currentValue[0].hidden = false;
+    currentValue[2].hidden = false;
     hiddeninput[0].classList.add("d-none");
+    hiddenselect.classList.add("d-none");
 
 }
 

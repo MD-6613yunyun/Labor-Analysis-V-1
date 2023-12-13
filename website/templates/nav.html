@@ -126,6 +126,26 @@
                                 </select>                      
                             </div>
                         </div>
+                        <div class="row mt-3" id="reportType">
+                            <div class="col">  
+                                <input class="form-check-input" checked  name="report-type" type="radio" value="1,2" id="flexRadioDefault1">
+                                <label class="form-check-label" for="flexRadioDefault1">
+                                    All
+                                </label> 
+                            </div>
+                            <div class="col">  
+                                <input class="form-check-input" name="report-type" type="radio" value="2" id="flexRadioDefault2">
+                                <label class="form-check-label" for="flexRadioDefault2">
+                                    BP
+                                </label>  
+                            </div>
+                            <div class="col">
+                                <input class="form-check-input" name="report-type" type="radio" value="1" id="flexRadioDefault3">
+                                <label class="form-check-label" for="flexRadioDefault3">
+                                    Service
+                                </label>           
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -167,7 +187,16 @@
                 end_dt = document.getElementById("end-dt").value
                 bi_id = document.getElementById("bi").value
                 shop_id = document.getElementById("shop").value
-                localStorage.setItem("date",JSON.stringify([start_dt,end_dt,bi_id,shop_id]))                
+                let report_type = 'all'
+                var ele = document.getElementsByName('report-type');
+                for (i = 0; i < ele.length; i++) {
+                    if (ele[i].checked){
+                        report_type = ele[i].value;
+                        break;
+                    }
+                }
+
+                localStorage.setItem("date",JSON.stringify([start_dt,end_dt,bi_id,shop_id,report_type]))                
             }
 
             function check_details(chk){
@@ -193,14 +222,16 @@
                     let summarize = document.getElementById('summary-for-report')
                     summarize.classList.add("d-none")
                     summarize.children[1].checked = false
-
                 }
+                document.getElementById("reportType").classList.remove("d-none")
                 if (txt == "get_report"){
                     name = 'Job Ability Report'
-                    form.setAttribute('action',`{{url_for('views.get_report')}}`)   
+                    form.setAttribute('action',`{{url_for('views.get_report')}}`) 
+                    document.getElementById("reportType").classList.remove("d-none")  
                 }else if (txt == 'job-analysis'){
                     name = 'Job Analysis Report'
                     form.setAttribute('action',`{{url_for('views.job_analysis_report')}}`)
+                    document.getElementById("reportType").classList.add("d-none")
                 }
                 else if(txt == 'check_in_report' || txt == 'idle') {
                     name = txt == 'check_in_report' ? 'Job Control' : 'Idle Report'
@@ -211,6 +242,7 @@
                 else{
                     name = 'PIC Report'
                     form.setAttribute('action',`{{url_for('views.pic_report')}}`) 
+                    document.getElementById("reportType").classList.remove("d-none")  
                 }
                 form.previousElementSibling.children[0].textContent = `Data Option for ${name}`
             }

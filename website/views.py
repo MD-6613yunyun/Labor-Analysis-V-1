@@ -852,7 +852,47 @@ def show_service_datas(typ,mgs=None):
                 print(result)
                 return render_template('edit_form.html',result = result,typ=typ, credentials = credentials ,b_units = b_units)
         elif typ == 'technician':
-            query = f""" SELECT tech.id,tech.name,bi.name,shop.name,team.name FROM technicians tech
+            query = f""" 
+                SELECT 
+                            tech.id,
+                            tech.name,
+                            bi.name,
+                            CASE 
+                                WHEN transfer.to_shop_id = 5 THEN 
+                            'INACTIVE - ' || 
+                                    (SELECT name FROM shop WHERE id = transfer.from_shop_id)
+                                ELSE 
+                                    shop.name
+                            END AS shop_name,
+                            team.name
+                        FROM 
+                            technicians tech
+                        INNER JOIN (
+                            SELECT 
+                                technician_id, 
+                                from_shop_id,
+                                to_shop_id 
+                            FROM 
+                                technicians_transfer
+                            WHERE 
+                                (CURRENT_DATE BETWEEN from_date AND to_date OR CURRENT_DATE >= from_date AND to_date IS NULL)
+                        ) AS transfer ON transfer.technician_id = tech.id
+                        LEFT JOIN shop ON shop.id = transfer.to_shop_id
+                        LEFT JOIN res_partner AS bi
+                        ON bi.id = shop.business_unit_id
+                        LEFT JOIN technician_team AS team
+                        ON team.id = tech.team_id
+                        WHERE 
+                            tech.id != 0 AND ( 
+                            (transfer.to_shop_id = 5 AND transfer.from_shop_id in ({user_roles_lst}) )
+                                OR  
+                                transfer.to_shop_id IN ({user_roles_lst})
+                            ) AND {column}.name iLIKE '%{val}%'
+                        ORDER BY 
+                            tech.name;
+            """
+            query = f""" SELECT tech.id,tech.name,bi.name,shop.name,team.name
+                        FROM technicians tech
                             INNER JOIN (
                                 SELECT technician_id, to_shop_id FROM technicians_transfer
                                 WHERE 
